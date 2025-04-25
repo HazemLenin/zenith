@@ -4,7 +4,7 @@ import { sqliteTable } from "drizzle-orm/sqlite-core";
 import { UserRole, users } from "./user.model";
 import { relations } from "drizzle-orm";
 
-export const instructorProfiles = sqliteTable("users", {
+export const instructorProfiles = sqliteTable("instructor_profiles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").references((): AnySQLiteColumn => users.id),
   coursesCount: integer("courses_count").default(0),

@@ -36,7 +36,15 @@ export const users = sqliteTable("users", {
   ),
 });
 
+export type User = typeof users.$inferInsert;
+
 export const usersRelations = relations(users, ({ one }) => ({
-  instructor: one(instructorProfiles),
-  student: one(studentProfiles),
+  instructor: one(instructorProfiles, {
+    fields: [users.instructorProfileId],
+    references: [instructorProfiles.id],
+  }),
+  student: one(studentProfiles, {
+    fields: [users.studentProfileId],
+    references: [studentProfiles.id],
+  }),
 }));

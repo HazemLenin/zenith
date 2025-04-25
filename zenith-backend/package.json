@@ -23,9 +23,15 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.4",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/pdfkit": "^0.13.9",
+    "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.9.1",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.42.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pdfkit": "^0.17.0"
   }
 }

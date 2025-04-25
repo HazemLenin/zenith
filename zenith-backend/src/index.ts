@@ -2,7 +2,7 @@ import express from "express";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import dotenv from "dotenv";
-
+import * as schema from "./models";
 // Load environment variables
 dotenv.config();
 
@@ -15,13 +15,17 @@ app.use(express.json());
 
 // Initialize SQLite database
 const sqlite = new Database("sqlite.db");
-const db = drizzle(sqlite);
+export const db = drizzle(sqlite, { schema });
 
 // Import routes
-import userRoutes from "./routes/user.routes";
+import authRoutes from "./routes/auth.routes";
+import usersRoutes from "./routes/users.routes";
+import skillsRoutes from "./routes/skills.routes";
 
 // Use routes
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/skills", skillsRoutes);
 
 // Start server
 app.listen(port, () => {
