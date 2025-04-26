@@ -147,7 +147,14 @@ export class AuthController {
 
       // Generate token
       const token = jwt.sign(
-        { id: user.id, username: user.username },
+        {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
         JWT_SECRET
       );
 

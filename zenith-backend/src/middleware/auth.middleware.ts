@@ -6,16 +6,8 @@ import { eq } from "drizzle-orm";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: number;
-    email: string;
-    role: string;
-  };
-}
-
 export const authMiddleware = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -35,6 +27,9 @@ export const authMiddleware = async (
         id: true,
         email: true,
         role: true,
+        firstName: true,
+        lastName: true,
+        username: true,
       },
     });
 

@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "../index";
 import { users } from "../models/user.model";
-import { instructorProfiles } from "../models/instructorProfile.model";
-import { studentProfiles } from "../models/studentProfile.model";
 import { studentSkills } from "../models/studentSkill.model";
 import {
   StudentProfileResponse,

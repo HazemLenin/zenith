@@ -1,31 +1,23 @@
 import { Router } from "express";
 import { SkillsController } from "../controllers/skills.controller";
-import { requireStudentRole } from "../middleware/role.middleware";
-import { authMiddleware } from "../middleware/auth.middleware";
+import { studentMiddleware } from "../middleware/student.middleware";
 
 const router = Router();
 
 // Get all skill categories
-router.get(
-  "/categories",
-  authMiddleware,
-  requireStudentRole,
-  SkillsController.getCategories
-);
+router.get("/categories", studentMiddleware, SkillsController.getCategories);
 
 // Get skills by category ID
 router.get(
   "/categories/:categoryId/skills",
-  authMiddleware,
-  requireStudentRole,
+  studentMiddleware,
   SkillsController.getSkillsByCategory
 );
 
 // Update student skills
 router.put(
   "/students/:studentId/skills",
-  authMiddleware,
-  requireStudentRole,
+  studentMiddleware,
   SkillsController.updateStudentSkills
 );
 

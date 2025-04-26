@@ -15,24 +15,11 @@ import {
   CourseEnrollmentViewModel,
   ChapterDetailsViewModel,
 } from "../viewmodels/course.viewmodel";
-import { authMiddleware } from "../middleware/auth.middleware";
-import { instructorMiddleware } from "../middleware/instructor.middleware";
-import { eq, and, sql } from "drizzle-orm";
-import { InferModel } from "drizzle-orm";
+import { eq, and, sql, InferInsertModel } from "drizzle-orm";
 import PDFDocument from "pdfkit";
 
-// Extend Express Request type to include user
-declare module "express" {
-  interface Request {
-    user?: {
-      id: number;
-      role: string;
-    };
-  }
-}
-
-type NewCourse = InferModel<typeof courses, "insert">;
-type NewEnrollment = InferModel<typeof enrollments, "insert">;
+type NewCourse = InferInsertModel<typeof courses>;
+type NewEnrollment = InferInsertModel<typeof enrollments>;
 
 export class CoursesController {
   // Upload course (instructor only)
