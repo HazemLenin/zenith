@@ -7,7 +7,18 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 // Load environment variables
 dotenv.config();
-
+declare module "express" {
+  interface Request {
+    user?: {
+      id: number;
+      firstName: string;
+      lastName: string;
+      username: string;
+      email: string;
+      role: string;
+    };
+  }
+}
 // Initialize Express app
 const app = express();
 const httpServer = createServer(app);

@@ -4,14 +4,6 @@ import { instructorProfiles } from "../models";
 import { eq } from "drizzle-orm";
 
 // Extend Express Request type to include user
-declare module "express" {
-  interface Request {
-    user?: {
-      id: number;
-      role: string;
-    };
-  }
-}
 
 export const instructorMiddleware = async (
   req: Request,

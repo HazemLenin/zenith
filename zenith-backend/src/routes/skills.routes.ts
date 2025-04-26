@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { SkillsController } from "../controllers/skills.controller";
-import { requireStudentRole } from "../middleware/role.middleware";
+import { studentMiddleware } from "../middleware/student.middleware";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
 router.get(
   "/categories",
   authMiddleware,
-  requireStudentRole,
+  studentMiddleware,
   SkillsController.getCategories
 );
 
@@ -17,7 +17,7 @@ router.get(
 router.get(
   "/categories/:categoryId/skills",
   authMiddleware,
-  requireStudentRole,
+  studentMiddleware,
   SkillsController.getSkillsByCategory
 );
 
@@ -25,7 +25,7 @@ router.get(
 router.put(
   "/students/:studentId/skills",
   authMiddleware,
-  requireStudentRole,
+  studentMiddleware,
   SkillsController.updateStudentSkills
 );
 

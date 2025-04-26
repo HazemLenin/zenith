@@ -3,14 +3,14 @@ import { db } from "../index";
 import { users } from "../models/user.model";
 import { eq } from "drizzle-orm";
 
-export const requireStudentRole = async (
+export const studentMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     // Get the user ID from the authenticated user (assuming it's stored in req.user)
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -35,7 +35,7 @@ export const requireStudentRole = async (
     }
 
     // Add user to request for later use
-    (req as any).user = user;
+    req.user = user;
     next();
   } catch (error) {
     console.error("Role middleware error:", error);
