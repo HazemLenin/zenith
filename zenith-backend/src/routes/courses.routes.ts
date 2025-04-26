@@ -6,19 +6,9 @@ import { instructorMiddleware } from "../middleware/instructor.middleware";
 const router = Router();
 
 // Course routes
-router.post(
-  "/",
-  authMiddleware,
-  instructorMiddleware,
-  CoursesController.uploadCourse
-);
+router.post("/", instructorMiddleware, CoursesController.uploadCourse);
 router.get("/", authMiddleware, CoursesController.getCourses);
-router.get(
-  "/my-courses",
-  authMiddleware,
-  instructorMiddleware,
-  CoursesController.getMyCourses
-);
+router.get("/my-courses", instructorMiddleware, CoursesController.getMyCourses);
 router.get("/:id", authMiddleware, CoursesController.getCourseDetails);
 router.get(
   "/:id/chapters",
