@@ -10,3 +10,5 @@ export * from "./studentSkill.model";
 export * from "./skillExchange.model";
 export * from "./article.model";
 export * from "./video.model";
+export * from "./chat.model";
+export * from "./message.model";

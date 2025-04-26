@@ -6,6 +6,8 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { instructorProfiles } from "./instructorProfile.model";
 import { studentProfiles } from "./studentProfile.model";
+import { chats } from "./chat.model";
+import { messages } from "./message.model";
 import { relations } from "drizzle-orm";
 
 export const UserRole = {
@@ -38,7 +40,7 @@ export const users = sqliteTable("users", {
 
 export type User = typeof users.$inferInsert;
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   instructor: one(instructorProfiles, {
     fields: [users.instructorProfileId],
     references: [instructorProfiles.id],
@@ -47,4 +49,7 @@ export const usersRelations = relations(users, ({ one }) => ({
     fields: [users.studentProfileId],
     references: [studentProfiles.id],
   }),
+  chatsAsUser1: many(chats, { relationName: "user1" }),
+  chatsAsUser2: many(chats, { relationName: "user2" }),
+  sentMessages: many(messages, { relationName: "sender" }),
 }));
