@@ -8,15 +8,12 @@ import {
   enrollments,
   users,
 } from "../models";
-import {
-  CourseUploadViewModel,
-  CourseListViewModel,
-  CourseDetailsViewModel,
-  CourseEnrollmentViewModel,
-  ChapterDetailsViewModel,
-} from "../viewmodels/course.viewmodel";
 import { eq, and, sql, InferInsertModel } from "drizzle-orm";
 import PDFDocument from "pdfkit";
+import { CourseUploadViewModel } from "../viewmodels/course/courseUpload.viewmodel";
+import { CourseEnrollmentViewModel } from "../viewmodels/course/courseEnrollment.viewmodel";
+import { ChapterDetailsViewModel } from "../viewmodels/course/chapterDetails.viewmodel";
+import { ErrorViewModel } from "../viewmodels/error.viewmodel";
 
 type NewCourse = InferInsertModel<typeof courses>;
 type NewEnrollment = InferInsertModel<typeof enrollments>;
@@ -77,7 +74,9 @@ export class CoursesController {
       res.status(201).json(result);
     } catch (error) {
       console.error("Error uploading course:", error);
-      res.status(500).json({ message: "Error uploading course" });
+      res
+        .status(500)
+        .json(ErrorViewModel.internalError("Error uploading course").toJSON());
     }
   }
 
@@ -92,9 +91,15 @@ export class CoursesController {
           title: courses.title,
           description: courses.description,
           price: courses.price,
-          instructorId: courses.instructorId,
+          instructor: {
+            id: courses.instructorId,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            username: users.username,
+          },
         })
         .from(courses)
+        .leftJoin(users, eq(users.instructorProfileId, courses.instructorId))
         .where(
           searchQuery
             ? sql`${courses.title} LIKE ${`%${searchQuery}%`} OR ${
@@ -106,7 +111,9 @@ export class CoursesController {
       res.json(courseList);
     } catch (error) {
       console.error("Error fetching courses:", error);
-      res.status(500).json({ message: "Error fetching courses" });
+      res
+        .status(500)
+        .json(ErrorViewModel.internalError("Error fetching courses").toJSON());
     }
   }
 
@@ -121,25 +128,37 @@ export class CoursesController {
           title: courses.title,
           description: courses.description,
           price: courses.price,
-          instructorId: courses.instructorId,
+          instructor: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            username: users.username,
+          },
           chaptersCount:
             sql<number>`(SELECT COUNT(*) FROM ${courseChapters} WHERE ${courseChapters.courseId} = ${courses.id})`.as(
               "chaptersCount"
             ),
         })
         .from(courses)
+        .leftJoin(users, eq(users.instructorProfileId, courses.instructorId))
         .where(eq(courses.id, courseId))
         .limit(1);
 
       if (!course.length) {
-        res.status(404).json({ message: "Course not found" });
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("Course not found").toJSON());
         return;
       }
 
       res.json(course[0]);
     } catch (error) {
       console.error("Error fetching course details:", error);
-      res.status(500).json({ message: "Error fetching course details" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError("Error fetching course details").toJSON()
+        );
     }
   }
 
@@ -172,7 +191,13 @@ export class CoursesController {
       res.json(courseList);
     } catch (error) {
       console.error("Error fetching instructor courses:", error);
-      res.status(500).json({ message: "Error fetching instructor courses" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError(
+            "Error fetching instructor courses"
+          ).toJSON()
+        );
     }
   }
 
@@ -197,7 +222,24 @@ export class CoursesController {
       if (existingEnrollment.length) {
         res
           .status(400)
-          .json({ message: "Student is already enrolled in this course" });
+          .json(
+            ErrorViewModel.validationError(
+              "Student is already enrolled in this course"
+            ).toJSON()
+          );
+        return;
+      }
+
+      const course = await db
+        .select({ price: courses.price })
+        .from(courses)
+        .where(eq(courses.id, enrollmentData.courseId))
+        .limit(1);
+
+      if (!course.length) {
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("Course not found").toJSON());
         return;
       }
 
@@ -207,14 +249,16 @@ export class CoursesController {
         .values({
           courseId: enrollmentData.courseId,
           studentId: studentId,
-          paid: false,
+          paid: course[0].price,
         } as NewEnrollment)
         .returning();
 
       res.status(201).json(enrollment);
     } catch (error) {
       console.error("Error enrolling student:", error);
-      res.status(500).json({ message: "Error enrolling student" });
+      res
+        .status(500)
+        .json(ErrorViewModel.internalError("Error enrolling student").toJSON());
     }
   }
 
@@ -234,236 +278,174 @@ export class CoursesController {
         .orderBy(courseChapters.orderIndex);
 
       if (!chapters.length) {
-        res.status(404).json({ message: "No chapters found for this course" });
+        res
+          .status(404)
+          .json(
+            ErrorViewModel.notFound(
+              "No chapters found for this course"
+            ).toJSON()
+          );
         return;
       }
 
       res.json(chapters);
     } catch (error) {
       console.error("Error fetching course chapters:", error);
-      res.status(500).json({ message: "Error fetching course chapters" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError(
+            "Error fetching course chapters"
+          ).toJSON()
+        );
     }
   }
 
   // Get chapter details for enrolled users
   static async getChapterDetails(req: Request, res: Response): Promise<void> {
     try {
-      const courseId = parseInt(req.params.courseId);
-      const chapterId = parseInt(req.params.chapterId);
-      const userId = req.user!.id;
+      const { courseId, chapterId } = req.params;
 
-      // Check if user is enrolled in the course
+      // Check if user is enrolled
       const enrollment = await db
         .select()
         .from(enrollments)
         .where(
           and(
-            eq(enrollments.courseId, courseId),
-            eq(enrollments.studentId, userId)
+            eq(enrollments.courseId, parseInt(courseId)),
+            eq(enrollments.studentId, req.user!.id)
           )
         )
         .limit(1);
 
       if (!enrollment.length) {
-        res.status(403).json({
-          message:
-            "You must be enrolled in this course to view chapter details",
-        });
+        res
+          .status(403)
+          .json(
+            ErrorViewModel.forbidden(
+              "You must be enrolled in this course to view chapter details"
+            ).toJSON()
+          );
         return;
       }
 
-      // Get chapter details
-      const [chapter] = await db
-        .select({
-          id: courseChapters.id,
-          title: courseChapters.title,
-          orderIndex: courseChapters.orderIndex,
-        })
+      const chapter = await db
+        .select()
         .from(courseChapters)
-        .where(
-          and(
-            eq(courseChapters.id, chapterId),
-            eq(courseChapters.courseId, courseId)
-          )
-        )
+        .where(eq(courseChapters.id, parseInt(chapterId)))
         .limit(1);
 
-      if (!chapter) {
-        res.status(404).json({ message: "Chapter not found" });
+      if (!chapter.length) {
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("Chapter not found").toJSON());
         return;
       }
 
-      // Get videos for the chapter
       const chapterVideos = await db
-        .select({
-          id: videos.id,
-          title: videos.title,
-          videoUrl: videos.videoUrl,
-        })
+        .select()
         .from(videos)
-        .where(eq(videos.chapterId, chapterId));
+        .where(eq(videos.chapterId, parseInt(chapterId)));
 
-      // Get articles for the chapter
       const chapterArticles = await db
-        .select({
-          id: articles.id,
-          title: articles.title,
-          content: articles.content,
-        })
+        .select()
         .from(articles)
-        .where(eq(articles.chapterId, chapterId));
+        .where(eq(articles.chapterId, parseInt(chapterId)));
 
       const response: ChapterDetailsViewModel = {
-        ...chapter,
-        videos: chapterVideos,
-        articles: chapterArticles,
+        id: chapter[0].id,
+        title: chapter[0].title,
+        orderIndex: chapter[0].orderIndex,
+        videos: chapterVideos.map((video) => ({
+          id: video.id,
+          title: video.title,
+          videoUrl: video.videoUrl,
+        })),
+        articles: chapterArticles.map((article) => ({
+          id: article.id,
+          title: article.title,
+          content: article.content,
+        })),
       };
 
       res.json(response);
     } catch (error) {
       console.error("Error fetching chapter details:", error);
-      res.status(500).json({ message: "Error fetching chapter details" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError(
+            "Error fetching chapter details"
+          ).toJSON()
+        );
     }
   }
 
-  // Generate course completion certificate as PDF
+  // Generate certificate for completed course
   static async generateCertificate(req: Request, res: Response): Promise<void> {
     try {
-      const courseId = parseInt(req.params.courseId);
-      const userId = req.user!.id;
+      const { courseId } = req.params;
+      const studentId = req.user!.id;
 
-      // Check if user is enrolled in the course
+      // Check if student is enrolled
       const enrollment = await db
         .select()
         .from(enrollments)
         .where(
           and(
-            eq(enrollments.courseId, courseId),
-            eq(enrollments.studentId, userId)
+            eq(enrollments.courseId, parseInt(courseId)),
+            eq(enrollments.studentId, studentId)
           )
         )
         .limit(1);
 
       if (!enrollment.length) {
-        res.status(403).json({
-          message:
-            "You must be enrolled in this course to generate a certificate",
-        });
+        res
+          .status(403)
+          .json(
+            ErrorViewModel.forbidden(
+              "You must be enrolled in this course to generate a certificate"
+            ).toJSON()
+          );
         return;
       }
 
-      // Get user and course details
-      const [userDetails] = await db
-        .select({
-          firstName: users.firstName,
-          lastName: users.lastName,
-        })
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
+      // Generate PDF certificate
+      const doc = new PDFDocument();
+      const chunks: Buffer[] = [];
 
-      const [courseDetails] = await db
-        .select({
-          title: courses.title,
-        })
-        .from(courses)
-        .where(eq(courses.id, courseId))
-        .limit(1);
-
-      if (!userDetails || !courseDetails) {
-        res.status(404).json({ message: "User or course not found" });
-        return;
-      }
-
-      // Create PDF document
-      const doc = new PDFDocument({
-        size: "A4",
-        layout: "landscape",
+      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("end", () => {
+        const pdfBuffer = Buffer.concat(chunks);
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=certificate-${courseId}-${studentId}.pdf`
+        );
+        res.send(pdfBuffer);
       });
 
-      // Set response headers for PDF download
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=certificate-${courseId}-${userId}.pdf`
-      );
-
-      // Pipe the PDF to the response
-      doc.pipe(res);
-
-      // Add certificate content
-      // Set background color
-      doc.rect(0, 0, doc.page.width, doc.page.height).fill("#e3f2fd");
-
-      // Add border
-      const margin = 20;
+      // Add content to PDF
+      doc.fontSize(25).text("Certificate of Completion", { align: "center" });
+      doc.moveDown();
       doc
-        .rect(
-          margin,
-          margin,
-          doc.page.width - margin * 2,
-          doc.page.height - margin * 2
-        )
-        .strokeColor("#2a5c8a")
-        .lineWidth(3)
-        .stroke();
-
-      // Add certificate title
+        .fontSize(16)
+        .text(`Course: ${enrollment[0].courseId}`, { align: "center" });
+      doc.moveDown();
+      doc.fontSize(14).text(`Student ID: ${studentId}`, { align: "center" });
+      doc.moveDown();
       doc
-        .font("Helvetica-Bold")
-        .fontSize(40)
-        .fillColor("#2a5c8a")
-        .text("Certificate of Completion", 0, 100, {
-          align: "center",
-        });
+        .fontSize(12)
+        .text(`Date: ${new Date().toLocaleDateString()}`, { align: "center" });
 
-      // Add student name
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(30)
-        .fillColor("#2f327d")
-        .text(`${userDetails.firstName} ${userDetails.lastName}`, 0, 200, {
-          align: "center",
-        });
-
-      // Add completion text
-      doc
-        .font("Helvetica")
-        .fontSize(20)
-        .fillColor("#333333")
-        .text("has successfully completed the course", 0, 250, {
-          align: "center",
-        });
-
-      // Add course title
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(25)
-        .fillColor("#2f327d")
-        .text(courseDetails.title, 0, 300, {
-          align: "center",
-        });
-
-      // Add date
-      doc
-        .font("Helvetica")
-        .fontSize(15)
-        .fillColor("#333333")
-        .text(`Issued on ${new Date().toLocaleDateString()}`, 0, 400, {
-          align: "center",
-        });
-
-      // Add certificate ID at the bottom
-      const certificateId = `CERT-${courseId}-${userId}-${Date.now()}`;
-      doc.fontSize(10).text(certificateId, 0, doc.page.height - 50, {
-        align: "center",
-      });
-
-      // Finalize the PDF
       doc.end();
     } catch (error) {
       console.error("Error generating certificate:", error);
-      res.status(500).json({ message: "Error generating certificate" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError("Error generating certificate").toJSON()
+        );
     }
   }
 }
