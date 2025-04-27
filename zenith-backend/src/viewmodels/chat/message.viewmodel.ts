@@ -4,7 +4,6 @@ export interface MessageViewModel {
   senderId: number;
   content: string;
   timestamp: Date;
-  isRead: boolean;
   sender: {
     id: number;
     name: string;

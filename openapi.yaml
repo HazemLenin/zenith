@@ -161,7 +161,6 @@ components:
         senderId: { type: integer }
         chatId: { type: integer }
         createdAt: { type: string, format: date-time }
-        isRead: { type: boolean }
 
 security:
   - BearerAuth: []

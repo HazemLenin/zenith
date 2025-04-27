@@ -474,8 +474,7 @@ Response (Success):
     "senderId": 456,
     "chatId": 789,
     "content": "Helloo!",
-    "createdAt": "2024-04-27T12:00:00Z",
-    "isRead": true
+    "createdAt": "2024-04-27T12:00:00Z"
   }
 ]
 ```
@@ -504,8 +503,7 @@ Response (Success):
   "content": "Hello!",
   "senderId": 456,
   "chatId": 789,
-  "createdAt": "2024-04-27T12:00:00Z",
-  "isRead": true
+  "createdAt": "2024-04-27T12:00:00Z"
 }
 ```
 

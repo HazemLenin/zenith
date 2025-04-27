@@ -130,7 +130,6 @@ export class ChatsController {
           chatId,
           senderId: userId,
           content,
-          isRead: 1,
         } as NewMessage)
         .returning();
 

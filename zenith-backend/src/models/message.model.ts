@@ -21,9 +21,6 @@ export const messages = sqliteTable("messages", {
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-  isRead: integer("is_read", { mode: "boolean" })
-    .notNull()
-    .default(sql`0`),
 });
 
 export const messagesRelations = relations(messages, ({ one }) => ({
