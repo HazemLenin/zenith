@@ -406,7 +406,7 @@ Request Body:
   "skills": [
     {
       "skillId": 123,
-      "level": "learned" | "needed"
+      "type": "learned" | "needed"
     }
   ]
 }
@@ -418,7 +418,6 @@ Response (Success):
 [
     {
       "skillId": 123,
-      "level": "intermediate",
       "updatedAt": "2024-04-27T12:00:00Z",
       "id": 123,
       "studentId": 456,
@@ -441,19 +440,20 @@ Retrieves all chats for the authenticated user.
 Response (Success):
 
 ```json
-  [
-    "chat": {
-        "id": 123,
-        "createdAt": "024-04-27T12:00:00Z",
-        "updatedAt": "024-04-27T12:00:00Z",
-        "user1Id": 123,
-        "user2Id": 456,
-    },
-    "user": {
-        "id": 123,
-        "firstName": "Joe",
-        "lastName": "Doe",
-    }]
+{
+  "chat": {
+    "id": 123,
+    "createdAt": "2024-04-27T12:00:00Z",
+    "updatedAt": "2024-04-27T12:00:00Z",
+    "user1Id": 123,
+    "user2Id": 456
+  },
+  "user": {
+    "id": 123,
+    "firstName": "Joe",
+    "lastName": "Doe"
+  }
+}
 ```
 
 #### Get Chat Messages

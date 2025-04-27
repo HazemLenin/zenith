@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import * as schema from "./models";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+import path from "path";
+
 // Load environment variables
 dotenv.config();
 declare module "express" {
@@ -28,6 +32,13 @@ const io = new Server(httpServer, {
     methods: ["GET", "POST"],
   },
 });
+
+// Load OpenAPI specification
+const openApiSpec = YAML.load(path.join(__dirname, "../../openapi.yaml"));
+
+// Swagger setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
+
 const port = process.env.PORT || 3000;
 
 // Middleware
@@ -42,12 +53,14 @@ import authRoutes from "./routes/auth.routes";
 import usersRoutes from "./routes/users.routes";
 import skillsRoutes from "./routes/skills.routes";
 import chatRoutes from "./routes/chat.routes";
+import coursesRoutes from "./routes/courses.routes";
 
 // Use routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/skills", skillsRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/courses", coursesRoutes);
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
