@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import { db } from "../index";
 import { users } from "../models/user.model";
 import { studentSkills } from "../models/studentSkill.model";
-import {
-  StudentProfileResponse,
-  InstructorProfileResponse,
-} from "../viewmodels/user.viewmodel";
 import { eq } from "drizzle-orm";
+import { StudentProfileResponse } from "../viewmodels/user/studentProfile.viewmodel";
+import { InstructorProfileResponse } from "../viewmodels/user/instructorProfile.viewmodel";
+import { ErrorViewModel } from "../viewmodels/error.viewmodel";
+import { skills } from "../models";
 
 export class UsersController {
   static async getUserByUsername(
@@ -26,17 +26,26 @@ export class UsersController {
       });
 
       if (!user) {
-        res.status(404).json({ message: "User not found" });
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("User not found").toJSON());
         return;
       }
 
       if (user.role === "student" && user.student) {
-        // Get student skills
-        const skills = await db
-          .select()
+        // JOIN studentSkills with skill table
+        const studentSkillsResult = await db
+          .select({
+            id: studentSkills.id,
+            type: studentSkills.type,
+            skillId: studentSkills.skillId,
+            skillName: skills.title,
+          })
           .from(studentSkills)
+          .innerJoin(skills, eq(studentSkills.skillId, skills.id)) // join on skillId
           .where(eq(studentSkills.studentId, user.student.id));
 
+        // Now map them into your response!
         const response: StudentProfileResponse = {
           user: {
             id: user.id,
@@ -49,13 +58,10 @@ export class UsersController {
           profile: {
             id: user.student.id,
             points: (user.student as any).points,
-            skills: skills.map((skill) => ({
-              id: skill.id,
-              skillId: skill.skillId,
-              type: skill.type,
-            })),
+            skills: studentSkillsResult,
           },
         };
+
         res.json(response);
       } else if (user.role === "instructor" && user.instructor) {
         const response: InstructorProfileResponse = {
@@ -69,16 +75,18 @@ export class UsersController {
           },
           profile: {
             id: user.instructor.id,
-            coursesCount: (user.instructor as any).coursesCount,
+            coursesCount: user.instructor.coursesCount,
           },
         };
         res.json(response);
       } else {
-        res.status(404).json({ message: "User not found" });
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("User not found").toJSON());
       }
     } catch (error) {
       console.error("Profile error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json(ErrorViewModel.internalError().toJSON());
     }
   }
 }

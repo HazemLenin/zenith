@@ -3,55 +3,64 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { db } from "../index";
 import { users, UserRole, UserRoleType, User } from "../models/user.model";
-import {
-  SignupRequest,
-  LoginRequest,
-  AuthResponse,
-} from "../viewmodels/auth.viewmodel";
+import { AuthResponse } from "../viewmodels/auth/authResponse.viewmodel";
 import { instructorProfiles } from "../models/instructorProfile.model";
 import { studentProfiles } from "../models/studentProfile.model";
-import { eq } from "drizzle-orm";
+import { eq, InferInsertModel } from "drizzle-orm";
+import { SignupRequest } from "../viewmodels/auth/signup.viewmodel";
+import { LoginRequest } from "../viewmodels/auth/login.viewmodel";
+import { ErrorViewModel } from "../viewmodels/error.viewmodel";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+
+type NewUser = InferInsertModel<typeof users>;
 
 export class AuthController {
   static async signup(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        firstName,
-        lastName,
-        username,
-        email,
-        password,
-        role = "student",
-      } = req.body;
+      const signupRequest = req.body as SignupRequest;
 
       // Validate role
-      if (role && role !== "student" && role !== "instructor") {
+      if (
+        signupRequest.role &&
+        signupRequest.role !== "student" &&
+        signupRequest.role !== "instructor"
+      ) {
         res
           .status(400)
-          .json({ message: "Role must be either 'student' or 'instructor'" });
+          .json(
+            ErrorViewModel.validationError(
+              "Role must be either 'student' or 'instructor'"
+            ).toJSON()
+          );
         return;
       }
 
       // Check if user already exists
       const existingUser = await db.query.users.findFirst({
         where: (users, { or, eq }) =>
-          or(eq(users.email, email), eq(users.username, username)),
+          or(
+            eq(users.email, signupRequest.email),
+            eq(users.username, signupRequest.username)
+          ),
       });
 
       if (existingUser) {
         const duplicatedField =
-          existingUser.email === email ? "email" : "username";
-        res.status(400).json({
-          message: `A user with this ${duplicatedField} already exists`,
-        });
+          existingUser.email === signupRequest.email ? "email" : "username";
+        res
+          .status(400)
+          .json(
+            ErrorViewModel.validationError(
+              `A user with this ${duplicatedField} already exists`
+            ).toJSON()
+          );
         return;
       }
 
       // Hash password
       const salt = await bcrypt.genSalt(10);
-      const passwordHash = await bcrypt.hash(password, salt);
+      const passwordHash = await bcrypt.hash(signupRequest.password, salt);
 
       // Start a transaction
       const result = await db.transaction(async (tx) => {
@@ -59,17 +68,14 @@ export class AuthController {
         const [newUser] = await tx
           .insert(users)
           .values({
-            firstName,
-            lastName,
-            username,
-            email,
+            ...signupRequest,
             passwordHash,
-            role: role as UserRoleType,
-          } as any)
+            role: signupRequest.role as UserRoleType,
+          } as NewUser)
           .returning();
 
         // Create profile based on role
-        if (role === "instructor") {
+        if (signupRequest.role === "instructor") {
           const [instructorProfile] = await tx
             .insert(instructorProfiles)
             .values({
@@ -120,28 +126,35 @@ export class AuthController {
       res.status(201).json(response);
     } catch (error) {
       console.error("Signup error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json(ErrorViewModel.internalError().toJSON());
     }
   }
 
   static async login(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password } = req.body;
+      const loginRequest = req.body as LoginRequest;
 
       // Find user
       const user = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.email, email),
+        where: (users, { eq }) => eq(users.email, loginRequest.email),
       });
 
       if (!user) {
-        res.status(401).json({ message: "Invalid credentials" });
+        res
+          .status(401)
+          .json(ErrorViewModel.unauthorized("Invalid credentials").toJSON());
         return;
       }
 
       // Verify password
-      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      const isPasswordValid = await bcrypt.compare(
+        loginRequest.password,
+        user.passwordHash
+      );
       if (!isPasswordValid) {
-        res.status(401).json({ message: "Invalid credentials" });
+        res
+          .status(401)
+          .json(ErrorViewModel.unauthorized("Invalid credentials").toJSON());
         return;
       }
 
@@ -173,7 +186,7 @@ export class AuthController {
       res.json(response);
     } catch (error) {
       console.error("Login error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json(ErrorViewModel.internalError().toJSON());
     }
   }
 }

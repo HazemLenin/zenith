@@ -11,7 +11,7 @@ export const enrollments = sqliteTable("enrollments", {
   courseId: integer("course_id")
     .notNull()
     .references(() => courses.id),
-  paid: integer("paid", { mode: "boolean" }).notNull().default(false),
+  paid: integer("paid").notNull(),
   enrolledAt: integer("enrolled_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),

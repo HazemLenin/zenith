@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import { db } from "../db";
 import { skillCategories, skills, studentSkills } from "../models";
 import { eq } from "drizzle-orm";
-import { SkillCategoryViewModel } from "../viewmodels/skillCategory.viewmodel";
-import { SkillViewModel } from "../viewmodels/skill.viewmodel";
-import { StudentSkillViewModel } from "../viewmodels/studentSkill.viewmodel";
 import { StudentSkillTypeEnum } from "../models/studentSkill.model";
+import { SkillViewModel } from "../viewmodels/skill/skill.viewmodel";
+import { SkillCategoryViewModel } from "../viewmodels/skill/skillCategory.viewmodel";
+import { StudentSkillViewModel } from "../viewmodels/skill/studentSkill.viewmodel";
+import { ErrorViewModel } from "../viewmodels/error.viewmodel";
 
 export class SkillsController {
   static async getCategories(req: Request, res: Response) {
@@ -16,7 +17,13 @@ export class SkillsController {
       );
       res.json(viewModels);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch skill categories" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError(
+            "Failed to fetch skill categories"
+          ).toJSON()
+        );
     }
   }
 
@@ -31,7 +38,13 @@ export class SkillsController {
       const viewModels = skillsList.map((skill) => new SkillViewModel(skill));
       res.json(viewModels);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch skills by category" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError(
+            "Failed to fetch skills by category"
+          ).toJSON()
+        );
     }
   }
 
@@ -67,7 +80,13 @@ export class SkillsController {
       );
       res.json(viewModels);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update student skills" });
+      res
+        .status(500)
+        .json(
+          ErrorViewModel.internalError(
+            "Failed to update student skills"
+          ).toJSON()
+        );
     }
   }
 }

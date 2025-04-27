@@ -1,4 +1,4 @@
-import { StudentSkillTypeEnum } from "../models/studentSkill.model";
+import { StudentSkillTypeEnum } from "../../models/studentSkill.model";
 
 export class StudentSkillViewModel {
   id: number;
