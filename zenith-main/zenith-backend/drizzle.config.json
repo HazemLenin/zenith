@@ -1,9 +1,0 @@
-{
-  "out": "./src/drizzle",
-  "schema": "./src/models/*.ts",
-  "driver": "better-sqlite",
-  "dialect": "sqlite",
-  "dbCredentials": {
-    "url": "sqlite.db"
-  }
-}
