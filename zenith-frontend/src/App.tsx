@@ -3,7 +3,7 @@ import { Home, NotFound, Unauthorized } from "./pages";
 
 import "./App.css";
 import LayOut from "./components/Layout/Layout";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Example user role - in a real app, this would come from your auth context/state
