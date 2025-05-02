@@ -28,14 +28,14 @@ function App() {
 
 
       }]);
-       const myClient = new QueryClient();
+     
 
   return (
     <>
 
-    <QueryClientProvider client={myClient}>
+   
           <RouterProvider router={router} />
-    </QueryClientProvider>
+  
   </>
 
     // <Router>
