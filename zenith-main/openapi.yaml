@@ -1,0 +1,526 @@
+openapi: 3.0.3
+info:
+  title: Zenith API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          $ref: "#/components/schemas/User"
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        firstName: { type: string }
+        lastName: { type: string }
+        username: { type: string }
+        email: { type: string }
+        role: { type: string }
+    Profile:
+      type: object
+      properties:
+        id: { type: integer }
+        points: { type: integer }
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+    CourseUpload:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        price: { type: number }
+        chapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChapterUpload"
+    ChapterUpload:
+      type: object
+      properties:
+        title: { type: string }
+        order: { type: integer }
+        videos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Video"
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+    Course:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        price: { type: number }
+        instructorId: { type: integer }
+    CourseSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        price: { type: number }
+        instructor:
+          $ref: "#/components/schemas/User"
+    CourseDetail:
+      allOf:
+        - $ref: "#/components/schemas/CourseSummary"
+        - type: object
+          properties:
+            chaptersCount: { type: integer }
+            rating: { type: number }
+            enrollmentCount: { type: integer }
+            createdAt: { type: string, format: date-time }
+    Chapter:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        order: { type: integer }
+    ChapterDetail:
+      allOf:
+        - $ref: "#/components/schemas/Chapter"
+        - type: object
+          properties:
+            videos:
+              type: array
+              items:
+                $ref: "#/components/schemas/Video"
+            articles:
+              type: array
+              items:
+                $ref: "#/components/schemas/Article"
+    Video:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        url: { type: string }
+    Article:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        content: { type: string }
+    Enrollment:
+      type: object
+      properties:
+        id: { type: integer }
+        courseId: { type: integer }
+        studentId: { type: integer }
+        paid: { type: number }
+        enrolledAt: { type: string, format: date-time }
+    SkillCategory:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        minPoints: { type: integer }
+        maxPoints: { type: integer }
+    Skill:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        categoryId: { type: integer }
+    StudentSkill:
+      type: object
+      properties:
+        id: { type: integer }
+        skillId: { type: integer }
+        studentId: { type: integer }
+        type: { type: string, enum: [learned, needed] }
+        updatedAt: { type: string, format: date-time }
+    Chat:
+      type: object
+      properties:
+        id: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        user1Id: { type: integer }
+        user2Id: { type: integer }
+    Message:
+      type: object
+      properties:
+        id: { type: integer }
+        content: { type: string }
+        senderId: { type: integer }
+        chatId: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+security:
+  - BearerAuth: []
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Users
+    description: User-related endpoints
+  - name: Courses
+    description: Course-related endpoints
+  - name: Skills
+    description: Skills and categories endpoints
+  - name: Chats
+    description: Chat and messaging endpoints
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Sign up a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName: { type: string }
+                lastName: { type: string }
+                username: { type: string }
+                email: { type: string }
+                password: { type: string }
+                role: { type: string, enum: [student, instructor] }
+              required: [firstName, lastName, username, email, password, role]
+      responses:
+        200:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+              required: [email, password]
+      responses:
+        200:
+          description: User authenticated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /users/{username}:
+    get:
+      tags:
+        - Users
+      summary: Get user by username
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User information retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  profile:
+                    $ref: "#/components/schemas/Profile"
+
+  /courses:
+    post:
+      tags:
+        - Courses
+      summary: Upload a new course (Instructor only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseUpload"
+      responses:
+        200:
+          description: Course uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+    get:
+      tags:
+        - Courses
+      summary: Get all courses
+      responses:
+        200:
+          description: Courses retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseSummary"
+
+  /courses/my-courses:
+    get:
+      tags:
+        - Courses
+      summary: Get my courses (Instructor only)
+      responses:
+        200:
+          description: My courses retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+
+  /courses/{id}:
+    get:
+      tags:
+        - Courses
+      summary: Get course details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Course details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetail"
+
+  /courses/{id}/chapters:
+    get:
+      tags:
+        - Courses
+      summary: Get course chapters
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Course chapters retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Chapter"
+
+  /courses/{courseId}/chapters/{chapterId}:
+    get:
+      tags:
+        - Courses
+      summary: Get chapter details
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: chapterId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Chapter details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChapterDetail"
+
+  /courses/enroll:
+    post:
+      tags:
+        - Courses
+      summary: Enroll in a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courseId: { type: integer }
+              required: [courseId]
+      responses:
+        200:
+          description: Enrollment successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+
+  /courses/{courseId}/certificate:
+    get:
+      tags:
+        - Courses
+      summary: Generate a course certificate
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: PDF Certificate
+
+  /skills/categories:
+    get:
+      tags:
+        - Skills
+      summary: Get all skill categories
+      responses:
+        200:
+          description: Skill categories retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillCategory"
+
+  /skills/categories/{categoryId}/skills:
+    get:
+      tags:
+        - Skills
+      summary: Get skills by category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Skills retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Skill"
+
+  /skills/students/{studentId}/skills:
+    put:
+      tags:
+        - Skills
+      summary: Update student skills
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skills:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      skillId: { type: integer }
+                      type: { type: string, enum: [learned, needed] }
+      responses:
+        200:
+          description: Skills updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentSkill"
+
+  /chats:
+    get:
+      tags:
+        - Chats
+      summary: Get all chats
+      responses:
+        200:
+          description: Chats retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat:
+                    $ref: "#/components/schemas/Chat"
+                  user:
+                    $ref: "#/components/schemas/User"
+
+  /chats/{chatId}/messages:
+    get:
+      tags:
+        - Chats
+      summary: Get chat messages
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Messages retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+
+    post:
+      tags:
+        - Chats
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: { type: string }
+              required: [content]
+      responses:
+        200:
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
