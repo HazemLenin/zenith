@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Home, NotFound, Unauthorized } from "./pages";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
+import SignUp from "./pages/SignUP";
+import Login from "./pages/Login";
 
 // Example user role - in a real app, this would come from your auth context/state
 const userRole = "admin"; // This should come from your authentication system
@@ -11,6 +13,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="Signup" element={<SignUp />} />
+        <Route path="Login" element={<Login />} />
 
         {/* Example protected admin route */}
         <Route
