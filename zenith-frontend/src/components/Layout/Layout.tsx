@@ -1,21 +1,16 @@
-import { useEffect } from 'react';
-import Navbar from '../Navbar/Navbar';
-import { Outlet } from 'react-router-dom';
-import Footer from '../Footer/Footer';
+import Navbar from "../Navbar/Navbar";
+import { Outlet } from "react-router-dom";
+import Footer from "../Footer/Footer";
 
 export default function LayOut() {
-
-    useEffect(() => {
-        console.log("template name  did mount");
-    
-      }, [])
   return (
     <>
       <Navbar />
 
+      <div className="px-4 py-8 md:px-6 md:py-12 lg:px-8 lg:py-16">
         <Outlet />
-        <Footer/>
-
+      </div>
+      <Footer />
     </>
   );
 }

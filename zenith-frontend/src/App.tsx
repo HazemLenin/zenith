@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home, NotFound, Unauthorized } from "./pages";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Home, NotFound } from "./pages";
 
 import "./App.css";
 import LayOut from "./components/Layout/Layout";
@@ -7,39 +7,41 @@ import LayOut from "./components/Layout/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Example user role - in a real app, this would come from your auth context/state
-// const userRole = "admin"; 
+// const userRole = "admin";
 // This should come from your authentication system
 
 function App() {
-  const router = createBrowserRouter(
-    [
-      {
-        path:"",
-        element:<LayOut/>,
-        children:[
-          {index:true,path:'Home' ,element: <Home/> },
-          { index:true, path: 'Login', element:<NotFound/> },
-          { index:true, path: 'SignUp', element:<NotFound/> },
-          { path: 'Courses', element:<ProtectedRoute><NotFound/> </ProtectedRoute>  },
-          { path: 'Community', element: <ProtectedRoute><NotFound/></ProtectedRoute> },
-
-
-        ]
-
-
-      }]);
-     
+  const router = createBrowserRouter([
+    {
+      path: "",
+      element: <LayOut />,
+      children: [
+        { index: true, path: "/", element: <Home /> },
+        { index: true, path: "Login", element: <NotFound /> },
+        { index: true, path: "SignUp", element: <NotFound /> },
+        {
+          path: "Courses",
+          element: <ProtectedRoute children={<NotFound />} />,
+        },
+        {
+          path: "Community",
+          element: <ProtectedRoute children={<NotFound />} />,
+        },
+        {
+          path: "*",
+          element: <NotFound />,
+        },
+      ],
+    },
+  ]);
 
   return (
     <>
-
-   
-          <RouterProvider router={router} />
-  
-  </>
+      <RouterProvider router={router} />
+    </>
 
     // <Router>
-    
+
     //   <Routes>
     //     <Route path="/" element={<Home />} />
 
