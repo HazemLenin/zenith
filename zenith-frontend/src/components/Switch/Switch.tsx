@@ -7,10 +7,10 @@ interface SwitchProps {
   initialState?: boolean;
 }
 
-const Switch: React.FC<SwitchProps> = ({ 
-  label = "Toggle", 
+const Switch: React.FC<SwitchProps> = ({
+  label = "",  // Changed from "Toggle" to empty string
   onChange,
-  initialState = false 
+  initialState = false,
 }) => {
   const [isEnabled, setIsEnabled] = React.useState(initialState);
 
@@ -23,9 +23,9 @@ const Switch: React.FC<SwitchProps> = ({
     <div className="ml-4">
       <ToggleSwitch
         checked={isEnabled}
-        label={label}
+        label=""  // Set empty label here
         onChange={handleChange}
-        aria-label={label}
+        aria-label={label || "switch"}  // Keep aria-label for accessibility
       />
     </div>
   );
