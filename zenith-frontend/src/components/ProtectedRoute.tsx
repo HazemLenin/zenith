@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  allowedRoles: string[];
+  allowedRoles?: string[];
   userRole?: string;
 }
 
@@ -19,7 +19,7 @@ const ProtectedRoute = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!allowedRoles.includes(userRole)) {
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
     // Redirect to unauthorized page if user role is not allowed
     return <Navigate to="/unauthorized" state={{ from: location }} replace />;
   }
