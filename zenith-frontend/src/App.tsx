@@ -6,6 +6,7 @@ import SignUp from "./pages/SignUP";
 import Login from "./pages/Login";
 import LayOut from "./components/Layout/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SkillDetails from "./pages/SkillDetails";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -20,6 +21,7 @@ function App() {
         { index: true, path: "/", element: <Home /> },
         { index: true, path: "Login", element: <SignUp /> },
         { index: true, path: "SignUp", element: <Login /> },
+        { index: true, path: "SkillDetails", element: <SkillDetails /> },
         {
           path: "Courses",
           element: <ProtectedRoute children={<NotFound />} />,
