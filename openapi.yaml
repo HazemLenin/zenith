@@ -584,6 +584,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
 
+  /skill-transfers/request:
+    post:
+      tags:
+        - SkillTransfers
+      summary: Request a skill transfer from a teacher
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skillId: { type: integer }
+                teacherProfileId: { type: integer }
+              required: [skillId, teacherProfileId]
+      responses:
+        200:
+          description: Skill transfer request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillTransferRequest"
+
   /skill-transfers/teachers-search:
     get:
       tags:
