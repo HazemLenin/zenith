@@ -542,6 +542,34 @@ paths:
                   user:
                     $ref: "#/components/schemas/User"
 
+    post:
+      tags:
+        - Chats
+      summary: Create a new chat
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: integer }
+              required: [userId]
+      responses:
+        200:
+          description: Chat created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat:
+                    $ref: "#/components/schemas/Chat"
+                  user:
+                    $ref: "#/components/schemas/User"
+
   /chats/{chatId}/messages:
     get:
       tags:

@@ -8,6 +8,7 @@ import { io } from "../index";
 import { ErrorViewModel } from "../viewmodels/error.viewmodel";
 
 type NewMessage = InferInsertModel<typeof messages>;
+type NewChat = InferInsertModel<typeof chats>;
 type ChatUpdate = Partial<InferInsertModel<typeof chats>>;
 
 export class ChatsController {
@@ -148,6 +149,90 @@ export class ChatsController {
       res
         .status(500)
         .json(ErrorViewModel.internalError("Failed to send message").toJSON());
+    }
+  }
+
+  // Create a new chat between the current user and another user
+  static async createChat(req: Request, res: Response): Promise<void> {
+    try {
+      const currentUserId = req.user!.id;
+      const { userId } = req.body;
+
+      if (!userId) {
+        res
+          .status(400)
+          .json(ErrorViewModel.validationError("User ID is required").toJSON());
+        return;
+      }
+
+      // Check if the other user exists
+      const otherUser = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .get();
+
+      if (!otherUser) {
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("User not found").toJSON());
+        return;
+      }
+
+      // Use a transaction to ensure atomicity
+      const result = await db.transaction(async (tx) => {
+        // Check if chat already exists between these users within the transaction
+        const existingChat = await tx
+          .select()
+          .from(chats)
+          .where(
+            or(
+              and(eq(chats.user1Id, currentUserId), eq(chats.user2Id, userId)),
+              and(eq(chats.user1Id, userId), eq(chats.user2Id, currentUserId))
+            )
+          )
+          .get();
+
+        if (existingChat) {
+          // If chat exists, return it with the other user's info
+          return {
+            chat: existingChat,
+            user: otherUser,
+          };
+        }
+
+        // Create a new chat
+        const now = new Date().toISOString();
+        const [newChat] = await tx
+          .insert(chats)
+          .values({
+            user1Id: currentUserId,
+            user2Id: userId,
+            createdAt: now,
+            updatedAt: now,
+          } as NewChat)
+          .returning();
+
+        // Return the newly created chat with the other user's info
+        return {
+          chat: newChat,
+          user: otherUser,
+        };
+      });
+
+      // Respond with status 200 for existing chat or 201 for new chat
+      const statusCode =
+        result.chat.createdAt === result.chat.updatedAt ? 201 : 200;
+      res.status(statusCode).json(result);
+    } catch (error) {
+      console.error("Create chat error:", error);
+      res
+        .status(500)
+        .json(ErrorViewModel.internalError("Failed to create chat").toJSON());
     }
   }
 }
