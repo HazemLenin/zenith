@@ -19,7 +19,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const { currentUser } = useContext(UserContext);
   const currentUserId = currentUser?.id;
-  const [isConnected, setIsConnected] = useState(false);
 
   // Initialize socket connection
   useEffect(() => {
@@ -28,33 +27,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       socketService.connect(token);
     }
 
-    const connectionListener = (connected: boolean) => {
-      setIsConnected(connected);
-    };
-
-    socketService.addConnectionListener(connectionListener);
-
     return () => {
-      socketService.removeConnectionListener(connectionListener);
       socketService.disconnect(); // Disconnect when component unmounts
     };
   }, []);
 
-  // Join chat room when chat changes
+  // Log when chat changes but don't join rooms - handled by parent
   useEffect(() => {
-    if (chat && isConnected) {
-      console.log(`Joining chat room for chat ID ${chat.id}`);
-      socketService.joinChat(chat.id);
+    if (chat) {
+      console.log(`Chat changed in ChatWindow component: ${chat.id}`);
     }
-  }, [chat, isConnected]);
+  }, [chat]);
 
   // Listen for new messages via socket
   useEffect(() => {
     const messageListener = (message: any) => {
       // Only add messages for the current chat
       if (chat && message.chatId === chat.id) {
-        // This would be handled by the parent component in a real app
-        // For now, we'll just rely on the messages prop
+        console.log("Received message via socket:", message);
+        // messages are handled by the parent component (Chat.tsx)
       }
     };
 
@@ -75,20 +66,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() && chat) {
-      console.log("Sending message:", newMessage);
-      // Always send via socket if connected
-      if (isConnected) {
-        console.log("Sending message:", newMessage);
-        console.log(`Sending message via socket to chat ${chat.id}`);
-        socketService.sendMessage(chat.id, newMessage);
-        setNewMessage("");
-      } else {
-        console.log("Sending message:", newMessage);
-        // Fall back to HTTP if socket is not connected
-        console.log(`Sending message via HTTP to chat ${chat.id}`);
-        onSendMessage(newMessage);
-        setNewMessage("");
-      }
+      // Use the onSendMessage prop from the parent component
+      // This will handle the HTTP request and state updates
+      onSendMessage(newMessage);
+      setNewMessage("");
     }
   };
 
@@ -103,7 +84,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   return (
     <div className="flex-1 flex flex-col">
       {/* Chat header */}
-      <div className="p-4 bg-gray-100 border-b border-gray-300 flex items-center justify-between">
+      <div className="p-4 bg-gray-100 border-b border-gray-300">
         <div className="flex items-center">
           <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-3">
             {chat.user.firstName.charAt(0)}
@@ -114,19 +95,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               {chat.user.firstName} {chat.user.lastName}
             </h3>
           </div>
-        </div>
-        <div className="text-xs">
-          {isConnected ? (
-            <span className="text-green-500 flex items-center">
-              <span className="h-2 w-2 bg-green-500 rounded-full mr-1"></span>
-              Online
-            </span>
-          ) : (
-            <span className="text-gray-500 flex items-center">
-              <span className="h-2 w-2 bg-gray-500 rounded-full mr-1"></span>
-              Offline
-            </span>
-          )}
         </div>
       </div>
 

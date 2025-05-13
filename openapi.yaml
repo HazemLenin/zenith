@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Zenith API
   version: 1.0.0
@@ -545,7 +545,8 @@ paths:
     post:
       tags:
         - Chats
-      summary: Create a new chat
+      summary: Create a new chat or get existing chat
+      description: Checks if a chat already exists between the current user and specified user. If it exists, returns the existing chat; otherwise creates a new one.
       security:
         - BearerAuth: []
       requestBody:
@@ -555,11 +556,24 @@ paths:
             schema:
               type: object
               properties:
-                userId: { type: integer }
+                userId:
+                  type: integer
+                  description: ID of the user to create/get a chat with
               required: [userId]
       responses:
-        200:
-          description: Chat created
+        "200":
+          description: Existing chat found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat:
+                    $ref: "#/components/schemas/Chat"
+                  user:
+                    $ref: "#/components/schemas/User"
+        "201":
+          description: New chat created
           content:
             application/json:
               schema:

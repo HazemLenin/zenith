@@ -14,6 +14,7 @@ class SocketService {
 
   connect(token: string) {
     if (this.socket) {
+      console.log("Disconnecting existing socket before reconnecting");
       this.socket.disconnect();
     }
 
@@ -21,6 +22,8 @@ class SocketService {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
+
+    console.log("Connecting to socket server with token");
 
     // Connect with authentication token
     this.socket = io(this.url, {
@@ -32,7 +35,7 @@ class SocketService {
     });
 
     this.socket.on("connect", () => {
-      console.log("Socket.io connection established");
+      console.log("Socket.io connection established with ID:", this.socket?.id);
       this.notifyConnectionListeners(true);
     });
 
@@ -51,7 +54,15 @@ class SocketService {
     });
 
     this.socket.on("newMessage", (message: any) => {
+      console.log("Received newMessage event with data:", message);
       this.notifyMessageListeners(message);
+    });
+
+    // Listen for join confirmations
+    this.socket.on("joinedChat", (data: { chatId: number; status: string }) => {
+      console.log(
+        `Received confirmation of joining chat ${data.chatId} with status ${data.status}`
+      );
     });
   }
 
@@ -69,11 +80,22 @@ class SocketService {
 
   joinChat(chatId: number) {
     if (!this.socket?.connected) {
-      console.error("Socket is not connected");
+      console.error("Socket is not connected, cannot join chat:", chatId);
       return;
     }
 
+    console.log(`Joining chat room: chat_${chatId}`);
     this.socket.emit("joinChat", chatId);
+
+    // Add a callback to confirm room was joined
+    setTimeout(() => {
+      if (this.socket?.connected) {
+        console.log(
+          `Should now be in room for chat_${chatId}, current rooms:`,
+          this.socket.rooms
+        );
+      }
+    }, 500);
   }
 
   sendMessage(chatId: number, content: string) {

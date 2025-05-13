@@ -141,6 +141,19 @@ export class ChatsController {
         .where(eq(chats.id, chatId));
 
       // Emit WebSocket event here
+      console.log(`Emitting newMessage event to room chat_${chatId}`, message);
+
+      // Get a list of socket clients in this room for debugging
+      const socketsInRoom = await io.in(`chat_${chatId}`).fetchSockets();
+      console.log(`Number of sockets in chat_${chatId}:`, socketsInRoom.length);
+
+      // List the socket IDs
+      socketsInRoom.forEach((socket) => {
+        console.log(
+          `Socket ${socket.id} (User ${socket.data?.userId}) is in the room`
+        );
+      });
+
       io.to(`chat_${chatId}`).emit("newMessage", message);
 
       res.status(201).json(message);
@@ -202,6 +215,7 @@ export class ChatsController {
           return {
             chat: existingChat,
             user: otherUser,
+            isNew: false,
           };
         }
 
@@ -221,13 +235,17 @@ export class ChatsController {
         return {
           chat: newChat,
           user: otherUser,
+          isNew: true,
         };
       });
 
       // Respond with status 200 for existing chat or 201 for new chat
-      const statusCode =
-        result.chat.createdAt === result.chat.updatedAt ? 201 : 200;
-      res.status(statusCode).json(result);
+      const statusCode = result.isNew ? 201 : 200;
+
+      // Remove the isNew property before sending the response
+      const { isNew, ...responseData } = result;
+
+      res.status(statusCode).json(responseData);
     } catch (error) {
       console.error("Create chat error:", error);
       res

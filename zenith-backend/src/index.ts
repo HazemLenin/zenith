@@ -109,65 +109,18 @@ io.on("connection", (socket) => {
 
   // Optionally, join rooms based on user or chat
   socket.on("joinChat", (chatId) => {
+    console.log(`User ${socket.data.userId} requested to join chat ${chatId}`);
     socket.join(`chat_${chatId}`);
     console.log(`User ${socket.data.userId} joined chat ${chatId}`);
-  });
 
-  // Handle messages sent via WebSocket
-  socket.on("message", async (message) => {
-    try {
-      if (!message.chatId || !message.content) {
-        socket.emit("error", { message: "Invalid message format" });
-        return;
-      }
+    // Send confirmation back to client
+    socket.emit("joinedChat", { chatId, status: "joined" });
 
-      // Verify the user is part of this chat
-      const userId = socket.data.userId;
-      const chatId = message.chatId;
-
-      const chat = await db
-        .select()
-        .from(chats)
-        .where(
-          and(
-            eq(chats.id, chatId),
-            or(eq(chats.user1Id, userId), eq(chats.user2Id, userId))
-          )
-        )
-        .get();
-
-      if (!chat) {
-        socket.emit("error", { message: "Chat not found or access denied" });
-        return;
-      }
-
-      // Insert message into database - using SQL default for createdAt
-      const [savedMessage] = await db
-        .insert(messages)
-        .values({
-          chatId,
-          senderId: userId,
-          content: message.content,
-        })
-        .returning();
-
-      // Update chat's updatedAt with current timestamp
-      const now = new Date().toISOString();
-      await db
-        .update(chats)
-        .set({
-          updatedAt: now,
-        } as ChatUpdate)
-        .where(eq(chats.id, chatId));
-
-      // Broadcast to everyone in the chat room including sender
-      io.to(`chat_${chatId}`).emit("newMessage", savedMessage);
-
-      console.log(`Message sent in chat ${chatId} by user ${userId}`);
-    } catch (error) {
-      console.error("Error processing message:", error);
-      socket.emit("error", { message: "Failed to process message" });
-    }
+    // Log all rooms this socket is in
+    console.log(
+      `Socket ${socket.id} is now in rooms:`,
+      Array.from(socket.rooms)
+    );
   });
 
   socket.on("disconnect", () => {
