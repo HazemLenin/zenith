@@ -3,11 +3,17 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import dotenv from "dotenv";
 import * as schema from "./models";
+import { chats } from "./models/chat.model";
+import { messages } from "./models/message.model";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import path from "path";
+import cors from "cors";
+import jwt from "jsonwebtoken";
+import { and, eq, or } from "drizzle-orm";
+import { InferInsertModel } from "drizzle-orm";
 
 // Load environment variables
 dotenv.config();
@@ -25,6 +31,16 @@ declare module "express" {
 }
 // Initialize Express app
 const app = express();
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Changed to match your actual frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // If you need to support cookies/auth
+  })
+);
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
@@ -33,13 +49,33 @@ const io = new Server(httpServer, {
   },
 });
 
+// WebSocket authentication middleware
+io.use((socket, next) => {
+  try {
+    const token = socket.handshake.query.token;
+    if (!token || typeof token !== "string") {
+      return next(new Error("Authentication error: No token provided"));
+    }
+
+    const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
+
+    // Store user data in socket
+    socket.data.userId = decoded.id;
+    next();
+  } catch (error) {
+    console.error("WebSocket authentication error:", error);
+    next(new Error("Authentication error: Invalid token"));
+  }
+});
+
 // Load OpenAPI specification
 const openApiSpec = YAML.load(path.join(__dirname, "../../openapi.yaml"));
 
 // Swagger setup
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 // Middleware
 app.use(express.json());
@@ -62,12 +98,76 @@ app.use("/api/skills", skillsRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/courses", coursesRoutes);
 
+// Define the types needed for database operations
+type ChatUpdate = Partial<InferInsertModel<typeof chats>>;
+
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("A user connected:", socket.id, "User ID:", socket.data.userId);
+
+  // Join a room for the user's own messages
+  socket.join(`user_${socket.data.userId}`);
 
   // Optionally, join rooms based on user or chat
   socket.on("joinChat", (chatId) => {
     socket.join(`chat_${chatId}`);
+    console.log(`User ${socket.data.userId} joined chat ${chatId}`);
+  });
+
+  // Handle messages sent via WebSocket
+  socket.on("message", async (message) => {
+    try {
+      if (!message.chatId || !message.content) {
+        socket.emit("error", { message: "Invalid message format" });
+        return;
+      }
+
+      // Verify the user is part of this chat
+      const userId = socket.data.userId;
+      const chatId = message.chatId;
+
+      const chat = await db
+        .select()
+        .from(chats)
+        .where(
+          and(
+            eq(chats.id, chatId),
+            or(eq(chats.user1Id, userId), eq(chats.user2Id, userId))
+          )
+        )
+        .get();
+
+      if (!chat) {
+        socket.emit("error", { message: "Chat not found or access denied" });
+        return;
+      }
+
+      // Insert message into database - using SQL default for createdAt
+      const [savedMessage] = await db
+        .insert(messages)
+        .values({
+          chatId,
+          senderId: userId,
+          content: message.content,
+        })
+        .returning();
+
+      // Update chat's updatedAt with current timestamp
+      const now = new Date().toISOString();
+      await db
+        .update(chats)
+        .set({
+          updatedAt: now,
+        } as ChatUpdate)
+        .where(eq(chats.id, chatId));
+
+      // Broadcast to everyone in the chat room including sender
+      io.to(`chat_${chatId}`).emit("newMessage", savedMessage);
+
+      console.log(`Message sent in chat ${chatId} by user ${userId}`);
+    } catch (error) {
+      console.error("Error processing message:", error);
+      socket.emit("error", { message: "Failed to process message" });
+    }
   });
 
   socket.on("disconnect", () => {

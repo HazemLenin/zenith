@@ -1,11 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home, NotFound } from "./pages";
-
+import { Home, NotFound, Chat } from "./pages";
+import { Layout, ProtectedRoute } from "./components";
 import "./App.css";
-import SignUp from "./pages/SignUP";
+import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import LayOut from "./components/Layout/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
+import SkillDetails from "./pages/SkillDetails";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -15,18 +14,23 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "",
-      element: <LayOut />,
+      element: <Layout />,
       children: [
         { index: true, path: "/", element: <Home /> },
-        { index: true, path: "Login", element: <SignUp /> },
-        { index: true, path: "SignUp", element: <Login /> },
+        { index: true, path: "login", element: <Login /> },
+        { index: true, path: "signup", element: <SignUp /> },
+        { index: true, path: "SkillDetails", element: <SkillDetails /> },
         {
-          path: "Courses",
+          path: "courses",
           element: <ProtectedRoute children={<NotFound />} />,
         },
         {
-          path: "Community",
+          path: "community",
           element: <ProtectedRoute children={<NotFound />} />,
+        },
+        {
+          path: "chat",
+          element: <ProtectedRoute children={<Chat />} />,
         },
         {
           path: "*",

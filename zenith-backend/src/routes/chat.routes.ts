@@ -7,6 +7,9 @@ const router = Router();
 // List all chats for the authenticated user
 router.get("/", authMiddleware, ChatsController.getChats);
 
+// Create a new chat with another user
+router.post("/", authMiddleware, ChatsController.createChat);
+
 // Get messages for a specific chat
 router.get("/:chatId/messages", authMiddleware, ChatsController.getMessages);
 
