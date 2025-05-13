@@ -22,6 +22,8 @@ export const studentSkills = sqliteTable("student_skills", {
   type: text("type", {
     enum: [StudentSkillType.LEARNED, StudentSkillType.NEEDED],
   }).notNull(),
+  points: integer("points").notNull().default(0),
+  description: text("description"),
 });
 
 export const studentSkillsRelations = relations(studentSkills, ({ one }) => ({

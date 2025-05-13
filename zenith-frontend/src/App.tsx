@@ -1,10 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home, NotFound } from "./pages";
-
+import { Home, NotFound, Chat } from "./pages";
+import { Layout, ProtectedRoute } from "./components";
 import "./App.css";
-import LayOut from "./components/Layout/Layout";
-
-import ProtectedRoute from "./components/ProtectedRoute";
+import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
+import SkillDetails from "./pages/SkillDetails";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -14,18 +14,23 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "",
-      element: <LayOut />,
+      element: <Layout />,
       children: [
         { index: true, path: "/", element: <Home /> },
-        { index: true, path: "Login", element: <NotFound /> },
-        { index: true, path: "SignUp", element: <NotFound /> },
+        { index: true, path: "login", element: <Login /> },
+        { index: true, path: "signup", element: <SignUp /> },
+        { index: true, path: "SkillDetails", element: <SkillDetails /> },
         {
-          path: "Courses",
+          path: "courses",
           element: <ProtectedRoute children={<NotFound />} />,
         },
         {
-          path: "Community",
+          path: "community",
           element: <ProtectedRoute children={<NotFound />} />,
+        },
+        {
+          path: "chat",
+          element: <ProtectedRoute children={<Chat />} />,
         },
         {
           path: "*",
@@ -39,39 +44,6 @@ function App() {
     <>
       <RouterProvider router={router} />
     </>
-
-    // <Router>
-
-    //   <Routes>
-    //     <Route path="/" element={<Home />} />
-
-    //     {/* Example protected admin route */}
-    //     <Route
-    //       path="/admin"
-    //       element={
-    //         <ProtectedRoute allowedRoles={["admin"]} userRole={userRole}>
-    //           <div>Admin Dashboard</div>
-    //         </ProtectedRoute>
-    //       }
-    //     />
-
-    //     {/* Example protected user route */}
-    //     <Route
-    //       path="/dashboard"
-    //       element={
-    //         <ProtectedRoute
-    //           allowedRoles={["user", "admin"]}
-    //           userRole={userRole}
-    //         >
-    //           <div>User Dashboard</div>
-    //         </ProtectedRoute>
-    //       }
-    //     />
-
-    //     <Route path="/unauthorized" element={<Unauthorized />} />
-    //     <Route path="*" element={<NotFound />} />
-    //   </Routes>
-    // </Router>
   );
 }
 

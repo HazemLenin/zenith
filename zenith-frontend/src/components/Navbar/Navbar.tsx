@@ -1,19 +1,16 @@
-import React, { JSX, useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-// import { UserContext } from '../../context/UserContext'; // تأكد من مسار السياق الصحيح
+import React, { JSX, useContext } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/UserContext";
 
 export default function Navbar(): JSX.Element {
-  // استخدام السياق المناسب
-//   const { userToken, setuserToken } = useContext(null);  
+  const { userToken, setUserToken } = useContext(UserContext);
+  const navigate = useNavigate();
 
-//   const navigate = useNavigate();
-
-  // دالة تسجيل الخروج
-//   function LogOut(): void {
-//     localStorage.removeItem('userToken');
-//     setuserToken(null);
-//     navigate('/Login');
-//   }
+  function LogOut(): void {
+    localStorage.removeItem("userToken");
+    setUserToken(null);
+    navigate("/login");
+  }
 
   return (
     <>
@@ -51,14 +48,11 @@ export default function Navbar(): JSX.Element {
             className="hidden w-full md:w-auto flex-grow md:flex md:justify-between"
             id="navbar-default"
           >
-            
-            {
-            // userToken && 
-            (
+            {userToken && (
               <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
                 <li>
                   <NavLink
-                    to="Home"
+                    to="/"
                     className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
                   >
                     Home
@@ -66,7 +60,7 @@ export default function Navbar(): JSX.Element {
                 </li>
                 <li>
                   <NavLink
-                    to="Courses"
+                    to="/courses"
                     className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
                   >
                     Courses
@@ -74,61 +68,59 @@ export default function Navbar(): JSX.Element {
                 </li>
                 <li>
                   <NavLink
-                    to="Community"
+                    to="/community"
                     className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
                   >
                     Community
                   </NavLink>
                 </li>
-          
-     
-               
+                <li>
+                  <NavLink
+                    to="/chat"
+                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
+                  >
+                    Chat
+                  </NavLink>
+                </li>
               </ul>
             )}
-                 <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
- 
-              
-              
-              {/* {
-            //   userToken &&
-               (
+            <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
+              {userToken && (
                 <li>
                   <span
-                    // onClick={LogOut}
-                    className="block py-2 px-3 rounded hover:bg-gray-100 cursor-pointer md:hover:bg-transparent md:border-0 md:p-0 text-black md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                    onClick={LogOut}
+                    className="block py-2 px-3 rounded hover:bg-gray-100 cursor-pointer md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary"
                   >
                     Log out
                   </span>
                 </li>
-              )} */}
-              {
-            //   !userToken &&
-               (
+              )}
+              {!userToken && (
                 <>
-                <li>
-                  <NavLink
-                    to="Home"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Home
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="Login"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Log in
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="Signup"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Sign Up
-                  </NavLink>
-                </li>
+                  <li>
+                    <NavLink
+                      to="/"
+                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
+                    >
+                      Home
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/login"
+                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
+                    >
+                      Log in
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/signup"
+                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
+                    >
+                      Sign Up
+                    </NavLink>
+                  </li>
                 </>
               )}
               <li className="flex gap-4 px-3">

@@ -60,10 +60,17 @@ export class SkillsController {
 
       // Insert new skills
       const newSkills = skills.map(
-        (skill: { skillId: number; type: StudentSkillTypeEnum }) => ({
+        (skill: {
+          skillId: number;
+          type: StudentSkillTypeEnum;
+          points: number;
+          description: string;
+        }) => ({
           studentId: parseInt(studentId),
           skillId: skill.skillId,
           type: skill.type,
+          points: skill.points,
+          description: skill.description,
         })
       );
 

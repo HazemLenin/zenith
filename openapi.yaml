@@ -161,6 +161,61 @@ components:
         senderId: { type: integer }
         chatId: { type: integer }
         createdAt: { type: string, format: date-time }
+    TeacherSearchResult:
+      type: object
+      properties:
+        teacherId: { type: number }
+        points: { type: number }
+        teacherFirstName: { type: string }
+        teacherLastName: { type: string }
+        description: { type: string }
+    SkillTransferRequest:
+      type: object
+      properties:
+        studentFirstname: { type: string }
+        studentLastname: { type: string }
+        skillId: { type: number }
+        skillTitle: { type: string }
+        skillPoints: { type: number }
+    SkillTransferSession:
+      type: object
+      properties:
+        title: { type: string }
+        points: { type: number }
+        completed: { type: boolean }
+        paid: { type: boolean }
+    SkillTransferDetail:
+      type: object
+      properties:
+        skillTitle: { type: string }
+        teacherFirstName: { type: string }
+        teacherLastName: { type: string }
+        studentFirstName: { type: string }
+        studentLastName: { type: string }
+        points: { type: number }
+        paid: { type: number }
+        sessionsCount: { type: number }
+        completedSessionsCount: { type: number }
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillTransferSession"
+    SkillTransferSummary:
+      type: object
+      properties:
+        id: { type: number }
+        studentFirstName: { type: string }
+        studentLastName: { type: string }
+        sessions: { type: number }
+        completedSessions: { type: number }
+        points: { type: number }
+        paid: { type: number }
+    AcceptTransferRequest:
+      type: object
+      properties:
+        sessionTitle: { type: string }
+        points: { type: number }
+      required: [sessionTitle, points]
 
 security:
   - BearerAuth: []
@@ -175,6 +230,8 @@ tags:
     description: Skills and categories endpoints
   - name: Chats
     description: Chat and messaging endpoints
+  - name: SkillTransfers
+    description: Skill transfer and teaching endpoints
 paths:
   /auth/signup:
     post:
@@ -455,6 +512,8 @@ paths:
                     properties:
                       skillId: { type: integer }
                       type: { type: string, enum: [learned, needed] }
+                      points: { type: integer }
+                      description: { type: string }
       responses:
         200:
           description: Skills updated
@@ -473,6 +532,34 @@ paths:
       responses:
         200:
           description: Chats retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat:
+                    $ref: "#/components/schemas/Chat"
+                  user:
+                    $ref: "#/components/schemas/User"
+
+    post:
+      tags:
+        - Chats
+      summary: Create a new chat
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: integer }
+              required: [userId]
+      responses:
+        200:
+          description: Chat created
           content:
             application/json:
               schema:
@@ -524,3 +611,174 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+
+  /skill-transfers/request:
+    post:
+      tags:
+        - SkillTransfers
+      summary: Request a skill transfer from a teacher
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skillId: { type: integer }
+                teacherProfileId: { type: integer }
+              required: [skillId, teacherProfileId]
+      responses:
+        200:
+          description: Skill transfer request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillTransferRequest"
+
+  /skill-transfers/teachers-search:
+    get:
+      tags:
+        - SkillTransfers
+      summary: Search for teachers by skill
+      parameters:
+        - in: query
+          name: skillId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Teachers found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeacherSearchResult"
+
+  /skill-transfers/my-requests:
+    get:
+      tags:
+        - SkillTransfers
+      summary: Get my skill transfer requests
+      responses:
+        200:
+          description: Requests retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillTransferRequest"
+
+  /skill-transfers/reject/{skillTransferId}:
+    delete:
+      tags:
+        - SkillTransfers
+      summary: Reject a skill transfer request
+      parameters:
+        - in: path
+          name: skillTransferId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Request rejected successfully
+
+  /skill-transfers/accept/{skillTransferId}:
+    put:
+      tags:
+        - SkillTransfers
+      summary: Accept a skill transfer request
+      parameters:
+        - in: path
+          name: skillTransferId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcceptTransferRequest"
+      responses:
+        200:
+          description: Request accepted successfully
+
+  /skill-transfers/my-skill-transfers:
+    get:
+      tags:
+        - SkillTransfers
+      summary: Get my skill transfers
+      responses:
+        200:
+          description: Skill transfers retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillTransferSummary"
+
+  /skill-transfers/transfer-details/{skillTransferId}:
+    get:
+      tags:
+        - SkillTransfers
+      summary: Get skill transfer details
+      parameters:
+        - in: path
+          name: skillTransferId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Transfer details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillTransferDetail"
+
+  /skill-transfers/{skillTransferId}/complete-session/{sessionId}:
+    put:
+      tags:
+        - SkillTransfers
+      summary: Mark a session as completed
+      parameters:
+        - in: path
+          name: skillTransferId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Session marked as completed
+
+  /skill-transfers/{skillTransferId}/pay-session/{sessionId}:
+    put:
+      tags:
+        - SkillTransfers
+      summary: Mark a session as paid
+      parameters:
+        - in: path
+          name: skillTransferId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Session marked as paid
