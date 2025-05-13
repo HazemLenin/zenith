@@ -16,6 +16,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
   const { currentUser } = useContext(UserContext);
   const currentUserId = currentUser?.id;
   const [isConnected, setIsConnected] = useState(false);
@@ -63,6 +64,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       socketService.removeMessageListener(messageListener);
     };
   }, [chat]);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,36 +131,46 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div
+        className="flex-1 overflow-y-auto p-4 bg-gray-50"
+        ref={messageContainerRef}
+      >
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-4">
             No messages yet. Start the conversation!
           </div>
         ) : (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`max-w-[70%] mb-2 p-3 rounded-lg ${
-                message.senderId === currentUserId
-                  ? "ml-auto bg-primary text-white rounded-br-none"
-                  : "bg-white border border-gray-200 rounded-bl-none"
-              }`}
-            >
-              <p>{message.content}</p>
+          // Sort messages by createdAt timestamp (oldest first)
+          [...messages]
+            .sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            )
+            .map((message) => (
               <div
-                className={`text-xs mt-1 ${
+                key={message.id}
+                className={`max-w-[70%] mb-2 p-3 rounded-lg ${
                   message.senderId === currentUserId
-                    ? "text-gray-200"
-                    : "text-gray-500"
+                    ? "ml-auto bg-primary text-white rounded-br-none"
+                    : "bg-white border border-gray-200 rounded-bl-none"
                 }`}
               >
-                {new Date(message.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                <p>{message.content}</p>
+                <div
+                  className={`text-xs mt-1 ${
+                    message.senderId === currentUserId
+                      ? "text-gray-200"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {new Date(message.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )}
         <div ref={messagesEndRef} />
       </div>
