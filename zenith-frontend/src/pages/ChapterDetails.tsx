@@ -66,11 +66,14 @@ export default function ChapterDetails() {
                 console.error('Error fetching chapters:', error);
             }
             };
-
             if (coursId) {
             fetchChapters();
-            }
+        }
         }, [coursId]);
+        // but first chapter by defoult without click
+        useEffect(()=>{
+        chapterDetails_handelar_function(0);
+        },[])
         // fetch chapter details 
         function chapterDetails_handelar_function(id?: number) {
             const fetchChapterDetails = async () => {
