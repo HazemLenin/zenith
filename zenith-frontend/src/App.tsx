@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import SkillDetails from "./pages/SkillDetails";
 import ChapterDetails from "./pages/ChapterDetails";
 
+
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
 // This should come from your authentication system
