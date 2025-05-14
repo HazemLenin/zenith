@@ -1,4 +1,6 @@
 import React from "react";
+import NeededSkills from "./SkillsUpdate/NeededSkills";
+import SkillModal from "./SkillsUpdate/SkillModal";
 
 export const NotFound: React.FC = () => {
   return (
@@ -11,7 +13,8 @@ export const NotFound: React.FC = () => {
           </p>
         </div>
       </main>
-      
+      <NeededSkills />
+      <SkillModal />
     </div>
   );
 };

@@ -2,18 +2,9 @@ import React, { useState } from "react";
 import Btn from "../../components/Button/Button";
 import "./NeededSkills.css";
 
-type Skill = {
-  id: number;
-  skillId: number;
-  studentId: number;
-  type: "learned" | "needed";
-  updatedAt: string;
-  name?: string;
-};
-
 type Props = {
-  skills: Skill[] | undefined;
-  setSkills: React.Dispatch<React.SetStateAction<Skill[]>>;
+  skills: string[] | undefined; 
+  setSkills: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const NeededSkills: React.FC<Props> = ({ skills = [], setSkills }) => {
@@ -21,17 +12,7 @@ const NeededSkills: React.FC<Props> = ({ skills = [], setSkills }) => {
 
   const addSkill = () => {
     if (input.trim()) {
-      setSkills((prev) => [
-        ...prev,
-        {
-          id: prev.length,
-          skillId: prev.length,
-          studentId: 0,
-          type: "needed",
-          updatedAt: new Date().toISOString(),
-          name: input.trim(),
-        },
-      ]);
+      setSkills((prev) => [...prev, input.trim()]);
       setInput("");
     }
   };
@@ -53,12 +34,11 @@ const NeededSkills: React.FC<Props> = ({ skills = [], setSkills }) => {
         <Btn btnName="✓" btnFun={addSkill} />
       </div>
       <ul className="needed-skills-list">
-        {skills?.map((skill, idx) => (
+        {skills?.map((skill, idx) => ( 
           <li key={idx}>
-            {skill.name || `Skill ${skill.skillId}`}{" "}
-            <button onClick={() => removeSkill(idx)}>❌</button>
+            {skill} <button onClick={() => removeSkill(idx)}>❌</button>
           </li>
-        )) || null}
+        )) || null} 
       </ul>
     </div>
   );

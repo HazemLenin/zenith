@@ -6,7 +6,7 @@
 }
 
 .needed-skills-title {
-  font-size: 30px;
+  font-size: 50px;
   font-weight: 600;
   margin-bottom: 20px;
   color: #333;
@@ -20,10 +20,10 @@
 
 .needed-skills-input {
   flex-grow: 1;
-  padding: 10px;
+  padding: 20px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 25px;
 }
 
 .needed-skills-list {

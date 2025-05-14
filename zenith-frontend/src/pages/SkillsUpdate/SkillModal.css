@@ -90,3 +90,9 @@
   font-size: 20px;
   cursor: pointer;
 }
+.learned-skills-title {
+  margin: 0 0 10px;
+  font-size: 2.5em; 
+  color: #333; 
+  font-weight: 600; 
+}

@@ -36,6 +36,9 @@ const SkillModal: React.FC<SkillModalProps> = ({ onAddSkill }) => {
 
   return (
     <>
+    
+      <h3 className="learned-skills-title">Learned Skills</h3>
+
       <button
         type="button"
         onClick={() => setShowModal(true)}
