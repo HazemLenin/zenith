@@ -642,7 +642,14 @@ paths:
               properties:
                 skillId: { type: integer }
                 teacherProfileId: { type: integer }
-              required: [skillId, teacherProfileId]
+                sessions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title: { type: string }
+                      points: { type: number }
+              required: [skillId, teacherProfileId, sessions]
       responses:
         200:
           description: Skill transfer request created successfully
