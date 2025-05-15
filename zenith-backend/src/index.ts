@@ -90,6 +90,7 @@ import usersRoutes from "./routes/users.routes";
 import skillsRoutes from "./routes/skills.routes";
 import chatRoutes from "./routes/chat.routes";
 import coursesRoutes from "./routes/courses.routes";
+import skillTransfersRoutes from "./routes/skillTransfers.routes";
 
 // Use routes
 app.use("/api/auth", authRoutes);
@@ -97,6 +98,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/skills", skillsRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/courses", coursesRoutes);
+app.use("/api/skill-transfers", skillTransfersRoutes);
 
 // Define the types needed for database operations
 type ChatUpdate = Partial<InferInsertModel<typeof chats>>;
