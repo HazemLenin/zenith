@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import { db } from "../db";
 import {
   sessions,
-  skillCategories,
   skills,
   skillTransfers,
   SkillTransferStatus,
+  studentProfiles,
   studentSkills,
   StudentSkillType,
   users,
@@ -409,6 +409,42 @@ export class SkillTransfersController {
         res.status(403).json({ message: "Unauthorized" });
         return;
       }
+
+      // Get student profile to check points
+      const studentProfile = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, req.user.id))
+        .then((results) => results[0]);
+
+      if (!studentProfile) {
+        res.status(404).json({ message: "Student profile not found" });
+        return;
+      }
+
+      // Get session details to check cost
+      const session = await db
+        .select()
+        .from(sessions)
+        .where(eq(sessions.id, Number(sessionId)))
+        .then((results) => results[0]);
+
+      if (!session) {
+        res.status(404).json({ message: "Session not found" });
+        return;
+      }
+
+      const sessionCost = session.points;
+      if (studentProfile.points < sessionCost) {
+        res.status(400).json({ message: "Insufficient points" });
+        return;
+      }
+
+      // Update student points
+      await db
+        .update(studentProfiles)
+        .set({ points: studentProfile.points - sessionCost })
+        .where(eq(studentProfiles.userId, req.user.id));
 
       // Update the session to mark it as paid
       await db
