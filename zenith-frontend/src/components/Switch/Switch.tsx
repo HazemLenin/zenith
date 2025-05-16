@@ -17,7 +17,7 @@ const Switch: React.FC<SwitchProps> = ({
   };
 
   return (
-    <ToggleSwitch checked={checked} label={label} onChange={handleChange} />
+    <ToggleSwitch checked={checked} label={label} onChange={handleChange}  />
   );
 };
 
