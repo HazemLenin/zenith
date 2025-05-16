@@ -5,7 +5,6 @@ export * from "./course.model";
 export * from "./courseChapter.model";
 export * from "./enrollment.model";
 export * from "./skill.model";
-export * from "./skillCategory.model";
 export * from "./studentSkill.model";
 export * from "./skillTransfer.model";
 export * from "./article.model";

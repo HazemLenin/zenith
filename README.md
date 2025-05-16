@@ -40,6 +40,35 @@ npx drizzle-kit push
 - `generate`: Generates migration files based on your schema.
 - `push`: Applies the migrations to your database.
 
+#### Database Management
+
+To manage your database data:
+
+```bash
+# Clear all data from the database
+npm run clear
+
+# Seed the database with test data
+npm run seed
+```
+
+The seeder will create the following test users:
+
+| Role              | Email                      | Password      | Description                  |
+| ----------------- | -------------------------- | ------------- | ---------------------------- |
+| Admin             | admin@zenith.com           | admin123      | System administrator         |
+| Instructor        | instructor@zenith.com      | instructor123 | Course instructor            |
+| Student           | student@zenith.com         | student123    | Learning student             |
+| Student (Teacher) | teacher.student@zenith.com | teacher123    | Student who can teach others |
+
+The seeder will also create:
+
+- Sample skills (Programming, Design)
+- A course with chapters and articles
+- Skill transfers between students (one student teaching another)
+- Sessions for each skill transfer
+- Chat messages between users
+
 ---
 
 ### 3. Start the Applications

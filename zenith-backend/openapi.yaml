@@ -127,20 +127,11 @@ components:
         studentId: { type: integer }
         paid: { type: number }
         enrolledAt: { type: string, format: date-time }
-    SkillCategory:
-      type: object
-      properties:
-        id: { type: integer }
-        name: { type: string }
-        description: { type: string }
-        minPoints: { type: integer }
-        maxPoints: { type: integer }
     Skill:
       type: object
       properties:
         id: { type: integer }
         title: { type: string }
-        categoryId: { type: integer }
     StudentSkill:
       type: object
       properties:
@@ -461,35 +452,14 @@ paths:
         200:
           description: PDF Certificate
 
-  /skills/categories:
+  /skills:
     get:
       tags:
         - Skills
-      summary: Get all skill categories
+      summary: Get all skills
       responses:
         200:
-          description: Skill categories retrieved
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SkillCategory"
-
-  /skills/categories/{categoryId}/skills:
-    get:
-      tags:
-        - Skills
-      summary: Get skills by category
-      parameters:
-        - in: path
-          name: categoryId
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Skills retrieved
+          description: Skills retrieved successfully
           content:
             application/json:
               schema:
@@ -645,15 +615,8 @@ paths:
               type: object
               properties:
                 skillId: { type: integer }
-                teacherProfileId: { type: integer }
-                sessions:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      title: { type: string }
-                      points: { type: number }
-              required: [skillId, teacherProfileId, sessions]
+                teacherId: { type: integer }
+              required: [skillId, teacherId]
       responses:
         200:
           description: Skill transfer request created successfully
@@ -729,7 +692,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcceptTransferRequest"
+              type: array
+              items:
+                $ref: "#/components/schemas/AcceptTransferRequest"
       responses:
         200:
           description: Request accepted successfully
@@ -739,6 +704,16 @@ paths:
       tags:
         - SkillTransfers
       summary: Get my skill transfers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [learned, needed]
       responses:
         200:
           description: Skill transfers retrieved
