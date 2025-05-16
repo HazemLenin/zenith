@@ -34,7 +34,11 @@ components:
         skills:
           type: array
           items:
-            $ref: "#/components/schemas/Skill"
+            allOf:
+              - $ref: "#/components/schemas/Skill"
+              - type: object
+                properties:
+                  type: { type: string, enum: [learned, needed] }
     CourseUpload:
       type: object
       properties:

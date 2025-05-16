@@ -2,6 +2,9 @@
   "name": "zenith-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=23.0.0"
+  },
   "scripts": {
     "start": "nodemon src/index.ts",
     "build": "tsc",

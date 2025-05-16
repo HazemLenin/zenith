@@ -70,7 +70,7 @@ io.use((socket, next) => {
 });
 
 // Load OpenAPI specification
-const openApiSpec = YAML.load(path.join(__dirname, "../../openapi.yaml"));
+const openApiSpec = YAML.load(path.join(__dirname, "../openapi.yaml"));
 
 // Swagger setup
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
