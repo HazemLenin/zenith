@@ -70,7 +70,7 @@ io.use((socket, next) => {
 });
 
 // Load OpenAPI specification
-const openApiSpec = YAML.load(path.join(__dirname, "../../openapi.yaml"));
+const openApiSpec = YAML.load(path.join(__dirname, "../openapi.yaml"));
 
 // Swagger setup
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
@@ -90,6 +90,7 @@ import usersRoutes from "./routes/users.routes";
 import skillsRoutes from "./routes/skills.routes";
 import chatRoutes from "./routes/chat.routes";
 import coursesRoutes from "./routes/courses.routes";
+import skillTransfersRoutes from "./routes/skillTransfers.routes";
 
 // Use routes
 app.use("/api/auth", authRoutes);
@@ -97,6 +98,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/skills", skillsRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/courses", coursesRoutes);
+app.use("/api/skill-transfers", skillTransfersRoutes);
 
 // Define the types needed for database operations
 type ChatUpdate = Partial<InferInsertModel<typeof chats>>;
@@ -109,65 +111,18 @@ io.on("connection", (socket) => {
 
   // Optionally, join rooms based on user or chat
   socket.on("joinChat", (chatId) => {
+    console.log(`User ${socket.data.userId} requested to join chat ${chatId}`);
     socket.join(`chat_${chatId}`);
     console.log(`User ${socket.data.userId} joined chat ${chatId}`);
-  });
 
-  // Handle messages sent via WebSocket
-  socket.on("message", async (message) => {
-    try {
-      if (!message.chatId || !message.content) {
-        socket.emit("error", { message: "Invalid message format" });
-        return;
-      }
+    // Send confirmation back to client
+    socket.emit("joinedChat", { chatId, status: "joined" });
 
-      // Verify the user is part of this chat
-      const userId = socket.data.userId;
-      const chatId = message.chatId;
-
-      const chat = await db
-        .select()
-        .from(chats)
-        .where(
-          and(
-            eq(chats.id, chatId),
-            or(eq(chats.user1Id, userId), eq(chats.user2Id, userId))
-          )
-        )
-        .get();
-
-      if (!chat) {
-        socket.emit("error", { message: "Chat not found or access denied" });
-        return;
-      }
-
-      // Insert message into database - using SQL default for createdAt
-      const [savedMessage] = await db
-        .insert(messages)
-        .values({
-          chatId,
-          senderId: userId,
-          content: message.content,
-        })
-        .returning();
-
-      // Update chat's updatedAt with current timestamp
-      const now = new Date().toISOString();
-      await db
-        .update(chats)
-        .set({
-          updatedAt: now,
-        } as ChatUpdate)
-        .where(eq(chats.id, chatId));
-
-      // Broadcast to everyone in the chat room including sender
-      io.to(`chat_${chatId}`).emit("newMessage", savedMessage);
-
-      console.log(`Message sent in chat ${chatId} by user ${userId}`);
-    } catch (error) {
-      console.error("Error processing message:", error);
-      socket.emit("error", { message: "Failed to process message" });
-    }
+    // Log all rooms this socket is in
+    console.log(
+      `Socket ${socket.id} is now in rooms:`,
+      Array.from(socket.rooms)
+    );
   });
 
   socket.on("disconnect", () => {

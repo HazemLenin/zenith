@@ -1,6 +1,6 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChatList, ChatWindow, NewChatForm } from "../components";
+import { ChatList, ChatWindow } from "../components";
 import { Chat, ChatWithUser, Message, User } from "../types/chat";
 import socketService from "../services/socketService";
 import { UserContext } from "../context/UserContext";
@@ -20,7 +20,7 @@ const ChatPage = () => {
   const [selectedChatUser, setSelectedChatUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showNewChatForm, setShowNewChatForm] = useState(false);
+  const processingNewChatRef = useRef(false);
 
   // Transform the current selected chat and user into a ChatWithUser object
   const getChatWithUser = (): ChatWithUser | null => {
@@ -34,13 +34,35 @@ const ChatPage = () => {
   // Initialize socket connection
   useEffect(() => {
     if (userToken) {
+      console.log("Initializing socket connection in Chat.tsx");
+
+      // Disconnect first to ensure a clean connection
+      socketService.disconnect();
+
+      // Then connect with the token
       socketService.connect(userToken);
 
       // Listen for new messages
       const messageListener = (message: any) => {
+        console.log("Received message via WebSocket:", message);
+
+        // Don't process the message if it doesn't have a chatId
+        if (!message || !message.chatId) {
+          console.error("Received invalid message:", message);
+          return;
+        }
+
         // Update messages if we're currently viewing this chat
         if (selectedChat && message.chatId === selectedChat.id) {
-          setMessages((prev) => [message, ...prev]);
+          console.log("Updating current chat with new message");
+          setMessages((prev) => {
+            // Check if we already have this message (prevent duplicates)
+            if (prev.some((m) => m.id === message.id)) {
+              console.log("Message already exists in state, skipping");
+              return prev;
+            }
+            return [message, ...prev];
+          });
 
           // Update the chat's updatedAt time
           const updatedChat = {
@@ -58,7 +80,7 @@ const ChatPage = () => {
             );
 
             // Sort chats by updatedAt (most recent first)
-            return updatedChats.sort(
+            return [...updatedChats].sort(
               (a, b) =>
                 new Date(b.chat.updatedAt).getTime() -
                 new Date(a.chat.updatedAt).getTime()
@@ -67,6 +89,7 @@ const ChatPage = () => {
         }
         // Otherwise, just update the chat list to show there's new activity
         else {
+          console.log("Updating chat list for non-selected chat");
           setChats((prevChats) => {
             const updatedChats = prevChats.map((chatData) =>
               chatData.chat.id === message.chatId
@@ -81,7 +104,7 @@ const ChatPage = () => {
             );
 
             // Sort chats by updatedAt (most recent first)
-            return updatedChats.sort(
+            return [...updatedChats].sort(
               (a, b) =>
                 new Date(b.chat.updatedAt).getTime() -
                 new Date(a.chat.updatedAt).getTime()
@@ -98,16 +121,31 @@ const ChatPage = () => {
           "Socket connection status:",
           connected ? "connected" : "disconnected"
         );
+
+        // If we reconnect and have a selected chat, make sure to join that chat's room
+        if (connected && selectedChat) {
+          console.log("Reconnected, rejoining chat room:", selectedChat.id);
+          socketService.joinChat(selectedChat.id);
+        }
       };
 
       socketService.addConnectionListener(connectionListener);
 
       return () => {
+        console.log("Cleaning up socket listeners");
         socketService.removeMessageListener(messageListener);
         socketService.removeConnectionListener(connectionListener);
       };
     }
   }, [userToken, selectedChat]);
+
+  // Add a separate effect to handle chat room joining when selectedChat changes
+  useEffect(() => {
+    if (selectedChat && userToken && socketService.isConnected()) {
+      console.log("Selected chat changed, joining room:", selectedChat.id);
+      socketService.joinChat(selectedChat.id);
+    }
+  }, [selectedChat, userToken]);
 
   // Fetch all chats
   useEffect(() => {
@@ -137,8 +175,12 @@ const ChatPage = () => {
 
   // Handle new user chat from URL
   useEffect(() => {
-    if (newUserId && userToken) {
-      // Check if chat already exists
+    const handleNewUserChat = async () => {
+      if (!newUserId || !userToken || processingNewChatRef.current) {
+        return;
+      }
+
+      // Check if chat already exists with this user
       const existingChat = chats.find(
         (chatData) =>
           chatData.chat.user1Id === parseInt(newUserId) ||
@@ -148,11 +190,18 @@ const ChatPage = () => {
       if (existingChat) {
         handleSelectChat(existingChat.chat, existingChat.user);
       } else {
-        // Create a new chat with this user
-        createNewChat(parseInt(newUserId));
+        // Set reference flag to prevent multiple calls
+        processingNewChatRef.current = true;
+        try {
+          await createNewChat(parseInt(newUserId));
+        } finally {
+          processingNewChatRef.current = false;
+        }
       }
-    }
-  }, [newUserId, chats, userToken]);
+    };
+
+    handleNewUserChat();
+  }, [newUserId, userToken]);
 
   const createNewChat = async (userId: number) => {
     try {
@@ -180,9 +229,20 @@ const ChatPage = () => {
   };
 
   const handleSelectChat = (chat: Chat, user: User) => {
+    console.log(`Selecting chat with ID ${chat.id}`);
     setSelectedChat(chat);
     setSelectedChatUser(user);
     fetchMessages(chat.id);
+
+    // Explicitly join the chat room to ensure we receive messages
+    if (socketService.isConnected()) {
+      console.log(`Joining chat room ${chat.id} from handleSelectChat`);
+      socketService.joinChat(chat.id);
+    } else {
+      console.log("Socket not connected when trying to join chat room");
+      socketService.connect(userToken!);
+      setTimeout(() => socketService.joinChat(chat.id), 500); // Give it time to connect
+    }
   };
 
   const fetchMessages = async (chatId: number) => {
@@ -211,7 +271,8 @@ const ChatPage = () => {
     if (!selectedChat || !content.trim() || !userToken) return;
 
     try {
-      const response = await fetch(
+      // Send message to the server but don't update UI directly
+      await fetch(
         `http://localhost:3000/api/chats/${selectedChat.id}/messages`,
         {
           method: "POST",
@@ -223,27 +284,8 @@ const ChatPage = () => {
         }
       );
 
-      if (response.ok) {
-        const newMessage = await response.json();
-        setMessages((prev) => [newMessage, ...prev]);
-
-        // Update the chat's updatedAt time indirectly by updating the chat list
-        // This is a simplified approach - in a real app you might want to sort the chats again
-        const updatedChat = {
-          ...selectedChat,
-          updatedAt: new Date().toISOString(),
-        };
-        setSelectedChat(updatedChat);
-
-        // Update the chat in the chats array
-        setChats((prevChats) =>
-          prevChats.map((chatData) =>
-            chatData.chat.id === selectedChat.id
-              ? { ...chatData, chat: updatedChat }
-              : chatData
-          )
-        );
-      }
+      // The message will be received via WebSocket and handled by the messageListener
+      // This ensures consistency between sender and receiver UI updates
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -267,15 +309,7 @@ const ChatPage = () => {
     <div className="flex flex-col space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Chat</h1>
-        <button
-          onClick={() => setShowNewChatForm(!showNewChatForm)}
-          className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark"
-        >
-          {showNewChatForm ? "Hide New Chat Form" : "New Chat"}
-        </button>
       </div>
-
-      {showNewChatForm && <NewChatForm />}
 
       <div className="flex h-[calc(100vh-200px)] bg-white rounded-lg shadow-lg overflow-hidden">
         <ChatList

@@ -3,8 +3,8 @@ import { skillTransfers } from "./skillTransfer.model";
 import { relations } from "drizzle-orm";
 
 export const sessions = sqliteTable("sessions", {
-  id: text("id").primaryKey(),
-  skillTransferId: text("skill_transfer_id")
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  skillTransferId: integer("skill_transfer_id")
     .notNull()
     .references(() => skillTransfers.id),
   title: text("title").notNull(),

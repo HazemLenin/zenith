@@ -23,9 +23,12 @@ const ChatList: React.FC<ChatListProps> = ({
           chats.map((chat) => (
             <div
               key={chat.id}
-              className={`flex items-center p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${
-                selectedChat?.id === chat.id ? "bg-gray-100" : ""
-              }`}
+              className={`flex items-center p-4 border-b border-gray-200 cursor-pointer transition-colors duration-200 
+                ${
+                  selectedChat?.id === chat.id
+                    ? "bg-gray-200"
+                    : "hover:bg-gray-100"
+                }`}
               onClick={() => onSelectChat(chat)}
             >
               <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center mr-3">
