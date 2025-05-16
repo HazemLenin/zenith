@@ -54,11 +54,12 @@ npm run seed
 
 The seeder will create the following test users:
 
-| Role              | Email                      | Password   | Description                  |
-| ----------------- | -------------------------- | ---------- | ---------------------------- |
-| Admin             | admin@zenith.com           | admin123   | System administrator         |
-| Student           | student@zenith.com         | student123 | Learning student             |
-| Student (Teacher) | teacher.student@zenith.com | teacher123 | Student who can teach others |
+| Role              | Email                      | Password      | Description                  |
+| ----------------- | -------------------------- | ------------- | ---------------------------- |
+| Admin             | admin@zenith.com           | admin123      | System administrator         |
+| Instructor        | instructor@zenith.com      | instructor123 | Course instructor            |
+| Student           | student@zenith.com         | student123    | Learning student             |
+| Student (Teacher) | teacher.student@zenith.com | teacher123    | Student who can teach others |
 
 The seeder will also create:
 
