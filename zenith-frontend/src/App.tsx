@@ -9,11 +9,11 @@ import Profile from "./pages/Profile";
 import ChapterDetails from "./pages/ChapterDetails";
 import Search from "./pages/Search";
 import SearchCourses from "./pages/CoursesSearch";
+import Coursesupload from "./pages/Coursesupload";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
 // This should come from your authentication system
-import Coursesupload from "./pages/Coursesupload";
 
 function App() {
   const router = createBrowserRouter([
@@ -21,12 +21,10 @@ function App() {
       path: "",
       element: <Layout />,
       children: [
-        { index: true, path: "/", element: <Home /> },
-        { index: true, path: "login", element: <Login /> },
-        { index: true, path: "signup", element: <SignUp /> },
-
+        { path: "/", element: <Home /> },
+        { path: "login", element: <Login /> },
+        { path: "signup", element: <SignUp /> },
         {
-          index: true,
           path: "SkillDetails",
           element: <ProtectedRoute children={<SkillDetails />} />,
         },
@@ -35,22 +33,16 @@ function App() {
           element: <ProtectedRoute children={<Profile />} />,
         },
         {
-          index: true,
           path: "courses/:coursId/chapters",
           element: <ProtectedRoute children={<ChapterDetails />} />,
         },
         {
-          index: true,
           path: "skill-transfers/teachers-search",
-          element: <ProtectedRoute children={<Search />} />,
-        { index: true, path: "SkillDetails", element: <SkillDetails /> },
-        { path: "users/:username", element: <Profile /> },
-        { index: true, path: "courses/:coursId/chapters", element: <ChapterDetails /> },
-        { index: true, path: "skill-transfers/teachers-search", element: <Search /> },
-        { path: "courses/upload", element: <Coursesupload /> },
-        {
-          path: "courses",
-          element: <ProtectedRoute children={<NotFound />} />,
+          element: <ProtectedRoute children={<Search />} />
+        },
+        { 
+          path: "courses/upload", 
+          element: <ProtectedRoute children={<Coursesupload />} /> 
         },
         {
           path: "courses",
