@@ -8,7 +8,7 @@ import SkillDetails from "./pages/SkillDetails";
 import Profile from "./pages/Profile";
 import ChapterDetails from "./pages/ChapterDetails";
 import Search from "./pages/Search";
-
+import SearchCourses from "./pages/CoursesSearch";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -23,17 +23,29 @@ function App() {
         { index: true, path: "/", element: <Home /> },
         { index: true, path: "login", element: <Login /> },
         { index: true, path: "signup", element: <SignUp /> },
-        { index: true, path: "SkillDetails", element: <SkillDetails /> },
-        { path: "users/:username", element: <Profile /> },
-        { index: true, path: "courses/:coursId/chapters", element: <ChapterDetails/> },
-        { index: true, path: "skill-transfers/teachers-search", element: <Search/> },
+
         {
-          path: "courses",
-          element: <ProtectedRoute children={<NotFound />} />,
+          index: true,
+          path: "SkillDetails",
+          element: <ProtectedRoute children={<SkillDetails />} />,
         },
         {
-          path: "community",
-          element: <ProtectedRoute children={<NotFound />} />,
+          path: "users/:username",
+          element: <ProtectedRoute children={<Profile />} />,
+        },
+        {
+          index: true,
+          path: "courses/:coursId/chapters",
+          element: <ProtectedRoute children={<ChapterDetails />} />,
+        },
+        {
+          index: true,
+          path: "skill-transfers/teachers-search",
+          element: <ProtectedRoute children={<Search />} />,
+        },
+        {
+          path: "courses",
+          element: <ProtectedRoute children={<SearchCourses />} />,
         },
         {
           path: "chat",

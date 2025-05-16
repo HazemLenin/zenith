@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { TextInput, Spinner, Alert } from "flowbite-react";
-import { CourseCard } from "../components";
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import { Spinner, Alert } from "flowbite-react";
+import { CourseCard, Input } from "../components";
+import { UserContext } from "../context/UserContext";
 
 interface Course {
   id: string;
@@ -18,6 +19,7 @@ interface Course {
 }
 
 const SearchCourses: React.FC = () => {
+  const { userToken } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,7 +31,11 @@ const SearchCourses: React.FC = () => {
         setLoading(true);
         setError("");
 
-        const response = await fetch(`/api/courses`);
+        const response = await fetch(`http://localhost:3000/api/courses`, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
@@ -39,33 +45,37 @@ const SearchCourses: React.FC = () => {
           course.title.toLowerCase().includes(query.toLowerCase())
         );
         setCourses(filtered);
-      } catch (err) {
+      } catch (error) {
         setError("Error fetching courses. Please try again.");
-        console.error(err);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     },
-    []
+    [userToken]
   );
 
   const fetchAllCourses = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(`/api/courses`);
+      const response = await fetch(`http://localhost:3000/api/courses`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch courses");
       }
       const data = await response.json();
       setCourses(data);
-    } catch (err) {
+    } catch (error) {
       setError("Error fetching courses. Please try again.");
       setCourses([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userToken]);
 
   useEffect(() => {
     if (!searchQuery) {
@@ -83,12 +93,11 @@ const SearchCourses: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-center mb-8">
-        <TextInput
+        <Input
           type="text"
           placeholder="Search courses..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full max-w-md"
+          onChangeFun={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
@@ -106,11 +115,7 @@ const SearchCourses: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            onReadMore={() => console.log("Read more about:", course.title)}
-          />
+          <CourseCard key={course.id} course={course} />
         ))}
       </div>
 

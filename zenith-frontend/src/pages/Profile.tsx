@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import CourseCard from "../components/CourseCard/CourseCard";
+import { UserContext } from "../context/UserContext";
 
 interface Skill {
   skillId: number;
@@ -11,6 +12,7 @@ interface Skill {
 }
 
 interface Course {
+  id: number;
   title: string;
   description?: string;
   price?: number;
@@ -45,15 +47,15 @@ const Profile: React.FC = () => {
   const [data, setData] = useState<UserData | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { userToken } = useContext(UserContext);
   useEffect(() => {
     if (!username) return;
     setLoading(true);
-    const token = localStorage.getItem("token"); 
+
     axios
       .get<UserData>(`http://localhost:3000/api/users/${username}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       })
       .then((res) => {
@@ -72,7 +74,12 @@ const Profile: React.FC = () => {
     try {
       const res = await axios.put(
         `http://localhost:3000/api/skills/students/${data.user.id}/skills`,
-        { skills: updatedSkills }
+        { skills: updatedSkills },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
       );
       setSkills(res.data);
     } catch {
@@ -105,14 +112,27 @@ const Profile: React.FC = () => {
   const isInstructor = user.role === "instructor";
 
   return (
-    <div className="flex-1 p-6" style={{ background: "linear-gradient(135deg, #e3f2fd 60%, #f8fafc 100%)", minHeight: "100vh" }}>
-      <div className="max-w-4xl mx-auto rounded-2xl shadow-xl p-8" style={{ background: "#fff" }}>
-        <div className="flex flex-col md:flex-row justify-between items-center border-b pb-6 mb-8 gap-6" style={{ borderColor: "#e0e7ef" }}>
+    <div
+      className="flex-1 p-6"
+      style={{
+        background: "linear-gradient(135deg, #e3f2fd 60%, #f8fafc 100%)",
+        minHeight: "100vh",
+      }}
+    >
+      <div
+        className="max-w-4xl mx-auto rounded-2xl shadow-xl p-8"
+        style={{ background: "#fff" }}
+      >
+        <div
+          className="flex flex-col md:flex-row justify-between items-center border-b pb-6 mb-8 gap-6"
+          style={{ borderColor: "#e0e7ef" }}
+        >
           <div className="flex items-center gap-6">
             <div
               className="w-24 h-24 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg"
               style={{
-                background: "linear-gradient(135deg, #2a5c8a 60%, #64b5f6 100%)",
+                background:
+                  "linear-gradient(135deg, #2a5c8a 60%, #64b5f6 100%)",
                 boxShadow: "0 4px 16px #e3f2fd55",
               }}
             >
@@ -120,7 +140,10 @@ const Profile: React.FC = () => {
               {user.lastName?.[0] || ""}
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold mb-1" style={{ color: "#2f327d" }}>
+              <h1
+                className="text-3xl font-extrabold mb-1"
+                style={{ color: "#2f327d" }}
+              >
                 {fullName}
               </h1>
               <p className="text-gray-600 text-sm">@{user.username}</p>
@@ -133,7 +156,8 @@ const Profile: React.FC = () => {
               className="font-semibold px-8 py-5 rounded-xl shadow text-center"
               style={{
                 minWidth: 140,
-                background: "linear-gradient(135deg, #2a5c8a 60%, #64b5f6 100%)",
+                background:
+                  "linear-gradient(135deg, #2a5c8a 60%, #64b5f6 100%)",
                 color: "#fff",
                 boxShadow: "0 4px 16px #e3f2fd55",
               }}
@@ -148,7 +172,8 @@ const Profile: React.FC = () => {
               className="font-semibold px-8 py-5 rounded-xl shadow text-center"
               style={{
                 minWidth: 140,
-                background: "linear-gradient(135deg, #ff9800 60%, #ffd180 100%)",
+                background:
+                  "linear-gradient(135deg, #ff9800 60%, #ffd180 100%)",
                 color: "#fff",
                 boxShadow: "0 4px 16px #ffe0b255",
               }}
@@ -186,7 +211,9 @@ const Profile: React.FC = () => {
                           key={skill.skillId}
                           className="flex justify-between items-center bg-white rounded-lg px-4 py-2 border border-gray-200 shadow-sm"
                         >
-                          <span className="text-gray-800 font-medium">{skill.description}</span>
+                          <span className="text-gray-800 font-medium">
+                            {skill.description}
+                          </span>
                           {type === "learned" && (
                             <span className="text-sm font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
                               {skill.points} pts
@@ -205,7 +232,10 @@ const Profile: React.FC = () => {
 
         {isInstructor && (
           <section>
-            <h2 className="text-2xl font-bold mb-6" style={{ color: "#ff9800" }}>
+            <h2
+              className="text-2xl font-bold mb-6"
+              style={{ color: "#ff9800" }}
+            >
               Courses
             </h2>
             {profile.courses && profile.courses.length > 0 ? (
