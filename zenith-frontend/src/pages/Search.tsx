@@ -86,15 +86,17 @@ import axios from "axios";
         if (currentUser?.username) {
             fetchUserData();
         }
-    });
+    }, [currentUser?.username]);
     // get needed skills from userData state
-    const user_skills_needed = userData.profile.skills
-    .filter(skill => skill.type === "needed")
-    .map((skill) => ({
-        label: skill.title,
-        value: skill.title,
-        skillId: skill.id,
-    }))
+    const user_skills_needed = userData?.profile?.skills
+        ? userData.profile.skills
+            .filter(skill => skill.type === "needed")
+            .map((skill) => ({
+                label: skill.title,
+                value: skill.title,
+                skillId: skill.id,
+            }))
+        : []
     // search function by skill Id 
     async function searchFunction (){
         if(selectedSkill){
@@ -114,14 +116,16 @@ import axios from "axios";
     //request function
     async function request(id?: number | string) {
         const selectedTeacher = teachersOffers.find(o => o.teacherId === id);
-        setTeacher(selectedTeacher);
-        setIsOpen(true);
+        if (selectedTeacher) {
+            setTeacher(selectedTeacher);
+            setIsOpen(true);
+        }
     }
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
             <Modal
             open={isOpen}
-            title='Skill reqest'
+            title='skill reqest'
             onClose={() => setIsOpen(false)}
             footer={<div className="flex gap-2"><Button btnName="Yes"/><Button btnFun={()=>{setIsOpen(false)}} btnName="No"/></div>}
             >
@@ -140,8 +144,8 @@ import axios from "axios";
         <div>
             {
             teachersOffers.map((offer) => (
-                <Card>
-                <div key={offer.teacherId} className="flex justify-between items-center w-full">
+                <Card key={offer.teacherId}>
+                <div className="flex justify-between items-center w-full">
                 <div className="flex flex-col">
                     <div>{offer.teacherFirstName} {offer.teacherLastName}</div>
                     <div className="flex items-center">Total Points :
