@@ -1,0 +1,55 @@
+.needed-skills-container {
+  background-color: #f9f9f9;
+  padding: 50px;
+  border-radius: 15px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.needed-skills-title {
+  font-size: 50px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.needed-skills-input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.needed-skills-input {
+  flex-grow: 1;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 25px;
+}
+
+.needed-skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid #ddd;
+}
+
+.needed-skills-list li {
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #444;
+}
+
+.needed-skills-list button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #e74c3c;
+}
+
+.needed-skills-list button:hover {
+  color: #c0392b;
+}

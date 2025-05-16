@@ -10,8 +10,8 @@ export const NotFound: React.FC = () => {
           </p>  
         </div>
       </main>
-
     </div>
 
   );
 };
+

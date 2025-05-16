@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Zenith API
   version: 1.0.0
@@ -34,7 +34,11 @@ components:
         skills:
           type: array
           items:
-            $ref: "#/components/schemas/Skill"
+            allOf:
+              - $ref: "#/components/schemas/Skill"
+              - type: object
+                properties:
+                  type: { type: string, enum: [learned, needed] }
     CourseUpload:
       type: object
       properties:
@@ -123,20 +127,11 @@ components:
         studentId: { type: integer }
         paid: { type: number }
         enrolledAt: { type: string, format: date-time }
-    SkillCategory:
-      type: object
-      properties:
-        id: { type: integer }
-        name: { type: string }
-        description: { type: string }
-        minPoints: { type: integer }
-        maxPoints: { type: integer }
     Skill:
       type: object
       properties:
         id: { type: integer }
         title: { type: string }
-        categoryId: { type: integer }
     StudentSkill:
       type: object
       properties:
@@ -457,35 +452,14 @@ paths:
         200:
           description: PDF Certificate
 
-  /skills/categories:
+  /skills:
     get:
       tags:
         - Skills
-      summary: Get all skill categories
+      summary: Get all skills
       responses:
         200:
-          description: Skill categories retrieved
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SkillCategory"
-
-  /skills/categories/{categoryId}/skills:
-    get:
-      tags:
-        - Skills
-      summary: Get skills by category
-      parameters:
-        - in: path
-          name: categoryId
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Skills retrieved
+          description: Skills retrieved successfully
           content:
             application/json:
               schema:
@@ -545,7 +519,8 @@ paths:
     post:
       tags:
         - Chats
-      summary: Create a new chat
+      summary: Create a new chat or get existing chat
+      description: Checks if a chat already exists between the current user and specified user. If it exists, returns the existing chat; otherwise creates a new one.
       security:
         - BearerAuth: []
       requestBody:
@@ -555,11 +530,24 @@ paths:
             schema:
               type: object
               properties:
-                userId: { type: integer }
+                userId:
+                  type: integer
+                  description: ID of the user to create/get a chat with
               required: [userId]
       responses:
-        200:
-          description: Chat created
+        "200":
+          description: Existing chat found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat:
+                    $ref: "#/components/schemas/Chat"
+                  user:
+                    $ref: "#/components/schemas/User"
+        "201":
+          description: New chat created
           content:
             application/json:
               schema:
@@ -627,8 +615,8 @@ paths:
               type: object
               properties:
                 skillId: { type: integer }
-                teacherProfileId: { type: integer }
-              required: [skillId, teacherProfileId]
+                teacherId: { type: integer }
+              required: [skillId, teacherId]
       responses:
         200:
           description: Skill transfer request created successfully
@@ -704,7 +692,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcceptTransferRequest"
+              type: array
+              items:
+                $ref: "#/components/schemas/AcceptTransferRequest"
       responses:
         200:
           description: Request accepted successfully
@@ -714,6 +704,16 @@ paths:
       tags:
         - SkillTransfers
       summary: Get my skill transfers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [learned, needed]
       responses:
         200:
           description: Skill transfers retrieved

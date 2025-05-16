@@ -34,42 +34,17 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       setIsAuthenticated(true);
 
       // Fetch user data from token if needed
-      try {
-        const base64Url = userToken.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const payload = JSON.parse(window.atob(base64));
+      const base64Url = userToken.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const payload = JSON.parse(window.atob(base64));
 
-        setCurrentUser(payload.user);
-      } catch (error) {
-        console.error("Error parsing token:", error);
-      }
+      setCurrentUser(payload);
     } else {
       localStorage.removeItem("userToken");
       setIsAuthenticated(false);
       setCurrentUser(null);
     }
   }, [userToken]);
-
-  const fetchUserData = async (token: string) => {
-    try {
-      // This would be replaced with your actual API endpoint
-      const response = await fetch(
-        `http://localhost:3000/api/users/${currentUser?.username}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const userData = await response.json();
-        setCurrentUser(userData);
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
 
   return (
     <UserContext.Provider

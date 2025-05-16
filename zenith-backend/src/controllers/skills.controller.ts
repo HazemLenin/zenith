@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "../db";
-import { skillCategories, skills, studentSkills } from "../models";
+import { skills, studentSkills } from "../models";
 import { eq } from "drizzle-orm";
 import { StudentSkillTypeEnum } from "../models/studentSkill.model";
 import { SkillViewModel } from "../viewmodels/skill/skill.viewmodel";
@@ -9,41 +9,17 @@ import { StudentSkillViewModel } from "../viewmodels/skill/studentSkill.viewmode
 import { ErrorViewModel } from "../viewmodels/error.viewmodel";
 
 export class SkillsController {
-  static async getCategories(req: Request, res: Response) {
+  static async getAllSkills(req: Request, res: Response) {
     try {
-      const categories = await db.select().from(skillCategories);
-      const viewModels = categories.map(
-        (category) => new SkillCategoryViewModel(category)
-      );
+      const allSkills = await db.select().from(skills);
+
+      const viewModels = allSkills.map((skill) => new SkillViewModel(skill));
       res.json(viewModels);
     } catch (error) {
       res
         .status(500)
         .json(
-          ErrorViewModel.internalError(
-            "Failed to fetch skill categories"
-          ).toJSON()
-        );
-    }
-  }
-
-  static async getSkillsByCategory(req: Request, res: Response) {
-    try {
-      const { categoryId } = req.params;
-      const skillsList = await db
-        .select()
-        .from(skills)
-        .where(eq(skills.categoryId, parseInt(categoryId)));
-
-      const viewModels = skillsList.map((skill) => new SkillViewModel(skill));
-      res.json(viewModels);
-    } catch (error) {
-      res
-        .status(500)
-        .json(
-          ErrorViewModel.internalError(
-            "Failed to fetch skills by category"
-          ).toJSON()
+          ErrorViewModel.internalError("Failed to retrieve skills").toJSON()
         );
     }
   }
