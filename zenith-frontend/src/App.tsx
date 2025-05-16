@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import ChapterDetails from "./pages/ChapterDetails";
 import Search from "./pages/Search";
 
+
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
 // This should come from your authentication system
