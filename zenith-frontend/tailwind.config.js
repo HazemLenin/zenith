@@ -6,6 +6,8 @@ export default {
     "node_modules/flowbite-react/lib/esm/**/*.js",
   ],
   theme: {
+    extend: {},
+      
     colors: {
       primary: {
         DEFAULT: "#2a5c8a",
@@ -34,4 +36,5 @@ export default {
     },
   },
   plugins: [require("flowbite/plugin")],
-};
+}
+

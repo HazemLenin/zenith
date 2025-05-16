@@ -48,7 +48,7 @@ export default function Navbar(): JSX.Element {
             className="hidden w-full md:w-auto flex-grow md:flex md:justify-between"
             id="navbar-default"
           >
-            {userToken && (
+            {userToken  && (
               <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
                 <li>
                   <NavLink
