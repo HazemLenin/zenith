@@ -267,6 +267,20 @@ export class CoursesController {
     try {
       const courseId = parseInt(req.params.id);
 
+      // First check if course exists
+      const course = await db
+        .select()
+        .from(courses)
+        .where(eq(courses.id, courseId))
+        .limit(1);
+
+      if (!course.length) {
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("Course not found").toJSON());
+        return;
+      }
+
       const chapters = await db
         .select({
           id: courseChapters.id,
@@ -277,17 +291,7 @@ export class CoursesController {
         .where(eq(courseChapters.courseId, courseId))
         .orderBy(courseChapters.orderIndex);
 
-      if (!chapters.length) {
-        res
-          .status(404)
-          .json(
-            ErrorViewModel.notFound(
-              "No chapters found for this course"
-            ).toJSON()
-          );
-        return;
-      }
-
+      // Return empty array if no chapters found instead of 404
       res.json(chapters);
     } catch (error) {
       console.error("Error fetching course chapters:", error);
