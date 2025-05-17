@@ -11,6 +11,7 @@ import Search from "./pages/Search";
 import SearchCourses from "./pages/CoursesSearch";
 import CoursesUpload from "./pages/CoursesUpload";
 import CourseDetails from "./pages/CourseDetails";
+import Requests from "./pages/Requests";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -65,6 +66,14 @@ function App() {
               children={<CoursesUpload />}
             />
           ),
+        },
+        {
+          path: "skill-transfers/my-requests",
+          element: <ProtectedRoute children={<Requests />} />,
+        },
+        {
+          path: "courses/upload",
+          element: <ProtectedRoute children={<CoursesUpload />} />,
         },
         {
           path: "courses",
