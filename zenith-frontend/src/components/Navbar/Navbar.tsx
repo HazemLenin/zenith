@@ -60,10 +60,16 @@ export default function Navbar(): JSX.Element {
                 </li>
                 <li>
                   <NavLink
-                    to="/courses"
+                    to={
+                      currentUser?.role === "instructor"
+                        ? "/courses/upload"
+                        : "/courses"
+                    }
                     className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
                   >
-                    Courses
+                    {currentUser?.role === "instructor"
+                      ? "Upload Course"
+                      : "Courses"}
                   </NavLink>
                 </li>
                 <li>

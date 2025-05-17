@@ -7,11 +7,12 @@ export default {
   ],
   theme: {
     extend: {},
-      
+
     colors: {
       primary: {
         DEFAULT: "#2a5c8a",
         disabled: "#94adc4",
+        active: "#1e4263",
       },
       warning: "#ff9800",
       background: "#e3f2fd",
@@ -36,5 +37,4 @@ export default {
     },
   },
   plugins: [require("flowbite/plugin")],
-}
-
+};

@@ -7,6 +7,8 @@ import {
   articles,
   enrollments,
   users,
+  instructorProfiles,
+  studentProfiles,
 } from "../models";
 import { eq, and, sql, InferInsertModel } from "drizzle-orm";
 import PDFDocument from "pdfkit";
@@ -23,7 +25,21 @@ export class CoursesController {
   static async uploadCourse(req: Request, res: Response): Promise<void> {
     try {
       const courseData: CourseUploadViewModel = req.body;
-      const instructorId = req.user!.id;
+      const userId = req.user!.id;
+
+      // Get instructor profile ID
+      const instructorProfile = await db
+        .select({ id: instructorProfiles.id })
+        .from(instructorProfiles)
+        .where(eq(instructorProfiles.userId, userId))
+        .limit(1);
+
+      if (!instructorProfile.length) {
+        res
+          .status(403)
+          .json(ErrorViewModel.forbidden("User is not an instructor").toJSON());
+        return;
+      }
 
       // Start a transaction
       const result = await db.transaction(async (tx) => {
@@ -34,18 +50,19 @@ export class CoursesController {
             title: courseData.title,
             description: courseData.description,
             price: courseData.price,
-            instructorId: instructorId,
+            instructorId: instructorProfile[0].id,
           } as NewCourse)
           .returning();
 
         // Create chapters, videos, and articles
-        for (const chapter of courseData.chapters) {
+        for (let i = 0; i < courseData.chapters.length; i++) {
+          const chapter = courseData.chapters[i];
           const [chapterRecord] = await tx
             .insert(courseChapters)
             .values({
               courseId: course.id,
               title: chapter.title,
-              orderIndex: chapter.order,
+              orderIndex: i, // Use array index as order
             })
             .returning();
 
@@ -121,6 +138,19 @@ export class CoursesController {
   static async getCourseDetails(req: Request, res: Response): Promise<void> {
     try {
       const courseId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Get student profile ID if user is a student
+      let studentProfileId: number | null = null;
+      const studentProfile = await db
+        .select({ id: studentProfiles.id })
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, userId))
+        .limit(1);
+
+      if (studentProfile.length) {
+        studentProfileId = studentProfile[0].id;
+      }
 
       const course = await db
         .select({
@@ -138,9 +168,17 @@ export class CoursesController {
             sql<number>`(SELECT COUNT(*) FROM ${courseChapters} WHERE ${courseChapters.courseId} = ${courses.id})`.as(
               "chaptersCount"
             ),
+          enrollmentCount:
+            sql<number>`(SELECT COUNT(*) FROM ${enrollments} WHERE ${enrollments.courseId} = ${courses.id})`.as(
+              "enrollmentCount"
+            ),
         })
         .from(courses)
-        .leftJoin(users, eq(users.instructorProfileId, courses.instructorId))
+        .leftJoin(
+          instructorProfiles,
+          eq(instructorProfiles.id, courses.instructorId)
+        )
+        .leftJoin(users, eq(users.id, instructorProfiles.userId))
         .where(eq(courses.id, courseId))
         .limit(1);
 
@@ -151,7 +189,26 @@ export class CoursesController {
         return;
       }
 
-      res.json(course[0]);
+      // Check if user is enrolled
+      let isEnrolled = false;
+      if (studentProfileId) {
+        const enrollment = await db
+          .select()
+          .from(enrollments)
+          .where(
+            and(
+              eq(enrollments.courseId, courseId),
+              eq(enrollments.studentId, studentProfileId)
+            )
+          )
+          .limit(1);
+        isEnrolled = enrollment.length > 0;
+      }
+
+      res.json({
+        ...course[0],
+        isEnrolled,
+      });
     } catch (error) {
       console.error("Error fetching course details:", error);
       res
@@ -163,10 +220,30 @@ export class CoursesController {
   }
 
   // Get instructor's courses
-  static async getMyCourses(req: Request, res: Response): Promise<void> {
+  static async getInstructorCourses(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
-      const instructorId = req.user!.id;
+      const username = req.params.username;
       const searchQuery = (req.query.search as string) || "";
+
+      // First get the instructor's ID from their username
+      const instructor = await db
+        .select({
+          id: instructorProfiles.id,
+        })
+        .from(instructorProfiles)
+        .leftJoin(users, eq(users.id, instructorProfiles.userId))
+        .where(eq(users.username, username))
+        .limit(1);
+
+      if (!instructor.length) {
+        res
+          .status(404)
+          .json(ErrorViewModel.notFound("Instructor not found").toJSON());
+        return;
+      }
 
       const courseList = await db
         .select({
@@ -179,7 +256,7 @@ export class CoursesController {
         .from(courses)
         .where(
           and(
-            eq(courses.instructorId, instructorId),
+            eq(courses.instructorId, instructor[0].id),
             searchQuery
               ? sql`${courses.title} LIKE ${`%${searchQuery}%`} OR ${
                   courses.description
@@ -205,7 +282,23 @@ export class CoursesController {
   static async enrollStudent(req: Request, res: Response): Promise<void> {
     try {
       const enrollmentData: CourseEnrollmentViewModel = req.body;
-      const studentId = req.user!.id;
+      const userId = req.user!.id;
+
+      // Get student profile ID
+      const studentProfile = await db
+        .select({ id: studentProfiles.id })
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, userId))
+        .limit(1);
+
+      if (!studentProfile.length) {
+        res
+          .status(400)
+          .json(
+            ErrorViewModel.validationError("Student profile not found").toJSON()
+          );
+        return;
+      }
 
       // Check if student is already enrolled
       const existingEnrollment = await db
@@ -214,7 +307,7 @@ export class CoursesController {
         .where(
           and(
             eq(enrollments.courseId, enrollmentData.courseId),
-            eq(enrollments.studentId, studentId)
+            eq(enrollments.studentId, studentProfile[0].id)
           )
         )
         .limit(1);
@@ -248,7 +341,7 @@ export class CoursesController {
         .insert(enrollments)
         .values({
           courseId: enrollmentData.courseId,
-          studentId: studentId,
+          studentId: studentProfile[0].id,
           paid: course[0].price,
         } as NewEnrollment)
         .returning();
@@ -309,6 +402,23 @@ export class CoursesController {
   static async getChapterDetails(req: Request, res: Response): Promise<void> {
     try {
       const { courseId, chapterId } = req.params;
+      const userId = req.user!.id;
+
+      // Get student profile ID
+      const studentProfile = await db
+        .select({ id: studentProfiles.id })
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, userId))
+        .limit(1);
+
+      if (!studentProfile.length) {
+        res
+          .status(400)
+          .json(
+            ErrorViewModel.validationError("Student profile not found").toJSON()
+          );
+        return;
+      }
 
       // Check if user is enrolled
       const enrollment = await db
@@ -317,7 +427,7 @@ export class CoursesController {
         .where(
           and(
             eq(enrollments.courseId, parseInt(courseId)),
-            eq(enrollments.studentId, req.user!.id)
+            eq(enrollments.studentId, studentProfile[0].id)
           )
         )
         .limit(1);

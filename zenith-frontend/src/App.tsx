@@ -9,7 +9,8 @@ import Profile from "./pages/Profile";
 import ChapterDetails from "./pages/ChapterDetails";
 import Search from "./pages/Search";
 import SearchCourses from "./pages/CoursesSearch";
-import Coursesupload from "./pages/Coursesupload";
+import CoursesUpload from "./pages/CoursesUpload";
+import CourseDetails from "./pages/CourseDetails";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -26,27 +27,53 @@ function App() {
         { path: "signup", element: <SignUp /> },
         {
           path: "SkillDetails",
-          element: <ProtectedRoute children={<SkillDetails />} />,
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<SkillDetails />}
+            />
+          ),
         },
         {
           path: "users/:username",
           element: <ProtectedRoute children={<Profile />} />,
         },
         {
+          path: "courses/:id",
+          element: <ProtectedRoute children={<CourseDetails />} />,
+        },
+        {
           path: "courses/:coursId/chapters",
-          element: <ProtectedRoute children={<ChapterDetails />} />,
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<ChapterDetails />}
+            />
+          ),
         },
         {
           path: "skill-transfers/teachers-search",
-          element: <ProtectedRoute children={<Search />} />
+          element: (
+            <ProtectedRoute allowedRoles={["student"]} children={<Search />} />
+          ),
         },
-        { 
-          path: "courses/upload", 
-          element: <ProtectedRoute children={<Coursesupload />} /> 
+        {
+          path: "courses/upload",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["instructor"]}
+              children={<CoursesUpload />}
+            />
+          ),
         },
         {
           path: "courses",
-          element: <ProtectedRoute children={<SearchCourses />} />,
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<SearchCourses />}
+            />
+          ),
         },
         {
           path: "chat",

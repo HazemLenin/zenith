@@ -78,16 +78,20 @@ components:
         description: { type: string }
         price: { type: number }
         instructor:
-          $ref: "#/components/schemas/User"
+          type: object
+          properties:
+            id: { type: integer }
+            firstName: { type: string }
+            lastName: { type: string }
+            username: { type: string }
     CourseDetail:
       allOf:
         - $ref: "#/components/schemas/CourseSummary"
         - type: object
           properties:
             chaptersCount: { type: integer }
-            rating: { type: number }
             enrollmentCount: { type: integer }
-            createdAt: { type: string, format: date-time }
+            isEnrolled: { type: boolean }
     Chapter:
       type: object
       properties:
@@ -336,14 +340,20 @@ paths:
                 items:
                   $ref: "#/components/schemas/CourseSummary"
 
-  /courses/my-courses:
+  /courses/instructor/{username}:
     get:
       tags:
         - Courses
-      summary: Get my courses (Instructor only)
+      summary: Get courses by instructor username
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
       responses:
         200:
-          description: My courses retrieved
+          description: Instructor's courses retrieved
           content:
             application/json:
               schema:

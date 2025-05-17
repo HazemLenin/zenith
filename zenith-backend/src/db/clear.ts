@@ -13,6 +13,8 @@ import {
   skillTransfers,
   sessions,
   users,
+  videos,
+  enrollments,
 } from "../models";
 
 // Create SQLite database connection
@@ -23,19 +25,27 @@ async function clear() {
   console.log("🧹 Starting database cleanup...");
 
   try {
-    // Delete in reverse order of dependencies
-    await db.delete(sessions);
-    await db.delete(skillTransfers);
+    // Disable foreign key checks
+    sqlite.pragma("foreign_keys = OFF");
+
+    // Delete all tables
     await db.delete(messages);
     await db.delete(chats);
+    await db.delete(sessions);
+    await db.delete(skillTransfers);
     await db.delete(studentSkills);
+    await db.delete(enrollments);
+    await db.delete(videos);
     await db.delete(articles);
     await db.delete(courseChapters);
     await db.delete(courses);
     await db.delete(skills);
-    await db.delete(instructorProfiles);
     await db.delete(studentProfiles);
+    await db.delete(instructorProfiles);
     await db.delete(users);
+
+    // Re-enable foreign key checks
+    sqlite.pragma("foreign_keys = ON");
 
     console.log("✅ Database cleared successfully!");
   } catch (error) {
