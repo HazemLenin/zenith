@@ -3,7 +3,6 @@
 // Chat components
 export { default as ChatList } from "./Chat/ChatList";
 export { default as ChatWindow } from "./Chat/ChatWindow";
-export { default as NewChatForm } from "./Chat/NewChatForm";
 
 // Layout components
 export { default as Layout } from "./Layout/Layout";

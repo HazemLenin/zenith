@@ -2,11 +2,16 @@
   "name": "zenith-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=23.0.0"
+  },
   "scripts": {
     "start": "nodemon src/index.ts",
     "build": "tsc",
     "start:prod": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "ts-node src/db/seed.ts",
+    "clear": "ts-node src/db/clear.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +22,7 @@
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.1",
-    "drizzle-kit": "^0.31.0",
+    "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
@@ -32,7 +37,7 @@
     "better-sqlite3": "^11.9.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "drizzle-orm": "^0.42.0",
+    "drizzle-orm": "^0.43.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "pdfkit": "^0.17.0",

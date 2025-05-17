@@ -5,6 +5,13 @@ import "./App.css";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import SkillDetails from "./pages/SkillDetails";
+import Profile from "./pages/Profile";
+import ChapterDetails from "./pages/ChapterDetails";
+import Search from "./pages/Search";
+import SearchCourses from "./pages/CoursesSearch";
+import CoursesUpload from "./pages/CoursesUpload";
+import CourseDetails from "./pages/CourseDetails";
+import Requests from "./pages/Requests";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -16,17 +23,66 @@ function App() {
       path: "",
       element: <Layout />,
       children: [
-        { index: true, path: "/", element: <Home /> },
-        { index: true, path: "login", element: <Login /> },
-        { index: true, path: "signup", element: <SignUp /> },
-        { index: true, path: "SkillDetails", element: <SkillDetails /> },
+        { path: "/", element: <Home /> },
+        { path: "login", element: <Login /> },
+        { path: "signup", element: <SignUp /> },
         {
-          path: "courses",
-          element: <ProtectedRoute children={<NotFound />} />,
+          path: "SkillDetails",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<SkillDetails />}
+            />
+          ),
         },
         {
-          path: "community",
-          element: <ProtectedRoute children={<NotFound />} />,
+          path: "users/:username",
+          element: <ProtectedRoute children={<Profile />} />,
+        },
+        {
+          path: "courses/:id",
+          element: <ProtectedRoute children={<CourseDetails />} />,
+        },
+        {
+          path: "courses/:coursId/chapters",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<ChapterDetails />}
+            />
+          ),
+        },
+        {
+          path: "skill-transfers/teachers-search",
+          element: (
+            <ProtectedRoute allowedRoles={["student"]} children={<Search />} />
+          ),
+        },
+        {
+          path: "courses/upload",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["instructor"]}
+              children={<CoursesUpload />}
+            />
+          ),
+        },
+        {
+          path: "skill-transfers/my-requests",
+          element: <ProtectedRoute children={<Requests />} />,
+        },
+        {
+          path: "courses/upload",
+          element: <ProtectedRoute children={<CoursesUpload />} />,
+        },
+        {
+          path: "courses",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<SearchCourses />}
+            />
+          ),
         },
         {
           path: "chat",

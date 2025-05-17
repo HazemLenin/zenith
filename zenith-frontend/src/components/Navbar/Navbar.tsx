@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
 
 export default function Navbar(): JSX.Element {
-  const { userToken, setUserToken } = useContext(UserContext);
+  const { userToken, setUserToken, currentUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   function LogOut(): void {
@@ -60,18 +60,16 @@ export default function Navbar(): JSX.Element {
                 </li>
                 <li>
                   <NavLink
-                    to="/courses"
+                    to={
+                      currentUser?.role === "instructor"
+                        ? "/courses/upload"
+                        : "/courses"
+                    }
                     className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
                   >
-                    Courses
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/community"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Community
+                    {currentUser?.role === "instructor"
+                      ? "Upload Course"
+                      : "Courses"}
                   </NavLink>
                 </li>
                 <li>
@@ -86,14 +84,28 @@ export default function Navbar(): JSX.Element {
             )}
             <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
               {userToken && (
-                <li>
-                  <span
-                    onClick={LogOut}
-                    className="block py-2 px-3 rounded hover:bg-gray-100 cursor-pointer md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary"
-                  >
-                    Log out
-                  </span>
-                </li>
+                <>
+                  <li>
+                    <NavLink
+                      to={`/users/${currentUser?.username}`}
+                      className="flex items-center gap-2 py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary"
+                    >
+                      <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm">
+                        {currentUser?.firstName?.charAt(0)}
+                        {currentUser?.lastName?.charAt(0)}
+                      </div>
+                      <span>Profile</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <span
+                      onClick={LogOut}
+                      className="block py-2 px-3 rounded hover:bg-gray-100 cursor-pointer md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary"
+                    >
+                      Log out
+                    </span>
+                  </li>
+                </>
               )}
               {!userToken && (
                 <>

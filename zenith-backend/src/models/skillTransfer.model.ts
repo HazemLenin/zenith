@@ -7,7 +7,7 @@ export const SkillTransferStatus = {
   PENDING: "pending",
   IN_PROGRESS: "in_progress",
   FINISHED: "finished",
-  REJECTED: "rejected",
+  // REJECTED: "rejected",
 } as const;
 
 export type SkillTransferStatus =
@@ -31,7 +31,7 @@ export const skillTransfers = sqliteTable("skill_transfers", {
       SkillTransferStatus.PENDING,
       SkillTransferStatus.IN_PROGRESS,
       SkillTransferStatus.FINISHED,
-      SkillTransferStatus.REJECTED,
+      // SkillTransferStatus.REJECTED,
     ],
   })
     .notNull()

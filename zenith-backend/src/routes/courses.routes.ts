@@ -8,7 +8,11 @@ const router = Router();
 // Course routes
 router.post("/", instructorMiddleware, CoursesController.uploadCourse);
 router.get("/", authMiddleware, CoursesController.getCourses);
-router.get("/my-courses", instructorMiddleware, CoursesController.getMyCourses);
+router.get(
+  "/instructor/:username",
+  authMiddleware,
+  CoursesController.getInstructorCourses
+);
 router.get("/:id", authMiddleware, CoursesController.getCourseDetails);
 router.get(
   "/:id/chapters",

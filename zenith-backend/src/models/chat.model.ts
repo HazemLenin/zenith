@@ -31,9 +31,11 @@ export const chatsRelations = relations(chats, ({ many, one }) => ({
   user1: one(users, {
     fields: [chats.user1Id],
     references: [users.id],
+    relationName: "user1",
   }),
   user2: one(users, {
     fields: [chats.user2Id],
     references: [users.id],
+    relationName: "user2",
   }),
 }));
