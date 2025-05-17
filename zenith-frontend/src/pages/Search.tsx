@@ -168,7 +168,11 @@ export default function Search() {
                     onChange={setSelectedSkill}
                     options={user_skills_needed}
                 />
-                <Button btnFun={() => searchFunction()} btnName="Search" />
+                <div className="w-32">
+                    <Button onClick={() => searchFunction()} >
+                    Search
+                    </Button>
+                </div>
             </div>
             <div>
                 {
@@ -181,7 +185,7 @@ export default function Search() {
                                         <span className="flex items-center pl-2">{offer.points}<img className="w-8 h-8 ml-1.5" src="/points.png" /></span>
                                     </div>
                                 </div>
-                                <div className="rightSide"><Button btnFun={() => request(offer.teacherId)} btnName="Request" /></div>
+                                <div className="rightSide"><Button onClick={() => request(offer.teacherId)} >Request</Button></div>
                             </div>
                         </Card>
                     ))

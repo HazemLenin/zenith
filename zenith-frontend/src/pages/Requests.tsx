@@ -3,10 +3,12 @@ import axios from 'axios';
 import { Button } from '../components';
 import Card from '../components/Card/Card';
 import Toast from "../components/Toast/Toast";
+import { Link } from 'react-router-dom';
 export default function Requests() {
     interface Request {
         studentFirstname: string;
         studentLastname: string;
+        studentUsername: string;
         skillId: number;
         skillTitle: string;
         skillPoints: number;
@@ -23,6 +25,7 @@ useEffect(() => {
         {
             studentFirstname: "John",
             studentLastname: "Doe",
+            studentUsername:'userName',
             skillId: 1,
             skillTitle: "React Development",
             skillPoints: 100
@@ -30,6 +33,7 @@ useEffect(() => {
         {
             studentFirstname: "Sarah",
             studentLastname: "Smith",
+            studentUsername:'userName',
             skillId: 2,
             skillTitle: "TypeScript",
             skillPoints: 75
@@ -37,6 +41,7 @@ useEffect(() => {
         {
             studentFirstname: "Michael",
             studentLastname: "Johnson",
+            studentUsername:'userName',
             skillId: 3,
             skillTitle: "Node.js",
             skillPoints: 85
@@ -56,10 +61,10 @@ useEffect(() => {
     // };
     const fetchRequests = async () => {
         try {
-            const response = await axios.get('/skill-transfers/my-requests');
+            const response = await axios.get('http://localhost:3000/api/skill-transfers/my-requests');
+            console.log(response.data)
             const data = Array.isArray(response.data) ? response.data : [];
             setRequests(data.length > 0 ? data : defaultRequests);
-            console.log(data)
         } catch (error) {
             console.error('Error fetching requests:', error);
             setRequests(defaultRequests); // use default values on error
@@ -95,7 +100,7 @@ useEffect(() => {
                         <Card key={request.skillId}>
                             <div className="flex justify-between items-center w-full">
                                 <div className="flex flex-col">
-                                    <div className='font-semibold'>{request.studentFirstname} {request.studentLastname}</div>
+                                    <Link to={`/users/${request.studentUsername}`}><div className='font-semibold'>{request.studentFirstname} {request.studentLastname}</div></Link>
                                     <div className="flex items-center">
                                         <span>{request.skillTitle}</span>
                                     </div>
