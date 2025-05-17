@@ -40,8 +40,9 @@ const Sessions: React.FC = () => {
                 </div>
                     </div>
                 <Button
-                    btnName='Add'
-                />
+                >
+                    Add
+                </Button>
             </div>
 
             <div className="table-section">

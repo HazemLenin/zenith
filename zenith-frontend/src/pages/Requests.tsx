@@ -102,7 +102,7 @@ useEffect(() => {
                                 </div>
                                 <div className="flex gap-2">
                                     <Button 
-                                        btnFun={async () => {
+                                        onClick={async () => {
                                             try {
                                                 await axios.put(`/skill-transfers/accept/${request.skillId}`);
                                                 setRequests(requests.filter(r => r.skillId !== request.skillId));
@@ -110,10 +110,12 @@ useEffect(() => {
                                                 console.error('Error accepting request:', error);
                                             }
                                         }} 
-                                        btnName="Accept" 
-                                    />
+                                        
+                                    >
+                                        Accept
+                                    </Button>
                                     <Button 
-                                        btnFun={async () => {
+                                        onClick={async () => {
                                             try {
                                                 await axios.put(`/skill-transfers/reject/${request.skillId}`);
                                                 setRequests(requests.filter(r => r.skillId !== request.skillId));
@@ -122,8 +124,9 @@ useEffect(() => {
                                             }
                                             handleReject()
                                         }} 
-                                        btnName="Reject" 
-                                    />
+                                    >
+                                        Reject
+                                    </Button>
                                 </div>
                             </div>
                         </Card>
