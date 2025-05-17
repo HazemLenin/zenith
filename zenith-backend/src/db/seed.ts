@@ -14,6 +14,8 @@ import {
   sessions,
   users,
   UserRole,
+  videos,
+  enrollments,
 } from "../models";
 import { CourseStatus } from "../models/course.model";
 import { SkillTransferStatus } from "../models/skillTransfer.model";
@@ -88,6 +90,12 @@ async function seed() {
           coursesCount: 0,
         })
         .returning();
+
+      // Update instructor with profile ID
+      await db
+        .update(users)
+        .set({ instructorProfileId: instructorProfile.id })
+        .where(eq(users.id, instructor.id));
     }
 
     // Student
@@ -123,6 +131,12 @@ async function seed() {
           points: 0,
         })
         .returning();
+
+      // Update student with profile ID
+      await db
+        .update(users)
+        .set({ studentProfileId: studentProfile.id })
+        .where(eq(users.id, student.id));
     }
 
     // --- SKILLS ---
@@ -144,6 +158,40 @@ async function seed() {
       [designSkill] = await db
         .insert(skills)
         .values({ title: "Design" })
+        .returning();
+    }
+
+    // Add more skills
+    let [webDevSkill] = await db
+      .select()
+      .from(skills)
+      .where(eq(skills.title, "Web Development"));
+    if (!webDevSkill) {
+      [webDevSkill] = await db
+        .insert(skills)
+        .values({ title: "Web Development" })
+        .returning();
+    }
+
+    let [aiSkill] = await db
+      .select()
+      .from(skills)
+      .where(eq(skills.title, "AI & Machine Learning"));
+    if (!aiSkill) {
+      [aiSkill] = await db
+        .insert(skills)
+        .values({ title: "AI & Machine Learning" })
+        .returning();
+    }
+
+    let [dataScienceSkill] = await db
+      .select()
+      .from(skills)
+      .where(eq(skills.title, "Data Science"));
+    if (!dataScienceSkill) {
+      [dataScienceSkill] = await db
+        .insert(skills)
+        .values({ title: "Data Science" })
         .returning();
     }
 
@@ -180,6 +228,12 @@ async function seed() {
           points: 100, // Teacher student starts with some points
         })
         .returning();
+
+      // Update teacher student with profile ID
+      await db
+        .update(users)
+        .set({ studentProfileId: teacherStudentProfile.id })
+        .where(eq(users.id, teacherStudent.id));
     }
 
     // Add learned skills for teacher student
@@ -217,8 +271,44 @@ async function seed() {
       });
     }
 
+    // Add more learned skills for teacher student
+    const teacherWebDevSkill = await db
+      .select()
+      .from(studentSkills)
+      .where(
+        and(
+          eq(studentSkills.studentId, teacherStudentProfile.id),
+          eq(studentSkills.skillId, webDevSkill.id)
+        )
+      );
+    if (teacherWebDevSkill.length === 0) {
+      await db.insert(studentSkills).values({
+        studentId: teacherStudentProfile.id,
+        skillId: webDevSkill.id,
+        type: StudentSkillType.LEARNED,
+      });
+    }
+
+    const teacherAiSkill = await db
+      .select()
+      .from(studentSkills)
+      .where(
+        and(
+          eq(studentSkills.studentId, teacherStudentProfile.id),
+          eq(studentSkills.skillId, aiSkill.id)
+        )
+      );
+    if (teacherAiSkill.length === 0) {
+      await db.insert(studentSkills).values({
+        studentId: teacherStudentProfile.id,
+        skillId: aiSkill.id,
+        type: StudentSkillType.LEARNED,
+      });
+    }
+
     // --- STUDENT SKILL ---
-    const studentSkillExists = await db
+    // Add needed skills for regular student
+    const studentProgrammingSkill = await db
       .select()
       .from(studentSkills)
       .where(
@@ -227,10 +317,61 @@ async function seed() {
           eq(studentSkills.skillId, programmingSkill.id)
         )
       );
-    if (studentSkillExists.length === 0) {
+    if (studentProgrammingSkill.length === 0) {
       await db.insert(studentSkills).values({
         studentId: studentProfile.id,
         skillId: programmingSkill.id,
+        type: StudentSkillType.NEEDED,
+      });
+    }
+
+    const studentDesignSkill = await db
+      .select()
+      .from(studentSkills)
+      .where(
+        and(
+          eq(studentSkills.studentId, studentProfile.id),
+          eq(studentSkills.skillId, designSkill.id)
+        )
+      );
+    if (studentDesignSkill.length === 0) {
+      await db.insert(studentSkills).values({
+        studentId: studentProfile.id,
+        skillId: designSkill.id,
+        type: StudentSkillType.NEEDED,
+      });
+    }
+
+    const studentWebDevSkill = await db
+      .select()
+      .from(studentSkills)
+      .where(
+        and(
+          eq(studentSkills.studentId, studentProfile.id),
+          eq(studentSkills.skillId, webDevSkill.id)
+        )
+      );
+    if (studentWebDevSkill.length === 0) {
+      await db.insert(studentSkills).values({
+        studentId: studentProfile.id,
+        skillId: webDevSkill.id,
+        type: StudentSkillType.NEEDED,
+      });
+    }
+
+    const studentDataScienceSkill = await db
+      .select()
+      .from(studentSkills)
+      .where(
+        and(
+          eq(studentSkills.studentId, studentProfile.id),
+          eq(studentSkills.skillId, dataScienceSkill.id)
+        )
+      );
+    if (studentDataScienceSkill.length === 0) {
+      await db.insert(studentSkills).values({
+        studentId: studentProfile.id,
+        skillId: dataScienceSkill.id,
         type: StudentSkillType.NEEDED,
       });
     }
@@ -251,7 +392,40 @@ async function seed() {
         .returning();
     }
 
-    // --- CHAPTER ---
+    // Add more courses
+    let [webDevCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "Modern Web Development"));
+    if (!webDevCourse) {
+      [webDevCourse] = await db
+        .insert(courses)
+        .values({
+          title: "Modern Web Development",
+          description:
+            "Master modern web development with React, TypeScript, and Next.js",
+          instructorId: instructorProfile.id,
+        })
+        .returning();
+    }
+
+    let [aiCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "AI & Machine Learning Fundamentals"));
+    if (!aiCourse) {
+      [aiCourse] = await db
+        .insert(courses)
+        .values({
+          title: "AI & Machine Learning Fundamentals",
+          description: "Learn the basics of AI and machine learning",
+          instructorId: instructorProfile.id,
+        })
+        .returning();
+    }
+
+    // --- CHAPTERS ---
+    // Chapters for Introduction to Programming
     let [chapter1] = await db
       .select()
       .from(courseChapters)
@@ -272,8 +446,70 @@ async function seed() {
         .returning();
     }
 
-    // --- ARTICLE ---
-    const articleExists = await db
+    let [chapter2] = await db
+      .select()
+      .from(courseChapters)
+      .where(
+        and(
+          eq(courseChapters.title, "Variables and Data Types"),
+          eq(courseChapters.courseId, course.id)
+        )
+      );
+    if (!chapter2) {
+      [chapter2] = await db
+        .insert(courseChapters)
+        .values({
+          title: "Variables and Data Types",
+          courseId: course.id,
+          orderIndex: 2,
+        })
+        .returning();
+    }
+
+    // Chapters for Web Development
+    let [webChapter1] = await db
+      .select()
+      .from(courseChapters)
+      .where(
+        and(
+          eq(courseChapters.title, "React Fundamentals"),
+          eq(courseChapters.courseId, webDevCourse.id)
+        )
+      );
+    if (!webChapter1) {
+      [webChapter1] = await db
+        .insert(courseChapters)
+        .values({
+          title: "React Fundamentals",
+          courseId: webDevCourse.id,
+          orderIndex: 1,
+        })
+        .returning();
+    }
+
+    let [webChapter2] = await db
+      .select()
+      .from(courseChapters)
+      .where(
+        and(
+          eq(courseChapters.title, "TypeScript Essentials"),
+          eq(courseChapters.courseId, webDevCourse.id)
+        )
+      );
+    if (!webChapter2) {
+      [webChapter2] = await db
+        .insert(courseChapters)
+        .values({
+          title: "TypeScript Essentials",
+          courseId: webDevCourse.id,
+          orderIndex: 2,
+        })
+        .returning();
+    }
+
+    // --- ARTICLES ---
+    // Articles for Introduction to Programming
+    const article1Exists = await db
       .select()
       .from(articles)
       .where(
@@ -282,12 +518,119 @@ async function seed() {
           eq(articles.chapterId, chapter1.id)
         )
       );
-    if (articleExists.length === 0) {
+    if (article1Exists.length === 0) {
       await db.insert(articles).values({
         title: "What is Programming?",
         content:
-          "Programming is the process of creating a set of instructions...",
+          "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using a variety of computer programming languages.",
         chapterId: chapter1.id,
+      });
+    }
+
+    const article2Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "Understanding Variables"),
+          eq(articles.chapterId, chapter2.id)
+        )
+      );
+    if (article2Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "Understanding Variables",
+        content:
+          "Variables are containers for storing data values. In programming, variables are used to store information that can be referenced and manipulated in a program.",
+        chapterId: chapter2.id,
+      });
+    }
+
+    // Articles for Web Development
+    const webArticle1Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "Introduction to React"),
+          eq(articles.chapterId, webChapter1.id)
+        )
+      );
+    if (webArticle1Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "Introduction to React",
+        content:
+          "React is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.",
+        chapterId: webChapter1.id,
+      });
+    }
+
+    const webArticle2Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "TypeScript Basics"),
+          eq(articles.chapterId, webChapter2.id)
+        )
+      );
+    if (webArticle2Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "TypeScript Basics",
+        content:
+          "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds optional static typing and class-based object-oriented programming to JavaScript.",
+        chapterId: webChapter2.id,
+      });
+    }
+
+    // Add videos
+    const video1Exists = await db
+      .select()
+      .from(videos)
+      .where(
+        and(
+          eq(videos.title, "React in 100 Seconds"),
+          eq(videos.chapterId, webChapter1.id)
+        )
+      );
+    if (video1Exists.length === 0) {
+      await db.insert(videos).values({
+        title: "React in 100 Seconds",
+        videoUrl: "https://www.youtube.com/watch?v=Tn6-PIqc4UM",
+        chapterId: webChapter1.id,
+      });
+    }
+
+    const video2Exists = await db
+      .select()
+      .from(videos)
+      .where(
+        and(
+          eq(videos.title, "TypeScript in 100 Seconds"),
+          eq(videos.chapterId, webChapter2.id)
+        )
+      );
+    if (video2Exists.length === 0) {
+      await db.insert(videos).values({
+        title: "TypeScript in 100 Seconds",
+        videoUrl: "https://www.youtube.com/watch?v=zQnBQ4tB3ZA",
+        chapterId: webChapter2.id,
+      });
+    }
+
+    const video3Exists = await db
+      .select()
+      .from(videos)
+      .where(
+        and(
+          eq(videos.title, "Next.js in 100 Seconds"),
+          eq(videos.chapterId, webChapter1.id)
+        )
+      );
+    if (video3Exists.length === 0) {
+      await db.insert(videos).values({
+        title: "Next.js in 100 Seconds",
+        videoUrl: "https://www.youtube.com/watch?v=Sklc_fQBmcs",
+        chapterId: webChapter1.id,
       });
     }
 
@@ -429,6 +772,25 @@ async function seed() {
         completed: false,
         paid: false,
       } as Session);
+    }
+
+    // Add enrollment for student to Modern Web Development course
+    const enrollmentExists = await db
+      .select()
+      .from(enrollments)
+      .where(
+        and(
+          eq(enrollments.studentId, studentProfile.id),
+          eq(enrollments.courseId, webDevCourse.id)
+        )
+      );
+    if (enrollmentExists.length === 0) {
+      await db.insert(enrollments).values({
+        studentId: studentProfile.id,
+        courseId: webDevCourse.id,
+        paid: 1, // true
+        enrolledAt: new Date(),
+      });
     }
 
     // Multiple sessions for in-progress transfer

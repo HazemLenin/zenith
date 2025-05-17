@@ -7,7 +7,7 @@ import { UserContext } from "../context/UserContext";
 interface Video {
   id: number;
   title: string;
-  url: string;
+  videoUrl: string;
 }
 
 interface Article {
@@ -19,13 +19,13 @@ interface Article {
 interface Chapter {
   id: number;
   title: string;
-  order: number;
+  orderIndex: number;
 }
 
 interface ChapterDetails {
   id: number;
   title: string;
-  order: number;
+  orderIndex: number;
   videos: Video[];
   articles: Article[];
 }
@@ -37,10 +37,16 @@ export default function ChapterDetails() {
   const [chapterDetails, set_chapterDetails] = useState<ChapterDetails>({
     id: 0,
     title: "",
-    order: 0,
+    orderIndex: 0,
     videos: [],
     articles: [],
   });
+
+  // Function to convert YouTube URL to embed URL
+  const getEmbedUrl = (url: string) => {
+    const videoId = url.split("v=")[1]?.split("&")[0];
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  };
 
   // fetch cours chapters
   useEffect(() => {
@@ -102,19 +108,37 @@ export default function ChapterDetails() {
       <div className="flex flex-col md:grid md:grid-cols-[55%_45%] gap-8">
         {/* Video and description section */}
         <div className="space-y-6">
-          {chapterDetails.videos && chapterDetails.videos.length > 0 && (
-            <div className="relative w-full pt-[56.25%]">
-              <iframe
-                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
-                src={chapterDetails.videos[0].url}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+          {chapterDetails.videos && chapterDetails.videos.length > 0 ? (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">
+                {chapterDetails.videos[0].title}
+              </h2>
+              <div className="relative w-full pt-[56.25%]">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                  src={getEmbedUrl(chapterDetails.videos[0].videoUrl)}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title={chapterDetails.videos[0].title}
+                ></iframe>
+              </div>
             </div>
+          ) : (
+            <p className="text-gray-500">No video available for this chapter</p>
           )}
-          {chapterDetails.articles && chapterDetails.articles.length > 0 && (
-            <p className="text-gray-700 leading-relaxed">
-              {chapterDetails.articles[0].content}
+
+          {chapterDetails.articles && chapterDetails.articles.length > 0 ? (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">
+                {chapterDetails.articles[0].title}
+              </h2>
+              <p className="text-gray-700 leading-relaxed">
+                {chapterDetails.articles[0].content}
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-500">
+              No article available for this chapter
             </p>
           )}
         </div>

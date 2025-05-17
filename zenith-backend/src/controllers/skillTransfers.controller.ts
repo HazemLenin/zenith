@@ -106,9 +106,15 @@ export class SkillTransfersController {
         return;
       }
 
-      // Fetch skill transfer requests for the student
+      // Fetch skill transfer requests for the student, ordered by newest first
       const requests = await db
-        .select()
+        .select({
+          studentFirstname: users.firstName,
+          studentLastname: users.lastName,
+          skillId: skillTransfers.skillId,
+          skillTitle: skills.title,
+          skillPoints: skillTransfers.points,
+        })
         .from(skillTransfers)
         .innerJoin(users, eq(skillTransfers.studentId, users.id))
         .innerJoin(skills, eq(skillTransfers.skillId, skills.id))
@@ -118,16 +124,7 @@ export class SkillTransfersController {
             eq(skillTransfers.status, "pending")
           )
         )
-        // Remove ordering by createdAt as the column does not exist
-        .then((results) => {
-          return results.map((result) => ({
-            studentFirstname: result.users.firstName,
-            studentLastname: result.users.lastName,
-            skillId: result.skill_transfers.skillId,
-            skillTitle: result.skills.title,
-            skillPoints: result.skill_transfers.points,
-          }));
-        });
+        .orderBy(desc(skillTransfers.id));
 
       res.status(200).json(requests);
     } catch (error) {

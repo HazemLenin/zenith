@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { db } from "../index";
 import { users } from "../models/user.model";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export const studentMiddleware = async (
   req: Request,
@@ -9,24 +12,34 @@ export const studentMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    // Get the user ID from the authenticated user (assuming it's stored in req.user)
-    const userId = req.user?.id;
+    // First run authentication check
+    const token = req.header("Authorization")?.replace("Bearer ", "");
 
-    if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
+    if (!token) {
+      res.status(401).json({ message: "No token provided" });
       return;
     }
 
-    // Get user from database
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
+
     const user = await db.query.users.findFirst({
-      where: eq(users.id, userId),
+      where: eq(users.id, decoded.id),
+      columns: {
+        id: true,
+        email: true,
+        role: true,
+        firstName: true,
+        lastName: true,
+        username: true,
+      },
     });
 
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(401).json({ message: "User not found" });
       return;
     }
 
+    // Then check if user is a student
     if (user.role !== "student") {
       res
         .status(403)

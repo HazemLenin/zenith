@@ -94,7 +94,7 @@ export class AuthController {
             .insert(studentProfiles)
             .values({
               userId: newUser.id,
-              points: 0,
+              points: 100, // User default balance is 100
             })
             .returning();
 

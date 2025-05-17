@@ -9,7 +9,8 @@ import Profile from "./pages/Profile";
 import ChapterDetails from "./pages/ChapterDetails";
 import Search from "./pages/Search";
 import SearchCourses from "./pages/CoursesSearch";
-import Coursesupload from "./pages/Coursesupload";
+import CoursesUpload from "./pages/CoursesUpload";
+import CourseDetails from "./pages/CourseDetails";
 import Requests from "./pages/Requests";
 import Sessions from "./pages/Sessions";
 
@@ -28,35 +29,70 @@ function App() {
         { path: "signup", element: <SignUp /> },
         {
           path: "SkillDetails",
-          element: <ProtectedRoute children={<SkillDetails />} />,
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<SkillDetails />}
+            />
+          ),
         },
         {
           path: "users/:username",
           element: <ProtectedRoute children={<Profile />} />,
         },
         {
+          path: "courses/:id",
+          element: <ProtectedRoute children={<CourseDetails />} />,
+        },
+        {
           path: "courses/:coursId/chapters",
-          element: <ProtectedRoute children={<ChapterDetails />} />,
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<ChapterDetails />}
+            />
+          ),
         },
         {
           path: "skill-transfers/teachers-search",
-          element: <ProtectedRoute children={<Search />} />
+          element: (
+            <ProtectedRoute allowedRoles={["student"]} children={<Search />} />
+          ),
+        },
+        {
+          path: "courses/upload",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["instructor"]}
+              children={<CoursesUpload />}
+            />
+          ),
         },
         {
           path: "skill-transfers/my-requests",
-          element: <ProtectedRoute children={<Requests/>} />
+          element: <ProtectedRoute children={<Requests />} />,
         },
         {
+<<<<<<< HEAD
           path: "skill-transfers/transfer-details/:skillTransferId",
           element: <ProtectedRoute children={<Sessions/>} />
         },
         { 
           path: "courses/upload", 
           element: <ProtectedRoute children={<Coursesupload />} /> 
+=======
+          path: "courses/upload",
+          element: <ProtectedRoute children={<CoursesUpload />} />,
+>>>>>>> 22892e4077847b96d53ab77e26e056a35e9b8355
         },
         {
           path: "courses",
-          element: <ProtectedRoute children={<SearchCourses />} />,
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<SearchCourses />}
+            />
+          ),
         },
         {
           path: "chat",
