@@ -43,11 +43,23 @@ useEffect(() => {
         }
     ];
 
+    // const fetchRequests = async () => {
+    //     try {
+    //         const response = await axios.get('/skill-transfers/my-requests');
+    //         const data =response.data;
+    //         setRequests(data.length > 0 ? data : defaultRequests);
+    //         console.log(data)
+    //     } catch (error) {
+    //         console.error('Error fetching requests:', error);
+    //         setRequests(defaultRequests); // use default values on error
+    //     }
+    // };
     const fetchRequests = async () => {
         try {
             const response = await axios.get('/skill-transfers/my-requests');
             const data = Array.isArray(response.data) ? response.data : [];
             setRequests(data.length > 0 ? data : defaultRequests);
+            console.log(data)
         } catch (error) {
             console.error('Error fetching requests:', error);
             setRequests(defaultRequests); // use default values on error

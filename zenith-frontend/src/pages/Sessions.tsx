@@ -14,21 +14,30 @@ const Sessions: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-4 w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row gap-4 w-full bg-danger">
-                <Input 
+            <div className="flex flex-col md:flex-row gap-4 w-full ">
+                <div className='flex flex-1'>
+                    <Input 
                     type="text"
-                    placeholder="Enter session name"
+                    placeholder="Session name"
                     value=''
                     onChangeFun={()=>{}}
                 />
-                <div className='flex '>
+                </div>
+                <div className='flex flex-1 '>
                 <Input 
                     type="number"
-                    placeholder="Enter session points"
+                    placeholder="Session points"
                     value=''
                     onChangeFun={()=>{}}
                     />
-                <div className='px-4 bg-primary gap-2 flex items-center justify-center'><span>Out of:</span><span>{points}</span></div>
+                <div className='px-4 flex items-center justify-center'>
+                    <span className='w-20'>Out Of</span>
+                    <span className='flex items-center'>
+                        {points}
+                        <img className="w-8 h-8 ml-1.5" src="/points.png" />
+                    </span>
+
+                </div>
                     </div>
                 <Button
                     btnName='Add'
