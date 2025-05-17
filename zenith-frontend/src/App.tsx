@@ -76,10 +76,6 @@ function App() {
           path: "skill-transfers/transfer-details/:skillTransferId",
           element: <ProtectedRoute children={<Sessions/>} />
         },
-        {  
-          path: "courses/upload",
-          element: <ProtectedRoute children={<CoursesUpload />} />,
-        },
         {
           path: "courses",
           element: (
