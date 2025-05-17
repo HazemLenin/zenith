@@ -176,7 +176,7 @@ export default function Search() {
                         <Card key={offer.teacherId}>
                             <div className="flex justify-between items-center w-full">
                                 <div className="flex flex-col">
-                                    <div>{offer.teacherFirstName} {offer.teacherLastName}</div>
+                                    <div className='font-semibold'>{offer.teacherFirstName} {offer.teacherLastName}</div>
                                     <div className="flex items-center">Total Points :
                                         <span className="flex items-center pl-2">{offer.points}<img className="w-8 h-8 ml-1.5" src="/points.png" /></span>
                                     </div>
