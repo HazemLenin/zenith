@@ -336,6 +336,29 @@ export class SkillTransfersController {
     }
   }
 
+  private static async checkAndUpdateTransferStatus(
+    skillTransferId: number
+  ): Promise<void> {
+    // Get all sessions for this transfer
+    const allSessions = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.skillTransferId, skillTransferId));
+
+    // Check if all sessions are completed and paid
+    const allCompletedAndPaid = allSessions.every(
+      (session) => session.completed && session.paid
+    );
+
+    if (allCompletedAndPaid) {
+      // Update skill transfer status to finished
+      await db
+        .update(skillTransfers)
+        .set({ status: SkillTransferStatus.FINISHED })
+        .where(eq(skillTransfers.id, skillTransferId));
+    }
+  }
+
   static async completeSession(req: Request, res: Response): Promise<void> {
     try {
       const { skillTransferId, sessionId } = req.params;
@@ -372,6 +395,11 @@ export class SkillTransfersController {
             eq(sessions.skillTransferId, Number(skillTransferId))
           )
         );
+
+      // Check if all sessions are completed and paid
+      await SkillTransfersController.checkAndUpdateTransferStatus(
+        Number(skillTransferId)
+      );
 
       res.status(200).json({ message: "Session marked as completed" });
     } catch (error) {
@@ -453,6 +481,11 @@ export class SkillTransfersController {
             eq(sessions.skillTransferId, Number(skillTransferId))
           )
         );
+
+      // Check if all sessions are completed and paid
+      await SkillTransfersController.checkAndUpdateTransferStatus(
+        Number(skillTransferId)
+      );
 
       res.status(200).json({ message: "Session marked as paid" });
     } catch (error) {
