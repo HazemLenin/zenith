@@ -30,10 +30,10 @@ function App() {
         { path: "login", element: <Login /> },
         { path: "signup", element: <SignUp /> },
         {
-          path: "SkillDetails",
+          path: "skill-transfers/:skillTransferId",
           element: (
             <ProtectedRoute
-              allowedRoles={["student"]}
+              allowedRoles={["student", "teacher"]}
               children={<SkillDetails />}
             />
           ),
@@ -79,7 +79,7 @@ function App() {
           element: <ProtectedRoute children={<Requests />} />,
         },
         {
-          path: "skill-transfers/transfer-details/:skillTransferId",
+          path: "adding-sessions",
           element: <ProtectedRoute children={<Sessions />} />,
         },
         {

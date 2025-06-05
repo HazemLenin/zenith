@@ -183,6 +183,7 @@ export class SkillTransfersController {
       // Fetch skill transfer requests for the student, ordered by newest first
       const requests = await db
         .select({
+          id: skillTransfers.id,
           studentFirstname: users.firstName,
           studentLastname: users.lastName,
           skillId: skillTransfers.skillId,

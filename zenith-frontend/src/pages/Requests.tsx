@@ -3,11 +3,13 @@ import axios from "axios";
 import { Button } from "../components";
 import Card from "../components/Card/Card";
 import Toast from "../components/Toast/Toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import { Modal } from "../components/Modal/Modal";
 
 export default function Requests() {
   const { userToken } = useContext(UserContext);
+  const navigate = useNavigate();
   interface Request {
     studentFirstname: string;
     studentLastname: string;
@@ -22,6 +24,8 @@ export default function Requests() {
     message: "",
     type: "success" as "success" | "error" | "info",
   });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
   useEffect(() => {
     const defaultRequests = [
@@ -84,13 +88,48 @@ export default function Requests() {
     fetchRequests();
   }, []);
   // Handle Reject button
-  function handleReject() {
-    setToast({
-      isVisible: true,
-      message: "Request rejected !",
-      type: "error",
-    });
+  async function handleRejectConfirm() {
+    if (!selectedRequest) return;
+    try {
+      await axios.delete(
+        `http://localhost:3000/api/skill-transfers/reject/${selectedRequest.skillId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      setRequests(
+        requests.filter((r) => r.skillId !== selectedRequest.skillId)
+      );
+      setToast({
+        isVisible: true,
+        message: "Request rejected!",
+        type: "error",
+      });
+    } catch {
+      setToast({
+        isVisible: true,
+        message: "Failed to reject request.",
+        type: "error",
+      });
+    } finally {
+      setModalOpen(false);
+      setSelectedRequest(null);
+    }
   }
+
+  // Handle Accept button
+  const handleAccept = (request: Request) => {
+    const queryParams = new URLSearchParams({
+      id: request.skillId.toString(),
+      studentName: `${request.studentFirstname} ${request.studentLastname}`,
+      skillTitle: request.skillTitle,
+      skillPoints: request.skillPoints.toString(),
+    });
+    navigate(`/adding-sessions?${queryParams.toString()}`);
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
       <Toast
@@ -121,54 +160,52 @@ export default function Requests() {
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={async () => {
-                  try {
-                    await axios.put(
-                      `/skill-transfers/accept/${request.skillId}`,
-                      {},
-                      {
-                        headers: {
-                          Authorization: `Bearer ${userToken}`,
-                        },
-                      }
-                    );
-                    setRequests(
-                      requests.filter((r) => r.skillId !== request.skillId)
-                    );
-                  } catch (error) {
-                    console.error("Error accepting request:", error);
-                  }
-                }}
+                onClick={() => handleAccept(request)}
+                variant="primary"
+                shape="default"
               >
-                Accept
+                Yes
               </Button>
               <Button
-                onClick={async () => {
-                  try {
-                    await axios.put(
-                      `/skill-transfers/reject/${request.skillId}`,
-                      {},
-                      {
-                        headers: {
-                          Authorization: `Bearer ${userToken}`,
-                        },
-                      }
-                    );
-                    setRequests(
-                      requests.filter((r) => r.skillId !== request.skillId)
-                    );
-                  } catch (error) {
-                    console.error("Error rejecting request:", error);
-                  }
-                  handleReject();
+                onClick={() => {
+                  setSelectedRequest(request);
+                  setModalOpen(true);
                 }}
+                variant="primary"
+                shape="default"
               >
-                Reject
+                No
               </Button>
             </div>
           </div>
         </Card>
       ))}
+      <Modal
+        title="Reject Request?"
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        footer={
+          <>
+            <Button
+              onClick={handleRejectConfirm}
+              variant="primary"
+              shape="default"
+            >
+              Yes
+            </Button>
+            <Button
+              onClick={() => setModalOpen(false)}
+              variant="primary"
+              shape="default"
+              className="ml-2"
+            >
+              No
+            </Button>
+          </>
+        }
+      >
+        <div>Are you sure you want to reject this skill transfer request?</div>
+      </Modal>
     </div>
   );
 }

@@ -1,101 +1,209 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import Btn from '../components/Button/Button'
-import Table from '../components/Table/Tablel'
-export default function SkillDetails() {
-      // just example to change ui teacher/student to show different content in componant
-    const [is_teacher,set_is_teacher]=useState<boolean>(true)
-    function change(){
-        set_is_teacher(!is_teacher)
-    }
-    // function to change complete state/id:session's id
-    function changeCompletState(id?: number) {
-        console.log(id)
-        
-    }
-    // function to change pay state/id:session's id
-    function changePayState(id?:number){
-    console.log(id)
-    }
-    // fetch data 
-    useEffect(()=>{
-        const fetchData = async ()=>{
-                const respons = await axios.get(`http://localhost:3000/skill-transfers/transfer-details/${0}`)
-                console.log(respons)
-        }
-        fetchData()
-    },[])
-// just example for data that comes from the back-end
-const test = {
-    skillTitle: "JavaScript",
-    teacherFirstName: "youssef",
-    teacherLastName: "magdy",
-    studentFirstName: "Hazem",
-    studentLastName: "Lenin",
-    points: 250,
-    paid: 0,
-    sessionsCount: 4,
-    completedSessionsCount: 2,
-    sessions: [
-        {
-            title: "Intro",
-            points: 10,
-            completed: true,
-            paid: true
-        },
-        {
-            title: "Basics",
-            points: 20,
-            completed: true,
-            paid: false
-        },
-        {
-            title: "Functions",
-            points: 40,
-            completed: false,
-            paid: false
-        },
-        {
-            title: "OOP",
-            points: 180,
-            completed: false,
-            paid: false
-        }
-    ]
+import { useEffect, useState, useContext } from "react";
+import axios from "axios";
+import Button from "../components/Button/Button";
+import Table from "../components/Table/Tablel";
+import { Modal } from "../components/Modal/Modal";
+import Toast from "../components/Toast/Toast";
+import { useParams } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
+
+// Types from OpenAPI schema
+interface SkillTransferSession {
+  title: string;
+  points: number;
+  completed: boolean;
+  paid: boolean;
 }
 
-const skill_sessions = test.sessions
-// what we will show as ui 
-const skill_sessions_ui = skill_sessions.map((session) => {
-    return [
-        session.title,
-        Number(session.points),
-        // add string to show session is payed or not (teacher's ui) || add string to show session is completed or not (student ui)
-        is_teacher ? 
-        session.paid?'Paid':'Not Paid'
-        : session.completed?'Completed':'Uncompleted'
-        ,
-        // add button to finish session (teacher's ui) || add a button to pay for session (student ui)
-        is_teacher ? 
-        <Btn isDisabled={session.completed? true:false} btnName={session.completed?'Done':'Complete'} btnFun={() => changeCompletState()} />
-        :<Btn isDisabled={session.paid?true:false} btnName={session.paid?'Done':'Pay'} btnFun={()=> changePayState()} />
-    ];
-});
-    return (
-        <div >
-        <ul>
-            <li>Skill Name   : {test.skillTitle}</li>
-            <li>Teacher Name : {test.teacherFirstName} {test.teacherLastName}</li>
-            <li>Student Name : {test.studentFirstName} {test.studentLastName} </li>
-            <li>Points : {test.points}</li>
-            <li>Completed sessions : {`${test.completedSessionsCount}/${test.sessionsCount}`}</li>
-        </ul>
-        <Btn btnName={is_teacher? 'Swich To Student':'Swich To Teacher'}btnFun={change}/>
-<Table
-data={
-    skill_sessions_ui
+interface SkillTransferDetail {
+  skillTitle: string;
+  teacherFirstName: string;
+  teacherLastName: string;
+  studentFirstName: string;
+  studentLastName: string;
+  points: number;
+  paid: number;
+  sessionsCount: number;
+  completedSessionsCount: number;
+  sessions: SkillTransferSession[];
 }
-/>
-        </div>
-    )
+
+export default function SkillDetails() {
+  const { userToken } = useContext(UserContext);
+  // Role switching for demo; replace with real user role logic
+  const { skillTransferId } = useParams<{ skillTransferId: string }>();
+  const [isTeacher, setIsTeacher] = useState(true);
+  const [details, setDetails] = useState<SkillTransferDetail | null>(null);
+  const [modal, setModal] = useState({
+    open: false,
+    action: "",
+    sessionIdx: -1,
+  });
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: "",
+    type: "success" as "success" | "error" | "info",
+  });
+
+  // Fetch skill transfer details
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/skill-transfers/transfer-details/${skillTransferId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+        setDetails(res.data);
+      } catch {
+        setDetails(null);
+        setToast({
+          isVisible: true,
+          message: "Failed to load details",
+          type: "error",
+        });
+      }
+    };
+    fetchDetails();
+  }, [skillTransferId, userToken]);
+
+  // Action handlers
+  const handleAction = (action: "complete" | "pay", sessionIdx: number) => {
+    setModal({ open: true, action, sessionIdx });
+  };
+
+  const confirmAction = async () => {
+    if (!details || modal.sessionIdx === -1) return;
+    const sessionId = modal.sessionIdx;
+    const url =
+      modal.action === "complete"
+        ? `/skill-transfers/${skillTransferId}/complete-session/${sessionId}`
+        : `/skill-transfers/${skillTransferId}/pay-session/${sessionId}`;
+    setModal({ ...modal, open: false });
+    try {
+      await axios.put(`http://localhost:3000/api${url}`, null, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      setToast({ isVisible: true, message: "Success!", type: "success" });
+      const res = await axios.get(
+        `http://localhost:3000/api/skill-transfers/transfer-details/${skillTransferId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      setDetails(res.data);
+    } catch {
+      setToast({ isVisible: true, message: "Action failed", type: "error" });
+    }
+  };
+
+  // Table data
+  const tableData = [
+    [
+      "Session Name",
+      "Points",
+      isTeacher ? "Status" : "Completion",
+      isTeacher ? "Payment" : "Pay",
+      "Action",
+    ],
+    ...(details?.sessions?.map((session: SkillTransferSession, idx: number) => {
+      // Teacher: can complete if not completed; Student: can pay if completed and not paid
+      const canComplete = isTeacher && !session.completed;
+      const canPay = !isTeacher && session.completed && !session.paid;
+      return [
+        session.title,
+        session.points,
+        isTeacher
+          ? session.completed
+            ? "Completed"
+            : "Incomplete"
+          : session.completed
+          ? "Completed"
+          : "Incomplete",
+        session.paid ? "Paid" : "Not Paid",
+        isTeacher ? (
+          <Button
+            disabled={!canComplete}
+            onClick={() => handleAction("complete", idx)}
+            shape="default"
+          >
+            {session.completed ? "Done" : "Complete"}
+          </Button>
+        ) : (
+          <Button
+            disabled={!canPay}
+            onClick={() => handleAction("pay", idx)}
+            shape="default"
+          >
+            {session.paid ? "Done" : "Pay"}
+          </Button>
+        ),
+      ];
+    }) || []),
+  ];
+
+  return (
+    <div className="p-8 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold">Zenith</h1>
+        <Button variant="secondary">Logout</Button>
+      </div>
+      <ul className="mb-6">
+        <li>Skill Name: {details?.skillTitle || "-"}</li>
+        <li>
+          Teacher Name: {details?.teacherFirstName} {details?.teacherLastName}
+        </li>
+        <li>
+          Student Name: {details?.studentFirstName} {details?.studentLastName}
+        </li>
+        <li>Points: {details?.points}</li>
+        <li>
+          Completed sessions: {details?.completedSessionsCount}/
+          {details?.sessionsCount}
+        </li>
+      </ul>
+      <Button
+        onClick={() => setIsTeacher((t) => !t)}
+        variant="secondary"
+        className="mb-4"
+      >
+        Switch to {isTeacher ? "Student" : "Teacher"}
+      </Button>
+      <Table data={tableData} />
+      <Modal
+        title="Confirmation"
+        open={modal.open}
+        onClose={() => setModal({ ...modal, open: false })}
+        footer={
+          <>
+            <Button onClick={confirmAction} className="mr-2" shape="default">
+              Yes
+            </Button>
+            <Button
+              onClick={() => setModal({ ...modal, open: false })}
+              variant="secondary"
+              shape="default"
+            >
+              No
+            </Button>
+          </>
+        }
+      >
+        <div className="py-4">Are you sure?</div>
+      </Modal>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast((t) => ({ ...t, isVisible: false }))}
+      />
+    </div>
+  );
 }

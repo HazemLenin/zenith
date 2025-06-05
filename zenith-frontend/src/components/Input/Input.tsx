@@ -8,6 +8,8 @@ interface InputProps {
   onChangeFun: (e: ChangeEvent<HTMLInputElement>) => void;
   icon?: ReactNode;
   required?: boolean;
+  min?: number;
+  max?: number;
 }
 
 export default function Input({
@@ -18,6 +20,8 @@ export default function Input({
   onChangeFun,
   icon,
   required,
+  min,
+  max,
 }: InputProps) {
   return (
     <>
@@ -34,6 +38,8 @@ export default function Input({
         value={value}
         onChange={onChangeFun}
         required={required}
+        min={min}
+        max={max}
       />
     </>
   );

@@ -90,6 +90,14 @@ export default function Navbar(): JSX.Element {
                     Chat
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink
+                    to="/skill-transfers/my-requests"
+                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
+                  >
+                    Skill Requests
+                  </NavLink>
+                </li>
               </ul>
             )}
             <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">

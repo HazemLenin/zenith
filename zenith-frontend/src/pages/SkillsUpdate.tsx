@@ -9,6 +9,7 @@ import { faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Dropdown from "../components/Dropdown/Dropdown";
 import Toast from "../components/Toast/Toast";
 import Button from "../components/Button/Button";
+import Input from "../components/Input/Input";
 
 interface Skill {
   id: number;
@@ -319,20 +320,19 @@ const SkillsUpdate: React.FC = () => {
             }
             placeholder="Select skill"
           />
-          <input
+          <Input
             type="number"
-            className="border rounded px-2 py-1"
             placeholder="Price"
             value={addLearnedForm.price}
-            onChange={(e) =>
+            onChangeFun={(e) =>
               setAddLearnedForm((f) => ({ ...f, price: e.target.value }))
             }
           />
-          <textarea
-            className="border rounded px-2 py-1"
+          <Input
+            type="text"
             placeholder="Skill Description (text)"
             value={addLearnedForm.description}
-            onChange={(e) =>
+            onChangeFun={(e) =>
               setAddLearnedForm((f) => ({ ...f, description: e.target.value }))
             }
           />
