@@ -5,6 +5,7 @@ interface ButtonProps {
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
   className?: string;
+  shape?: "default" | "square";
 }
 
 export default function Button({
@@ -14,9 +15,15 @@ export default function Button({
   disabled,
   type = "button",
   className = "",
+  shape = "default",
 }: ButtonProps) {
   const baseStyles =
-    "w-full py-3 px-3 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2";
+
+  const shapeStyles = {
+    default: "w-full py-3 px-3 rounded-lg",
+    square: "w-10 h-10 p-2 rounded",
+  };
 
   const variantStyles = {
     primary:
@@ -28,7 +35,7 @@ export default function Button({
   return (
     <button
       onClick={onClick}
-      className={`${baseStyles} ${variantStyles[variant]} hover:cursor-pointer disabled:bg-primary-disabled ${className}`}
+      className={`${baseStyles} ${shapeStyles[shape]} ${variantStyles[variant]} hover:cursor-pointer disabled:bg-primary-disabled ${className}`}
       disabled={disabled}
       type={type}
     >

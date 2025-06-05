@@ -1,14 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import CourseCard from "../components/CourseCard/CourseCard";
 import { UserContext } from "../context/UserContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 interface Skill {
   id: number;
   type: "learned" | "needed";
-  skillId: number;
-  skillName: string;
+  title: string;
+  description?: string;
+  points?: number;
 }
 
 interface Course {
@@ -44,7 +47,7 @@ const Profile: React.FC = () => {
   const [data, setData] = useState<UserData | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const { userToken } = useContext(UserContext);
+  const { userToken, currentUser } = useContext(UserContext);
 
   useEffect(() => {
     if (!username) return;
@@ -137,50 +140,72 @@ const Profile: React.FC = () => {
           )}
         </div>
 
-        {isStudent && profile.skills && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {["learned", "needed"].map((type) => {
-              if (!profile.skills) return null;
-              const filteredSkills = profile.skills.filter(
-                (s) => s.type === type
-              );
-              return (
-                <div
-                  key={type}
-                  className="bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow"
+        {isStudent && (
+          <>
+            {currentUser?.username === username && (
+              <div className="mb-6">
+                <Link
+                  to={`/users/${username}/skills-update`}
+                  className="inline-flex items-center text-primary hover:text-primary-dark transition-colors"
                 >
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {type === "learned" ? "Learned Skills" : "Needed Skills"}
-                    </h3>
-                  </div>
-                  <ul className="space-y-3">
-                    {filteredSkills.length > 0 ? (
-                      filteredSkills.map((skill) => (
-                        <li
-                          key={skill.id}
-                          className="flex justify-between items-center bg-white rounded-lg px-4 py-2 border border-gray-200 shadow-sm"
-                        >
-                          <span className="text-gray-800 font-medium">
-                            {skill.skillName}
-                          </span>
-                          {type === "learned" && (
-                            <span className="text-sm font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                              {skill.skillId} pts
+                  <FontAwesomeIcon
+                    icon={faPenToSquare}
+                    className="w-5 h-5 mr-2"
+                  />
+                  Update Skills
+                </Link>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {["learned", "needed"].map((type) => {
+                if (!profile.skills) return null;
+                const filteredSkills = profile.skills.filter(
+                  (s) => s.type === type
+                );
+                return (
+                  <div
+                    key={type}
+                    className="bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {type === "learned"
+                          ? "Learned Skills"
+                          : "Needed Skills"}
+                      </h3>
+                    </div>
+                    <ul className="space-y-3">
+                      {filteredSkills.length > 0 ? (
+                        filteredSkills.map((skill) => (
+                          <li
+                            key={skill.id}
+                            className="flex justify-between items-center bg-white rounded-lg px-4 py-2 border border-gray-200 shadow-sm"
+                          >
+                            <span className="text-gray-800 font-medium">
+                              {skill.title}
                             </span>
-                          )}
-                        </li>
-                      ))
-                    ) : (
-                      <p className="text-gray-400 italic">
-                        No skills added yet.
-                      </p>
-                    )}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
+                            {type === "learned" && (
+                              <span className="flex gap-2 items-center text-sm font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+                                {skill.points}
+                                <img
+                                  className="w-8 h-8 ml-1.5"
+                                  src="/public/points.png"
+                                />
+                              </span>
+                            )}
+                          </li>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 italic">
+                          No skills added yet.
+                        </p>
+                      )}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {isInstructor && (

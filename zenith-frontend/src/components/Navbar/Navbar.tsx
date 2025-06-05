@@ -72,6 +72,16 @@ export default function Navbar(): JSX.Element {
                       : "Courses"}
                   </NavLink>
                 </li>
+                {currentUser?.role === "student" && (
+                  <li>
+                    <NavLink
+                      to="/skill-hub"
+                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
+                    >
+                      Skill Hub
+                    </NavLink>
+                  </li>
+                )}
                 <li>
                   <NavLink
                     to="/chat"

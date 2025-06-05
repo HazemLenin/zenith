@@ -5,7 +5,7 @@ import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.get("/skills", authMiddleware, SkillsController.getAllSkills);
+router.get("", authMiddleware, SkillsController.getAllSkills);
 
 // Update student skills
 router.put(

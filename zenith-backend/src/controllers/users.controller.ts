@@ -36,10 +36,11 @@ export class UsersController {
         // JOIN studentSkills with skill table
         const studentSkillsResult = await db
           .select({
-            id: studentSkills.id,
+            id: skills.id,
+            title: skills.title,
             type: studentSkills.type,
-            skillId: studentSkills.skillId,
-            skillName: skills.title,
+            description: studentSkills.description,
+            points: studentSkills.points,
           })
           .from(studentSkills)
           .innerJoin(skills, eq(studentSkills.skillId, skills.id)) // join on skillId

@@ -26,6 +26,7 @@ export default {
       black: "#333333",
       white: "#ffffff",
       danger: "#ff6b6b",
+      success: "#22c55e",
       gray: {
         200: "#e5e7eb",
         700: "#374151",

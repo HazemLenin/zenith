@@ -3,8 +3,10 @@ import { BaseProfileResponse } from "./userProfile.viewmodel";
 
 export interface StudentSkill {
   id: number;
-  skillId: number;
+  title: string;
   type: StudentSkillTypeEnum;
+  description?: string;
+  points?: number;
 }
 
 export interface StudentProfileResponse extends BaseProfileResponse {

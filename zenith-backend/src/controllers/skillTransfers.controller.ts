@@ -41,9 +41,42 @@ export class SkillTransfersController {
         return;
       }
 
+      // Get student profile
+      const studentProfile = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, req.user.id))
+        .then((results) => results[0]);
+
+      if (!studentProfile) {
+        res.status(404).json({ message: "Student profile not found" });
+        return;
+      }
+
+      // Check for existing skill transfer request
+      const existingTransfer = await db
+        .select()
+        .from(skillTransfers)
+        .where(
+          and(
+            eq(skillTransfers.skillId, skillId),
+            eq(skillTransfers.studentId, studentProfile.id),
+            eq(skillTransfers.teacherId, teacherId),
+            eq(skillTransfers.status, "pending")
+          )
+        )
+        .then((results) => results[0]);
+
+      if (existingTransfer) {
+        res
+          .status(400)
+          .json({ message: "Skill transfer request already exists" });
+        return;
+      }
+
       // Create a new skill transfer request
       const newRequest = {
-        studentId: req.user.id,
+        studentId: studentProfile.id,
         skillId,
         teacherId,
         status: "pending" as const,
@@ -61,6 +94,7 @@ export class SkillTransfersController {
   static async getTeachersSearch(req: Request, res: Response): Promise<void> {
     try {
       const skillId = Number(req.query.skillId);
+      const userId = req.user.id;
 
       // Validate input
       if (typeof skillId != "number") {
@@ -68,25 +102,65 @@ export class SkillTransfersController {
         return;
       }
 
+      // Get student profile
+      const studentProfile = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, userId))
+        .then((results) => results[0]);
+
+      if (!studentProfile) {
+        res.status(404).json({ message: "Student profile not found" });
+        return;
+      }
+
       // Fetch teachers who can teach the specified skill
       const teachers = await db
         .select()
         .from(studentSkills)
-        .innerJoin(users, eq(studentSkills.id, skillId))
+        .innerJoin(
+          studentProfiles,
+          eq(studentSkills.studentId, studentProfiles.id)
+        )
+        .innerJoin(users, eq(studentProfiles.userId, users.id))
         .where(
           and(
-            eq(studentSkills.id, skillId),
+            eq(studentSkills.skillId, skillId),
             eq(studentSkills.type, StudentSkillType.LEARNED)
           )
         )
-        .then((results) => {
-          return results.map((result) => ({
-            teacherId: result.users.id,
-            points: result.student_skills.points,
-            teacherFirstName: result.users.firstName,
-            teacherLastName: result.users.lastName,
-            description: result.student_skills.description,
-          }));
+        .then(async (results) => {
+          // Filter out teachers who already have an active skill transfer with this student
+          const filteredResults = await Promise.all(
+            results.map(async (result) => {
+              const existingTransfer = await db
+                .select()
+                .from(skillTransfers)
+                .where(
+                  and(
+                    eq(skillTransfers.skillId, skillId),
+                    eq(skillTransfers.studentId, studentProfile.id),
+                    eq(skillTransfers.teacherId, result.student_profiles.id),
+                    eq(skillTransfers.status, "pending")
+                  )
+                )
+                .then((transfers) => transfers[0]);
+
+              if (existingTransfer) {
+                return null;
+              }
+
+              return {
+                teacherId: result.student_profiles.id,
+                points: result.student_skills.points,
+                teacherFirstName: result.users.firstName,
+                teacherLastName: result.users.lastName,
+                description: result.student_skills.description,
+              };
+            })
+          );
+
+          return filteredResults.filter((result) => result !== null);
         });
 
       res.status(200).json(teachers);

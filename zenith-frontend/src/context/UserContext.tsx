@@ -7,6 +7,7 @@ interface UserContextType {
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 export const UserContext = createContext<UserContextType>({
@@ -15,6 +16,7 @@ export const UserContext = createContext<UserContextType>({
   currentUser: null,
   setCurrentUser: () => {},
   isAuthenticated: false,
+  loading: true,
 });
 
 interface UserProviderProps {
@@ -27,8 +29,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   );
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!userToken);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setLoading(true);
     if (userToken) {
       localStorage.setItem("userToken", userToken);
       setIsAuthenticated(true);
@@ -39,10 +43,12 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       const payload = JSON.parse(window.atob(base64));
 
       setCurrentUser(payload);
+      setLoading(false);
     } else {
       localStorage.removeItem("userToken");
       setIsAuthenticated(false);
       setCurrentUser(null);
+      setLoading(false);
     }
   }, [userToken]);
 
@@ -54,6 +60,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         currentUser,
         setCurrentUser,
         isAuthenticated,
+        loading,
       }}
     >
       {children}

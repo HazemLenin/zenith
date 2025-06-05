@@ -39,6 +39,8 @@ components:
               - type: object
                 properties:
                   type: { type: string, enum: [learned, needed] }
+                  description: { type: string }
+                  points: { type: integer }
     CourseUpload:
       type: object
       properties:

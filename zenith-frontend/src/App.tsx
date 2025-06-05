@@ -13,6 +13,8 @@ import CoursesUpload from "./pages/CoursesUpload";
 import CourseDetails from "./pages/CourseDetails";
 import Requests from "./pages/Requests";
 import Sessions from "./pages/Sessions";
+import SkillsUpdate from "./pages/SkillsUpdate";
+import TeacherSearch from "./pages/TeacherSearch";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -39,6 +41,10 @@ function App() {
         {
           path: "users/:username",
           element: <ProtectedRoute children={<Profile />} />,
+        },
+        {
+          path: "users/:username/skills-update",
+          element: <ProtectedRoute children={<SkillsUpdate />} />,
         },
         {
           path: "courses/:id",
@@ -74,7 +80,7 @@ function App() {
         },
         {
           path: "skill-transfers/transfer-details/:skillTransferId",
-          element: <ProtectedRoute children={<Sessions/>} />
+          element: <ProtectedRoute children={<Sessions />} />,
         },
         {
           path: "courses",
@@ -88,6 +94,15 @@ function App() {
         {
           path: "chat",
           element: <ProtectedRoute children={<Chat />} />,
+        },
+        {
+          path: "skill-hub",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student"]}
+              children={<TeacherSearch />}
+            />
+          ),
         },
         {
           path: "*",
