@@ -15,6 +15,7 @@ import Requests from "./pages/Requests";
 import Sessions from "./pages/Sessions";
 import SkillsUpdate from "./pages/SkillsUpdate";
 import TeacherSearch from "./pages/TeacherSearch";
+import SkillExchanges from "./pages/SkillExchanges";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -103,6 +104,10 @@ function App() {
               children={<TeacherSearch />}
             />
           ),
+        },
+        {
+          path: "skill-transfers",
+          element: <ProtectedRoute children={<SkillExchanges />} />,
         },
         {
           path: "*",
