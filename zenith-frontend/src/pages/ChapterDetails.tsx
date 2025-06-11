@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import Card from "../components/Card/Card";
+import { Card } from "../components";
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
@@ -147,7 +147,8 @@ export default function ChapterDetails() {
           {chapters.map((chapter) => (
             <Card
               key={chapter.id}
-              fun={() => chapterDetails_handelar_function(chapter.id)}
+              onClick={() => chapterDetails_handelar_function(chapter.id)}
+              className="cursor-pointer"
             >
               <h1 className="text-xl font-semibold">{chapter.title}</h1>
             </Card>

@@ -2,14 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
-import Table from "../components/Table/Tablel";
-import { Modal } from "../components/Modal/Modal";
+import { Table, Modal, Dropdown, Toast, Button, Input } from "../components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
-import Dropdown from "../components/Dropdown/Dropdown";
-import Toast from "../components/Toast/Toast";
-import Button from "../components/Button/Button";
-import Input from "../components/Input/Input";
 
 interface Skill {
   id: number;

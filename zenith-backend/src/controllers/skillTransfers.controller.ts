@@ -172,15 +172,21 @@ export class SkillTransfersController {
 
   static async getMyRequests(req: Request, res: Response): Promise<void> {
     try {
-      const teacherId = req.user.id; // Assuming the student ID is stored in req.user
+      const userId = req.user.id;
 
-      // Validate input
-      if (typeof teacherId != "number") {
-        res.status(400).json({ message: "Invalid input" });
+      // Get teacher's student profile
+      const teacherProfile = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, userId))
+        .then((results) => results[0]);
+
+      if (!teacherProfile) {
+        res.status(404).json({ message: "Teacher profile not found" });
         return;
       }
 
-      // Fetch skill transfer requests for the student, ordered by newest first
+      // Fetch skill transfer requests for the teacher, ordered by newest first
       const requests = await db
         .select({
           id: skillTransfers.id,
@@ -191,12 +197,16 @@ export class SkillTransfersController {
           skillPoints: skillTransfers.points,
         })
         .from(skillTransfers)
-        .innerJoin(users, eq(skillTransfers.studentId, users.id))
+        .innerJoin(
+          studentProfiles,
+          eq(skillTransfers.studentId, studentProfiles.id)
+        )
+        .innerJoin(users, eq(studentProfiles.userId, users.id))
         .innerJoin(skills, eq(skillTransfers.skillId, skills.id))
         .where(
           and(
-            eq(skillTransfers.teacherId, teacherId),
-            eq(skillTransfers.status, "pending")
+            eq(skillTransfers.teacherId, teacherProfile.id),
+            eq(skillTransfers.status, SkillTransferStatus.PENDING)
           )
         )
         .orderBy(desc(skillTransfers.id));

@@ -1,14 +1,23 @@
 import { Navbar, Footer } from "..";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 export default function Layout() {
+  const location = useLocation();
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/signup";
+  const isHomePage = location.pathname === "/";
+
   return (
-    <>
-      <Navbar />
-      <div className="px-4 py-8 md:px-6 md:py-12 lg:px-8 lg:py-16">
+    <div className="min-h-screen flex flex-col">
+      {!isAuthPage && <Navbar />}
+      <div
+        className={`flex-grow ${
+          isHomePage || isAuthPage ? "" : "py-8 md:py-12 lg:py-16"
+        }`}
+      >
         <Outlet />
       </div>
       <Footer />
-    </>
+    </div>
   );
 }

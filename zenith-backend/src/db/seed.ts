@@ -87,7 +87,7 @@ async function seed() {
         .insert(instructorProfiles)
         .values({
           userId: instructor.id,
-          coursesCount: 0,
+          coursesCount: 3,
         })
         .returning();
 
@@ -388,6 +388,7 @@ async function seed() {
           title: "Introduction to Programming",
           description: "Learn the basics of programming",
           instructorId: instructorProfile.id,
+          price: 4999, // $49.99
         })
         .returning();
     }
@@ -405,6 +406,7 @@ async function seed() {
           description:
             "Master modern web development with React, TypeScript, and Next.js",
           instructorId: instructorProfile.id,
+          price: 7999, // $79.99
         })
         .returning();
     }
@@ -420,6 +422,90 @@ async function seed() {
           title: "AI & Machine Learning Fundamentals",
           description: "Learn the basics of AI and machine learning",
           instructorId: instructorProfile.id,
+          price: 9999, // $99.99
+        })
+        .returning();
+    }
+
+    // Add more courses with varying price points
+    let [dataScienceCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "Data Science Essentials"));
+    if (!dataScienceCourse) {
+      [dataScienceCourse] = await db
+        .insert(courses)
+        .values({
+          title: "Data Science Essentials",
+          description:
+            "Master data analysis, visualization, and statistical methods",
+          instructorId: instructorProfile.id,
+          price: 2999, // $29.99
+        })
+        .returning();
+    }
+
+    let [mobileDevCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "Mobile App Development"));
+    if (!mobileDevCourse) {
+      [mobileDevCourse] = await db
+        .insert(courses)
+        .values({
+          title: "Mobile App Development",
+          description: "Build iOS and Android apps using React Native",
+          instructorId: instructorProfile.id,
+          price: 6999, // $69.99
+        })
+        .returning();
+    }
+
+    let [cybersecurityCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "Cybersecurity Fundamentals"));
+    if (!cybersecurityCourse) {
+      [cybersecurityCourse] = await db
+        .insert(courses)
+        .values({
+          title: "Cybersecurity Fundamentals",
+          description:
+            "Learn essential security practices and threat prevention",
+          instructorId: instructorProfile.id,
+          price: 3999, // $39.99
+        })
+        .returning();
+    }
+
+    let [cloudComputingCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "Cloud Computing & DevOps"));
+    if (!cloudComputingCourse) {
+      [cloudComputingCourse] = await db
+        .insert(courses)
+        .values({
+          title: "Cloud Computing & DevOps",
+          description: "Master AWS, Azure, and modern deployment practices",
+          instructorId: instructorProfile.id,
+          price: 14999, // $149.99
+        })
+        .returning();
+    }
+
+    let [gameDevCourse] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.title, "Game Development with Unity"));
+    if (!gameDevCourse) {
+      [gameDevCourse] = await db
+        .insert(courses)
+        .values({
+          title: "Game Development with Unity",
+          description: "Create 2D and 3D games using Unity game engine",
+          instructorId: instructorProfile.id,
+          price: 8999, // $89.99
         })
         .returning();
     }

@@ -16,9 +16,7 @@ export default function Navbar(): JSX.Element {
     <>
       <nav className="bg-background border-gray-200 p-5">
         <div className="max-w-screen-xl flex flex-wrap items-center gap-3 mx-auto pt-8">
-          <span className="self-center text-3xl font-semibold whitespace-nowrap text-black ">
-            zenith
-          </span>
+          <img src="/logo.png" alt="Zenith Logo" className="w-28 h-auto" />
 
           <button
             data-collapse-toggle="navbar-default"
@@ -90,14 +88,6 @@ export default function Navbar(): JSX.Element {
                     Chat
                   </NavLink>
                 </li>
-                <li>
-                  <NavLink
-                    to="/skill-transfers/my-requests"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Skill Requests
-                  </NavLink>
-                </li>
               </ul>
             )}
             <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
@@ -153,17 +143,6 @@ export default function Navbar(): JSX.Element {
                   </li>
                 </>
               )}
-              <li className="flex gap-4 px-3">
-                <a href="">
-                  <i className="fa-brands fa-facebook"></i>
-                </a>
-                <a href="">
-                  <i className="fa-brands fa-twitter"></i>
-                </a>
-                <a href="">
-                  <i className="fa-brands fa-github"></i>
-                </a>
-              </li>
             </ul>
           </div>
         </div>

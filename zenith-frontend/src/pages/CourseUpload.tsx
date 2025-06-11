@@ -2,8 +2,7 @@ import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button/Button";
-import Input from "../components/Input/Input";
+import { Button, Input } from "../components";
 
 interface Video {
   title: string;
@@ -22,7 +21,7 @@ interface Chapter {
   order: number;
 }
 
-const CoursesUpload: React.FC = () => {
+const CourseUpload: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
@@ -116,16 +115,26 @@ const CoursesUpload: React.FC = () => {
         })),
       })),
     };
-    try {
-      await axios.post("http://localhost:3000/api/courses", data, {
+    axios
+      .post("http://localhost:3000/api/courses", data, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
+      })
+      .then(() => {
+        navigate(`/users/${currentUser?.username}`);
+      })
+      .catch((error) => {
+        console.error(error);
+        if (axios.isAxiosError(error)) {
+          alert(
+            "Error uploading course: " +
+              (error.response?.data?.message || error.message)
+          );
+        } else {
+          alert("An unexpected error occurred while uploading the course");
+        }
       });
-      navigate(`/users/${currentUser?.username}`);
-    } catch (err: any) {
-      alert("Error uploading course: " + (err?.response?.data?.message || ""));
-    }
   };
 
   return (
@@ -285,4 +294,4 @@ const CoursesUpload: React.FC = () => {
   );
 };
 
-export default CoursesUpload;
+export default CourseUpload;

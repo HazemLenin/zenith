@@ -10,7 +10,7 @@ interface ModalProps {
   onClose: () => void;
 }
 
-export const Modal: React.FC<ModalProps> = ({
+const Modal: React.FC<ModalProps> = ({
   title,
   children,
   footer,
@@ -51,3 +51,5 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 };
+
+export default Modal;

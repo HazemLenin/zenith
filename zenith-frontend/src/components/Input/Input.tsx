@@ -31,7 +31,7 @@ export default function Input({
       {icon}
       <input
         type={type}
-        className="w-full px-4 py-2 rounded-3xl border border-[#2a5c8a] 
+        className="w-full px-4 py-2 rounded-lg border border-[#2a5c8a] 
         bg-[#ffffff] placeholder:text-[#94adc4] focus:outline-none 
         focus:ring-2 focus:ring-[#2a5c8a] disabled:bg-[#94adc4]"
         placeholder={placeholder}

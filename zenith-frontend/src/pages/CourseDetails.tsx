@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { RingLoader } from "react-spinners";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Button from "../components/Button/Button";
+import { Button } from "../components";
 import {
   faChartColumn,
   faCalendarDays,

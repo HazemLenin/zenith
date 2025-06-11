@@ -1,13 +1,11 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Button } from "../components";
-import Card from "../components/Card/Card";
-import Toast from "../components/Toast/Toast";
+import { Card, Toast, Modal } from "../components";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
-import { Modal } from "../components/Modal/Modal";
 
-export default function Requests() {
+export default function SkillTransferRequests() {
   const { userToken } = useContext(UserContext);
   const navigate = useNavigate();
   interface Request {
@@ -28,65 +26,24 @@ export default function Requests() {
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
   useEffect(() => {
-    const defaultRequests = [
-      {
-        studentFirstname: "John",
-        studentLastname: "Doe",
-        studentUsername: "userName",
-        skillId: 1,
-        skillTitle: "React Development",
-        skillPoints: 100,
-      },
-      {
-        studentFirstname: "Sarah",
-        studentLastname: "Smith",
-        studentUsername: "userName",
-        skillId: 2,
-        skillTitle: "TypeScript",
-        skillPoints: 75,
-      },
-      {
-        studentFirstname: "Michael",
-        studentLastname: "Johnson",
-        studentUsername: "userName",
-        skillId: 3,
-        skillTitle: "Node.js",
-        skillPoints: 85,
-      },
-    ];
-
-    // const fetchRequests = async () => {
-    //     try {
-    //         const response = await axios.get('/skill-transfers/my-requests');
-    //         const data =response.data;
-    //         setRequests(data.length > 0 ? data : defaultRequests);
-    //         console.log(data)
-    //     } catch (error) {
-    //         console.error('Error fetching requests:', error);
-    //         setRequests(defaultRequests); // use default values on error
-    //     }
-    // };
-    const fetchRequests = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/api/skill-transfers/my-requests",
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
-        );
-        console.log(response.data);
-        const data = Array.isArray(response.data) ? response.data : [];
-        setRequests(data.length > 0 ? data : defaultRequests);
-      } catch (error) {
-        console.error("Error fetching requests:", error);
-        setRequests(defaultRequests); // use default values on error
-      }
-    };
-
     fetchRequests();
   }, []);
+
+  const fetchRequests = () => {
+    axios
+      .get("http://localhost:3000/api/skill-transfers/my-requests", {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      })
+      .then((response) => {
+        setRequests(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching requests:", error);
+      });
+  };
+
   // Handle Reject button
   async function handleRejectConfirm() {
     if (!selectedRequest) return;
@@ -140,7 +97,7 @@ export default function Requests() {
       />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-black">Skills Requests</h1>
-        <span className="bg-warning text-black text-sm font-medium mr-2 px-4 py-2 rounded-full shadow-md hover:bg-white transition-all duration-300 inline-flex items-center">
+        <span className="bg-primary text-white text-sm font-medium mr-2 px-4 py-2 rounded-full shadow-md inline-flex items-center">
           {requests.length} Pending
         </span>
       </div>

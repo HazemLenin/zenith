@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import zenith from "/public/zenith-bg.jpg";
-import Typed from "typed.js";
+import Typed, { TypedOptions } from "typed.js";
+import { Button } from "../components";
 
 export const Home: React.FC = () => {
   // Create reference element
   const el = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const options = {
+    const options: TypedOptions = {
       strings: [
         "Learn from Experts",
         "Share Your Skills",
@@ -16,6 +16,13 @@ export const Home: React.FC = () => {
       typeSpeed: 50,
       backSpeed: 25,
       loop: true,
+      backDelay: 1000,
+      showCursor: true,
+      cursorChar: "|",
+      smartBackspace: true,
+      shuffle: true,
+      fadeOut: true,
+      fadeOutDelay: 1000,
     };
 
     // Create typed instance
@@ -31,10 +38,7 @@ export const Home: React.FC = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative h-[60vh]">
-        <div
-          className="w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${zenith})` }}
-        >
+        <div className="w-full h-full bg-cover bg-center bg-no-repeat bg-[url('/assets/zenith-bg.jpg')]">
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
             <h1
               className="text-white
@@ -44,14 +48,6 @@ export const Home: React.FC = () => {
             </h1>
             <div className="flex items-center gap-2">
               <span ref={el} className="text-white text-5xl"></span>
-            </div>
-            <div className="flex gap-4 mt-8">
-              <button className="px-8 py-3 bg-secondary-title text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-300">
-                Join For Free
-              </button>
-              <button className="px-8 py-3 bg-white text-secondary-title font-medium rounded-lg hover:bg-gray-100 transition-colors duration-300 border border-secondary-title">
-            Explore Our Courses
-              </button>
             </div>
           </div>
         </div>
@@ -314,12 +310,9 @@ export const Home: React.FC = () => {
               ></textarea>
             </div>
             <div className="flex justify-center">
-              <button
-                type="submit"
-                className="px-8 py-3 text-primary-titletext-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-300"
-              >
+              <Button type="submit" variant="primary" className="px-8 py-3">
                 Send Message
-              </button>
+              </Button>
             </div>
           </form>
         </div>

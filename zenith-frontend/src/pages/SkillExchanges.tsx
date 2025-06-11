@@ -1,7 +1,6 @@
 import { useEffect, useState, useContext } from "react";
-import Dropdown from "../components/Dropdown/Dropdown";
-import Button from "../components/Button/Button";
-import { Card } from "flowbite-react";
+import { Dropdown, Button } from "../components";
+import { Card } from "../components";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 

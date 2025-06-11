@@ -1,7 +1,6 @@
 import React, { useState, ChangeEvent, useContext, useEffect } from "react";
 import { Button } from "../components";
-import Input from "../components/Input/Input";
-import Table from "../components/Table/Tablel";
+import { Input, Table } from "../components";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";

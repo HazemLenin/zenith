@@ -54,6 +54,14 @@ export class CoursesController {
           } as NewCourse)
           .returning();
 
+        // Update instructor's courses count
+        await tx
+          .update(instructorProfiles)
+          .set({
+            coursesCount: sql`${instructorProfiles.coursesCount} + 1`,
+          })
+          .where(eq(instructorProfiles.id, instructorProfile[0].id));
+
         // Create chapters, videos, and articles
         for (let i = 0; i < courseData.chapters.length; i++) {
           const chapter = courseData.chapters[i];

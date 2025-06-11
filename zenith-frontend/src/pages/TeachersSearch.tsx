@@ -1,11 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import Dropdown from "../components/Dropdown/Dropdown";
-import Card from "../components/Card/Card";
-import Button from "../components/Button/Button";
-import { Modal } from "../components/Modal/Modal";
-import Toast from "../components/Toast/Toast";
+import { Dropdown, Card, Button, Modal, Toast } from "../components";
 import { UserContext } from "../context/UserContext";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 interface Skill {
   id: number;
@@ -23,7 +20,7 @@ interface TeacherResult {
   description: string;
 }
 
-const TeacherSearch: React.FC = () => {
+const TeachersSearch: React.FC = () => {
   const { currentUser, userToken } = useContext(UserContext);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [selectedSkill, setSelectedSkill] = useState<string>("");
@@ -113,10 +110,17 @@ const TeacherSearch: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-8 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Zenith</h1>
-        <Button variant="secondary">Logout</Button>
+        <div>
+          <Link
+            to="/skill-transfers/my-requests"
+            className="text-primary hover:underline font-medium"
+          >
+            My Requests
+          </Link>
+        </div>
       </div>
       <div className="flex gap-4 mb-6">
         <div className="flex-1">
@@ -138,13 +142,18 @@ const TeacherSearch: React.FC = () => {
       </div>
       <div className="space-y-4">
         {searchResults.map((teacher) => (
-          <Card key={teacher.teacherId}>
+          <Card
+            key={teacher.teacherId}
+            className="p-4 border border-gray-200 rounded-lg shadow-none hover:shadow-md transition-shadow bg-white"
+          >
             <div className="flex justify-between items-center w-full">
               <div className="flex flex-col">
-                <span className="font-semibold">
+                <span className="font-semibold text-lg">
                   {teacher.teacherFirstName} {teacher.teacherLastName}
                 </span>
-                <span>Points: {teacher.points}</span>
+                <span className="text-gray-500 text-sm">
+                  Points: {teacher.points}
+                </span>
               </div>
               <div className="w-32 flex-shrink-0">
                 <Button
@@ -191,4 +200,4 @@ const TeacherSearch: React.FC = () => {
   );
 };
 
-export default TeacherSearch;
+export default TeachersSearch;

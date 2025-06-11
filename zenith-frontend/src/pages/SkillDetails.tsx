@@ -1,9 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import Button from "../components/Button/Button";
-import Table from "../components/Table/Tablel";
-import { Modal } from "../components/Modal/Modal";
-import Toast from "../components/Toast/Toast";
+import { Button, Table, Modal, Toast } from "../components";
 import { useParams } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 

@@ -1,21 +1,25 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home, NotFound, Chat } from "./pages";
+import {
+  Home,
+  NotFound,
+  Chat,
+  SkillDetails,
+  UserProfile,
+  ChapterDetails,
+  Search,
+  Courses,
+  CourseUpload,
+  CourseDetails,
+  SkillTransferRequests,
+  Sessions,
+  SkillsUpdate,
+  TeachersSearch,
+  SkillExchanges,
+  Unauthorized,
+} from "./pages";
 import { Layout, ProtectedRoute } from "./components";
+import AuthPage from "./pages/AuthPage";
 import "./App.css";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
-import SkillDetails from "./pages/SkillDetails";
-import Profile from "./pages/Profile";
-import ChapterDetails from "./pages/ChapterDetails";
-import Search from "./pages/Search";
-import SearchCourses from "./pages/CoursesSearch";
-import CoursesUpload from "./pages/CoursesUpload";
-import CourseDetails from "./pages/CourseDetails";
-import Requests from "./pages/Requests";
-import Sessions from "./pages/Sessions";
-import SkillsUpdate from "./pages/SkillsUpdate";
-import TeacherSearch from "./pages/TeacherSearch";
-import SkillExchanges from "./pages/SkillExchanges";
 
 // Example user role - in a real app, this would come from your auth context/state
 // const userRole = "admin";
@@ -28,8 +32,9 @@ function App() {
       element: <Layout />,
       children: [
         { path: "/", element: <Home /> },
-        { path: "login", element: <Login /> },
-        { path: "signup", element: <SignUp /> },
+        { path: "login", element: <AuthPage /> },
+        { path: "signup", element: <AuthPage /> },
+        { path: "unauthorized", element: <Unauthorized /> },
         {
           path: "skill-transfers/:skillTransferId",
           element: (
@@ -41,7 +46,7 @@ function App() {
         },
         {
           path: "users/:username",
-          element: <ProtectedRoute children={<Profile />} />,
+          element: <ProtectedRoute children={<UserProfile />} />,
         },
         {
           path: "users/:username/skills-update",
@@ -71,13 +76,13 @@ function App() {
           element: (
             <ProtectedRoute
               allowedRoles={["instructor"]}
-              children={<CoursesUpload />}
+              children={<CourseUpload />}
             />
           ),
         },
         {
           path: "skill-transfers/my-requests",
-          element: <ProtectedRoute children={<Requests />} />,
+          element: <ProtectedRoute children={<SkillTransferRequests />} />,
         },
         {
           path: "adding-sessions",
@@ -86,10 +91,7 @@ function App() {
         {
           path: "courses",
           element: (
-            <ProtectedRoute
-              allowedRoles={["student"]}
-              children={<SearchCourses />}
-            />
+            <ProtectedRoute allowedRoles={["student"]} children={<Courses />} />
           ),
         },
         {
@@ -101,7 +103,7 @@ function App() {
           element: (
             <ProtectedRoute
               allowedRoles={["student"]}
-              children={<TeacherSearch />}
+              children={<TeachersSearch />}
             />
           ),
         },
