@@ -1,10 +1,12 @@
-import React, { JSX, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar(): JSX.Element {
+export default function Navbar(): React.ReactElement {
   const { userToken, setUserToken, currentUser } = useContext(UserContext);
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   function LogOut(): void {
     localStorage.removeItem("userToken");
@@ -12,141 +14,211 @@ export default function Navbar(): JSX.Element {
     navigate("/login");
   }
 
-  return (
-    <>
-      <nav className="bg-background border-gray-200 p-5">
-        <div className="max-w-screen-xl flex flex-wrap items-center gap-3 mx-auto pt-8">
-          <img src="/logo.png" alt="Zenith Logo" className="w-28 h-auto" />
+  const navLinks = userToken
+    ? [
+        {
+          to: "/",
+          label: "Home",
+        },
+        {
+          to:
+            currentUser?.role === "instructor" ? "/courses/upload" : "/courses",
+          label:
+            currentUser?.role === "instructor" ? "Upload Course" : "Courses",
+        },
+        ...(currentUser?.role === "student"
+          ? [
+              {
+                to: "/skill-hub",
+                label: "Skill Hub",
+              },
+            ]
+          : []),
+        {
+          to: "/chat",
+          label: "Chat",
+        },
+      ]
+    : [
+        {
+          to: "/",
+          label: "Home",
+        },
+        {
+          to: "/login",
+          label: "Log in",
+        },
+        {
+          to: "/signup",
+          label: "Sign Up",
+        },
+      ];
 
-          <button
-            data-collapse-toggle="navbar-default"
-            type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-            aria-controls="navbar-default"
-            aria-expanded="false"
-          >
-            <span className="sr-only">Open main menu</span>
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 17 14"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M1 1h15M1 7h15M1 13h15"
-              />
-            </svg>
-          </button>
-          <div
-            className="hidden w-full md:w-auto flex-grow md:flex md:justify-between"
-            id="navbar-default"
-          >
+  return (
+    <nav className="bg-background border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <img src="/logo.png" alt="Zenith Logo" className="w-28 h-auto" />
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-8">
             {userToken && (
-              <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
-                <li>
+              <div className="flex items-center space-x-8">
+                {navLinks.map((link) => (
                   <NavLink
-                    to="/"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Home
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to={
-                      currentUser?.role === "instructor"
-                        ? "/courses/upload"
-                        : "/courses"
+                    key={link.to}
+                    to={link.to}
+                    className={({ isActive }) =>
+                      `text-black hover:text-primary transition-colors duration-200 ${
+                        isActive ? "text-primary font-medium" : ""
+                      }`
                     }
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
                   >
-                    {currentUser?.role === "instructor"
-                      ? "Upload Course"
-                      : "Courses"}
+                    {link.label}
                   </NavLink>
-                </li>
-                {currentUser?.role === "student" && (
-                  <li>
-                    <NavLink
-                      to="/skill-hub"
-                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                    >
-                      Skill Hub
-                    </NavLink>
-                  </li>
-                )}
-                <li>
-                  <NavLink
-                    to="/chat"
-                    className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                  >
-                    Chat
-                  </NavLink>
-                </li>
-              </ul>
+                ))}
+              </div>
             )}
-            <ul className=" font-medium flex flex-col ms-10 items-center md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0   ">
-              {userToken && (
+
+            {/* User Profile Section */}
+            <div className="flex items-center space-x-4">
+              {userToken ? (
                 <>
-                  <li>
-                    <NavLink
-                      to={`/users/${currentUser?.username}`}
-                      className="flex items-center gap-2 py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary"
-                    >
-                      <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm">
-                        {currentUser?.firstName?.charAt(0)}
-                        {currentUser?.lastName?.charAt(0)}
-                      </div>
-                      <span>Profile</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <span
-                      onClick={LogOut}
-                      className="block py-2 px-3 rounded hover:bg-gray-100 cursor-pointer md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary"
-                    >
-                      Log out
-                    </span>
-                  </li>
+                  <NavLink
+                    to={`/users/${currentUser?.username}`}
+                    className="flex items-center gap-2 text-black hover:text-primary transition-colors duration-200"
+                  >
+                    <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                      {currentUser?.firstName?.charAt(0)}
+                      {currentUser?.lastName?.charAt(0)}
+                    </div>
+                    <span>Profile</span>
+                  </NavLink>
+                  <button
+                    onClick={LogOut}
+                    className="text-black hover:text-primary transition-colors duration-200 cursor-pointer"
+                  >
+                    Log out
+                  </button>
                 </>
+              ) : (
+                <div className="flex items-center space-x-4">
+                  {navLinks.slice(1).map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      className={({ isActive }) =>
+                        `text-black hover:text-primary transition-colors duration-200 ${
+                          isActive ? "text-primary font-medium" : ""
+                        }`
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
+                  ))}
+                </div>
               )}
-              {!userToken && (
-                <>
-                  <li>
-                    <NavLink
-                      to="/"
-                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                    >
-                      Home
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/login"
-                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                    >
-                      Log in
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/signup"
-                      className="block py-2 px-3 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 text-black hover:text-primary "
-                    >
-                      Sign Up
-                    </NavLink>
-                  </li>
-                </>
-              )}
-            </ul>
+            </div>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+            >
+              <span className="sr-only">Open main menu</span>
+              <svg
+                className={`${isMobileMenuOpen ? "hidden" : "block"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <svg
+                className={`${isMobileMenuOpen ? "block" : "hidden"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
         </div>
-      </nav>
-    </>
+      </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden"
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg rounded-b-lg">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `block px-3 py-2 rounded-md text-base font-medium ${
+                      isActive
+                        ? "text-primary bg-primary/10"
+                        : "text-black hover:text-primary hover:bg-gray-50"
+                    }`
+                  }
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+              {userToken && (
+                <>
+                  <NavLink
+                    to={`/users/${currentUser?.username}`}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-black hover:text-primary hover:bg-gray-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                      {currentUser?.firstName?.charAt(0)}
+                      {currentUser?.lastName?.charAt(0)}
+                    </div>
+                    <span>Profile</span>
+                  </NavLink>
+                  <button
+                    onClick={() => {
+                      LogOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-black hover:text-primary hover:bg-gray-50"
+                  >
+                    Log out
+                  </button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
   );
 }
