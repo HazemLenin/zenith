@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { RingLoader } from "react-spinners";
+import { Spinner } from "../components";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../components";
@@ -109,7 +109,7 @@ export default function CourseDetails() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <RingLoader color="#00A3A3" size={100} />
+        <Spinner size="lg" />
       </div>
     );
   }

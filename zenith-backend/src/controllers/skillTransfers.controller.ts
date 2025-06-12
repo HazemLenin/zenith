@@ -249,7 +249,6 @@ export class SkillTransfersController {
         res.status(400).json({ message: "Invalid input" });
         return;
       }
-
       sessionData.forEach(async (element) => {
         const newSession = {
           skillTransferId: skillTransferId,
@@ -263,7 +262,7 @@ export class SkillTransfersController {
       // Update the skill transfer request status to "accepted"
       await db
         .update(skillTransfers)
-        .set({ [skillTransfers.status.name]: SkillTransferStatus.IN_PROGRESS })
+        .set({ status: SkillTransferStatus.IN_PROGRESS })
         .where(eq(skillTransfers.id, skillTransferId));
 
       res.status(200).json({ message: "Skill transfer request accepted" });
@@ -275,41 +274,77 @@ export class SkillTransfersController {
 
   static async getMySkillTransfers(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user.id;
-      const type = req.body.type;
+      const studentProfileId = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, req.user.id))
+        .then((res) => res[0].id);
+
+      const type = req.query.type as string;
 
       // Validate input
-      if (typeof userId != "number" || !type) {
-        res.status(400).json({ message: "Invalid input" });
+      if (
+        !type ||
+        !Object.values(StudentSkillType).includes(
+          type as (typeof StudentSkillType)[keyof typeof StudentSkillType]
+        )
+      ) {
+        res.status(400).json({
+          message: "Invalid type. Must be either 'learned' or 'needed'",
+        });
         return;
       }
 
       // Build query with all conditions at once
       const transfers = await db
-        .select()
+        .select({
+          id: skillTransfers.id,
+          studentFirstname: users.firstName,
+          studentLastname: users.lastName,
+          teacherId: skillTransfers.teacherId,
+          points: skillTransfers.points,
+        })
         .from(skillTransfers)
-        .innerJoin(users, eq(skillTransfers.studentId, users.id))
+        .innerJoin(
+          studentProfiles,
+          eq(skillTransfers.studentId, studentProfiles.id)
+        )
+        .innerJoin(users, eq(studentProfiles.userId, users.id))
         .where(
           and(
             eq(skillTransfers.status, "in_progress"),
             type === StudentSkillType.LEARNED
-              ? eq(skillTransfers.studentId, userId)
-              : eq(skillTransfers.teacherId, userId)
+              ? eq(skillTransfers.teacherId, studentProfileId)
+              : eq(skillTransfers.studentId, studentProfileId)
           )
         )
         .then(async (results) => {
           return await Promise.all(
             results.map(async (result) => {
+              // Get teacher information
+              const teacher = await db
+                .select({
+                  firstName: users.firstName,
+                  lastName: users.lastName,
+                })
+                .from(users)
+                .innerJoin(
+                  studentProfiles,
+                  eq(studentProfiles.userId, users.id)
+                )
+                .where(eq(studentProfiles.id, result.teacherId))
+                .then((res) => res[0]);
+
               const sessionsCount = await db
                 .select({ count: count(sessions.id) })
                 .from(sessions)
-                .where(eq(sessions.skillTransferId, result.skill_transfers.id));
+                .where(eq(sessions.skillTransferId, result.id));
               const completedSessionsCount = await db
                 .select({ count: count(sessions.id) })
                 .from(sessions)
                 .where(
                   and(
-                    eq(sessions.skillTransferId, result.skill_transfers.id),
+                    eq(sessions.skillTransferId, result.id),
                     eq(sessions.completed, true)
                   )
                 );
@@ -318,18 +353,20 @@ export class SkillTransfersController {
                 .from(sessions)
                 .where(
                   and(
-                    eq(sessions.skillTransferId, result.skill_transfers.id),
+                    eq(sessions.skillTransferId, result.id),
                     eq(sessions.paid, true)
                   )
                 );
 
               return {
-                id: result.skill_transfers.id,
-                studentFirstname: result.users.firstName,
-                studentLastname: result.users.lastName,
+                id: result.id,
+                studentFirstname: result.studentFirstname,
+                studentLastname: result.studentLastname,
+                teacherFirstname: teacher.firstName,
+                teacherLastname: teacher.lastName,
                 sessions: sessionsCount[0]["count"],
                 completedSessions: completedSessionsCount[0]["count"],
-                points: result.skill_transfers.points,
+                points: result.points,
                 paid: paidSessionsCount[0]["count"],
               };
             })

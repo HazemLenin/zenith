@@ -208,6 +208,8 @@ components:
         id: { type: number }
         studentFirstName: { type: string }
         studentLastName: { type: string }
+        teacherFirstname: { type: string }
+        teacherLastname: { type: string }
         sessions: { type: number }
         completedSessions: { type: number }
         points: { type: number }

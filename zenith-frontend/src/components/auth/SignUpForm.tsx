@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Input, Switch, Button } from "../";
 import { UserContext } from "../../context/UserContext";
 import { User } from "../../types/chat";
+import { useToast } from "../../context/ToastContext";
 
 interface FormValues {
   firstName: string;
@@ -25,10 +26,10 @@ interface SignUpFormProps {
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
-  const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const navigate = useNavigate();
   const { setUserToken, setCurrentUser } = React.useContext(UserContext);
+  const { showToast } = useToast();
   const [selectedRole, setSelectedRole] = React.useState<
     "student" | "instructor"
   >("student");
@@ -126,14 +127,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
         navigate("/");
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          setErrorMessage(
-            error.response?.data?.message ||
-              (error.request
-                ? "Network error. Please check your connection."
-                : "An error occurred. Please try again later.")
-          );
+          const errorMessage =
+            error.response?.data?.error?.message ||
+            "An error occurred. Please try again later.";
+          showToast(errorMessage, "error");
         } else {
-          setErrorMessage("Unexpected error occurred.");
+          showToast("An unexpected error occurred.", "error");
         }
       } finally {
         setIsLoading(false);
@@ -147,131 +146,105 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
     };
 
   return (
-    <>
-      {errorMessage && (
-        <div
-          className="flex items-center p-4 mb-4 text-sm text-danger border border-danger rounded-lg bg-red-50"
-          role="alert"
-          aria-live="assertive"
-        >
-          <svg
-            className="shrink-0 inline w-4 h-4 me-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-          </svg>
-          <span className="sr-only">Error</span>
-          <div>{errorMessage}</div>
-        </div>
-      )}
-
-      <form onSubmit={formik.handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Input
-              label="First Name"
-              type="text"
-              placeholder="First Name"
-              value={formik.values.firstName}
-              onChangeFun={handleInputChange("firstName")}
-              required
-            />
-            {formik.touched.firstName && formik.errors.firstName && (
-              <div className="text-danger text-sm mt-1">
-                {formik.errors.firstName}
-              </div>
-            )}
-          </div>
-          <div>
-            <Input
-              label="Last Name"
-              type="text"
-              placeholder="Last Name"
-              value={formik.values.lastName}
-              onChangeFun={handleInputChange("lastName")}
-              required
-            />
-            {formik.touched.lastName && formik.errors.lastName && (
-              <div className="text-danger text-sm mt-1">
-                {formik.errors.lastName}
-              </div>
-            )}
-          </div>
-        </div>
-
+    <form onSubmit={formik.handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <Input
-            label="Username"
+            label="First Name"
             type="text"
-            placeholder="Username"
-            value={formik.values.username}
-            onChangeFun={handleInputChange("username")}
+            placeholder="First Name"
+            value={formik.values.firstName}
+            onChangeFun={handleInputChange("firstName")}
             required
           />
-          {formik.touched.username && formik.errors.username && (
+          {formik.touched.firstName && formik.errors.firstName && (
             <div className="text-danger text-sm mt-1">
-              {formik.errors.username}
+              {formik.errors.firstName}
             </div>
           )}
         </div>
-
         <div>
           <Input
-            label="Email"
-            type="email"
-            placeholder="Email"
-            value={formik.values.email}
-            onChangeFun={handleInputChange("email")}
+            label="Last Name"
+            type="text"
+            placeholder="Last Name"
+            value={formik.values.lastName}
+            onChangeFun={handleInputChange("lastName")}
             required
           />
-          {formik.touched.email && formik.errors.email && (
+          {formik.touched.lastName && formik.errors.lastName && (
             <div className="text-danger text-sm mt-1">
-              {formik.errors.email}
+              {formik.errors.lastName}
             </div>
           )}
         </div>
+      </div>
 
-        <div>
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Password"
-            value={formik.values.password}
-            onChangeFun={handleInputChange("password")}
-            required
-          />
-          {formik.touched.password && formik.errors.password && (
-            <div className="text-danger text-sm mt-1">
-              {formik.errors.password}
-            </div>
-          )}
-        </div>
+      <div>
+        <Input
+          label="Username"
+          type="text"
+          placeholder="Username"
+          value={formik.values.username}
+          onChangeFun={handleInputChange("username")}
+          required
+        />
+        {formik.touched.username && formik.errors.username && (
+          <div className="text-danger text-sm mt-1">
+            {formik.errors.username}
+          </div>
+        )}
+      </div>
 
-        <div className="flex items-center justify-start mb-4">
-          <Switch
-            label={selectedRole}
-            onChange={handleRoleChange}
-            checked={selectedRole === "instructor"}
-          />
-        </div>
+      <div>
+        <Input
+          label="Email"
+          type="email"
+          placeholder="Email"
+          value={formik.values.email}
+          onChangeFun={handleInputChange("email")}
+          required
+        />
+        {formik.touched.email && formik.errors.email && (
+          <div className="text-danger text-sm mt-1">{formik.errors.email}</div>
+        )}
+      </div>
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          isLoading={isLoading}
-          ariaLabel={
-            isLoading
-              ? "Submitting form, please wait"
-              : "Sign up for an account"
-          }
-        >
-          Create Account
-        </Button>
-      </form>
-    </>
+      <div>
+        <Input
+          label="Password"
+          type="password"
+          placeholder="Password"
+          value={formik.values.password}
+          onChangeFun={handleInputChange("password")}
+          required
+        />
+        {formik.touched.password && formik.errors.password && (
+          <div className="text-danger text-sm mt-1">
+            {formik.errors.password}
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-start mb-4">
+        <Switch
+          label={selectedRole}
+          onChange={handleRoleChange}
+          checked={selectedRole === "instructor"}
+        />
+      </div>
+
+      <Button
+        type="submit"
+        disabled={isLoading}
+        isLoading={isLoading}
+        ariaLabel={
+          isLoading ? "Submitting form, please wait" : "Sign up for an account"
+        }
+      >
+        Create Account
+      </Button>
+    </form>
   );
 };
 

@@ -251,6 +251,8 @@ async function seed() {
         studentId: teacherStudentProfile.id,
         skillId: programmingSkill.id,
         type: StudentSkillType.LEARNED,
+        points: 85, // High points for programming expertise
+        description: "Expert in multiple programming languages and paradigms",
       });
     }
 
@@ -268,6 +270,8 @@ async function seed() {
         studentId: teacherStudentProfile.id,
         skillId: designSkill.id,
         type: StudentSkillType.LEARNED,
+        points: 75, // Strong design skills
+        description: "Proficient in UI/UX and graphic design",
       });
     }
 
@@ -286,6 +290,8 @@ async function seed() {
         studentId: teacherStudentProfile.id,
         skillId: webDevSkill.id,
         type: StudentSkillType.LEARNED,
+        points: 90, // Expert web development skills
+        description: "Full-stack web development with modern frameworks",
       });
     }
 
@@ -303,6 +309,8 @@ async function seed() {
         studentId: teacherStudentProfile.id,
         skillId: aiSkill.id,
         type: StudentSkillType.LEARNED,
+        points: 80, // Strong AI/ML knowledge
+        description: "Experience with machine learning and AI applications",
       });
     }
 

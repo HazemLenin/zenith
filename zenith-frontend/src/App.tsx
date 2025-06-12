@@ -11,19 +11,16 @@ import {
   CourseUpload,
   CourseDetails,
   SkillTransferRequests,
-  Sessions,
+  AddSessions,
   SkillsUpdate,
   TeachersSearch,
-  SkillExchanges,
+  SkillTransfers,
   Unauthorized,
 } from "./pages";
 import { Layout, ProtectedRoute } from "./components";
 import AuthPage from "./pages/AuthPage";
 import "./App.css";
-
-// Example user role - in a real app, this would come from your auth context/state
-// const userRole = "admin";
-// This should come from your authentication system
+import { ToastProvider } from "./context/ToastContext";
 
 function App() {
   const router = createBrowserRouter([
@@ -86,7 +83,7 @@ function App() {
         },
         {
           path: "adding-sessions",
-          element: <ProtectedRoute children={<Sessions />} />,
+          element: <ProtectedRoute children={<AddSessions />} />,
         },
         {
           path: "courses",
@@ -109,7 +106,7 @@ function App() {
         },
         {
           path: "skill-transfers",
-          element: <ProtectedRoute children={<SkillExchanges />} />,
+          element: <ProtectedRoute children={<SkillTransfers />} />,
         },
         {
           path: "*",
@@ -120,9 +117,9 @@ function App() {
   ]);
 
   return (
-    <>
+    <ToastProvider>
       <RouterProvider router={router} />
-    </>
+    </ToastProvider>
   );
 }
 

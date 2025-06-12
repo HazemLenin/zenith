@@ -108,7 +108,7 @@ const AuthPage: React.FC = () => {
 
       {/* Layer 2: Moving Form Section */}
       {/* Mobile: no animation, always left-aligned */}
-      <div className="lg:hidden w-full h-full fixed top-0 flex items-center justify-center p-8 bg-white left-0">
+      <div className="lg:hidden w-full h-full absolute top-0 flex items-center justify-center p-8 bg-white left-0">
         <div className="w-full max-w-md relative z-10 mt-16">
           <AuthSwitch isLogin={isLogin} />
           <FormContent isLogin={isLogin} onSwitch={handleSwitch} />
@@ -117,11 +117,17 @@ const AuthPage: React.FC = () => {
 
       {/* Desktop: animated motion.div */}
       <motion.div
-        className={`hidden lg:flex w-1/2 h-full fixed top-0 items-center justify-center p-8 bg-white ${
+        className={`hidden lg:flex w-1/2 h-full absolute top-0 items-center justify-center p-8 bg-white ${
           isLogin ? "lg:left-0" : "lg:left-1/2"
         } left-0`}
         animate={{ left: isLogin ? "0%" : "50%" }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={{
+          type: "spring",
+          stiffness: 100,
+          damping: 20,
+          duration: 0.8,
+          ease: "ease",
+        }}
       >
         {/* Decorative gradient shapes - hidden on mobile */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-primary to-primary/80 transform -skew-y-6 origin-top-left" />

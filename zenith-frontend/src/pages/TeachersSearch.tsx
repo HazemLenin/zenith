@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Dropdown, Card, Button, Modal, Toast } from "../components";
+import { Dropdown, Card, Button, Modal } from "../components";
 import { UserContext } from "../context/UserContext";
+import { useToast } from "../context/ToastContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -22,17 +23,16 @@ interface TeacherResult {
 
 const TeachersSearch: React.FC = () => {
   const { currentUser, userToken } = useContext(UserContext);
+  const { showToast } = useToast();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [selectedSkill, setSelectedSkill] = useState<string>("");
   const [searchResults, setSearchResults] = useState<TeacherResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTeacher, setModalTeacher] = useState<TeacherResult | null>(null);
-  const [toast, setToast] = useState({
-    isVisible: false,
-    message: "",
-    type: "success" as "success" | "error" | "info",
-  });
+  const [requestedTeachers, setRequestedTeachers] = useState<Set<number>>(
+    new Set()
+  );
 
   // Fetch needed skills for the current user
   useEffect(() => {
@@ -90,17 +90,13 @@ const TeachersSearch: React.FC = () => {
         },
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
-      setToast({
-        isVisible: true,
-        message: "Skill request sent successfully!",
-        type: "success",
-      });
+      // Add the teacher to the requested set
+      setRequestedTeachers(
+        (prev) => new Set([...prev, modalTeacher.teacherId])
+      );
+      showToast("Skill request sent successfully!", "success");
     } catch {
-      setToast({
-        isVisible: true,
-        message: "Failed to send skill request.",
-        type: "error",
-      });
+      showToast("Failed to send skill request.", "error");
     }
   };
 
@@ -110,20 +106,26 @@ const TeachersSearch: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="px-2 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Zenith</h1>
         <div>
           <Link
             to="/skill-transfers/my-requests"
-            className="text-primary hover:underline font-medium"
+            className="text-primary hover:underline font-medium mr-4"
           >
             My Requests
           </Link>
+          <Link
+            to="/skill-transfers"
+            className="text-primary hover:underline font-medium"
+          >
+            Active Transfers
+          </Link>
         </div>
       </div>
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="w-full sm:flex-1">
           <Dropdown
             options={skills.map((s) => ({
               label: s.title,
@@ -134,13 +136,26 @@ const TeachersSearch: React.FC = () => {
             placeholder="Needed Skill"
           />
         </div>
-        <div className="w-40">
-          <Button onClick={handleSearch} disabled={!selectedSkill || loading}>
-            {loading ? "Searching..." : "Search"}
+        <div className="w-full sm:w-40">
+          <Button
+            onClick={handleSearch}
+            disabled={!selectedSkill || loading}
+            isLoading={loading}
+            loadingText="Searching..."
+            ariaLabel={
+              loading ? "Searching for teachers..." : "Search for teachers"
+            }
+          >
+            Search
           </Button>
         </div>
       </div>
       <div className="space-y-4">
+        {searchResults.length === 0 && (
+          <div className="text-center text-gray-400 text-lg py-8">
+            Please select a skill and click search to see available teachers
+          </div>
+        )}
         {searchResults.map((teacher) => (
           <Card
             key={teacher.teacherId}
@@ -159,8 +174,11 @@ const TeachersSearch: React.FC = () => {
                 <Button
                   onClick={() => handleRequest(teacher)}
                   className="w-full"
+                  disabled={requestedTeachers.has(teacher.teacherId)}
                 >
-                  Request
+                  {requestedTeachers.has(teacher.teacherId)
+                    ? "Requested"
+                    : "Request"}
                 </Button>
               </div>
             </div>
@@ -190,12 +208,6 @@ const TeachersSearch: React.FC = () => {
           </div>
         </div>
       </Modal>
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast((t) => ({ ...t, isVisible: false }))}
-      />
     </div>
   );
 };

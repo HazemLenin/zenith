@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
-import { Table, Modal, Dropdown, Toast, Button, Input } from "../components";
+import { useToast } from "../context/ToastContext";
+import { Table, Modal, Dropdown, Button, Input, Spinner } from "../components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 
@@ -47,6 +48,7 @@ interface UserData {
 const SkillsUpdate: React.FC = () => {
   const { username } = useParams<{ username: string }>();
   const { currentUser, userToken, loading } = useContext(UserContext);
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   // Route protection
@@ -69,15 +71,6 @@ const SkillsUpdate: React.FC = () => {
   const [addNeededSkillId, setAddNeededSkillId] = useState("");
   const [localSkills, setLocalSkills] = useState<LocalUserSkill[]>([]);
   const [unsaved, setUnsaved] = useState(false);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error" | "info";
-    isVisible: boolean;
-  }>({
-    message: "",
-    type: "info",
-    isVisible: false,
-  });
 
   // Fetch available skills and user profile
   useEffect(() => {
@@ -107,7 +100,13 @@ const SkillsUpdate: React.FC = () => {
     if (username && userToken) fetchData();
   }, [username, userToken]);
 
-  if (loading || !userData) return <div>Loading...</div>;
+  if (loading || !userData) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   // Split skills
   const learnedSkills = localSkills.filter((s) => s.type === "learned");
@@ -119,32 +118,34 @@ const SkillsUpdate: React.FC = () => {
     ...learnedSkills.map((skill) => [
       skill.title,
       skill.points ?? "-",
-      <button
+      <Button
         key={skill.id}
         onClick={() => {
           setLocalSkills((skills) => skills.filter((s) => s.id !== skill.id));
           setUnsaved(true);
         }}
-        className="text-red-500"
+        variant="danger"
+        shape="square"
       >
         <FontAwesomeIcon icon={faXmark} />
-      </button>,
+      </Button>,
     ]),
   ];
   const neededTableData = [
     ["Skill Name", ""],
     ...neededSkills.map((skill) => [
       skill.title,
-      <button
+      <Button
         key={skill.id}
         onClick={() => {
           setLocalSkills((skills) => skills.filter((s) => s.id !== skill.id));
           setUnsaved(true);
         }}
-        className="text-red-500"
+        variant="danger"
+        shape="square"
       >
         <FontAwesomeIcon icon={faXmark} />
-      </button>,
+      </Button>,
     ]),
   ];
 
@@ -159,11 +160,7 @@ const SkillsUpdate: React.FC = () => {
     // Check for duplicates
     const isDuplicate = localSkills.some((s) => s.skillId === skillMeta.id);
     if (isDuplicate) {
-      setToast({
-        message: "This skill is already added to your profile",
-        type: "error",
-        isVisible: true,
-      });
+      showToast("This skill is already added to your profile", "error");
       return;
     }
 
@@ -181,11 +178,7 @@ const SkillsUpdate: React.FC = () => {
     setAddLearnedForm({ skillId: "", price: "", description: "" });
     setModalOpen(false);
     setUnsaved(true);
-    setToast({
-      message: "Skill added successfully",
-      type: "success",
-      isVisible: true,
-    });
+    showToast("Skill added successfully", "success");
   };
 
   // Add needed skill
@@ -199,11 +192,7 @@ const SkillsUpdate: React.FC = () => {
     // Check for duplicates
     const isDuplicate = localSkills.some((s) => s.skillId === skillMeta.id);
     if (isDuplicate) {
-      setToast({
-        message: "This skill is already added to your profile",
-        type: "error",
-        isVisible: true,
-      });
+      showToast("This skill is already added to your profile", "error");
       return;
     }
 
@@ -218,11 +207,7 @@ const SkillsUpdate: React.FC = () => {
     ]);
     setAddNeededSkillId("");
     setUnsaved(true);
-    setToast({
-      message: "Skill added successfully",
-      type: "success",
-      isVisible: true,
-    });
+    showToast("Skill added successfully", "success");
   };
 
   // Save changes
@@ -246,12 +231,6 @@ const SkillsUpdate: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-8">
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast((prev) => ({ ...prev, isVisible: false }))}
-      />
       <h2 className="text-2xl font-bold mb-8">Edit skills</h2>
       <div className="flex gap-8">
         {/* Learned Skills */}
@@ -280,7 +259,11 @@ const SkillsUpdate: React.FC = () => {
                 placeholder="Select skill"
               />
             </div>
-            <Button onClick={handleAddNeeded} shape="square">
+            <Button
+              onClick={handleAddNeeded}
+              shape="square"
+              disabled={!addNeededSkillId}
+            >
               <FontAwesomeIcon icon={faPlus} />
             </Button>
           </div>

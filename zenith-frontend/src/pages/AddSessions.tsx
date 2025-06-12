@@ -4,9 +4,13 @@ import { Input, Table } from "../components";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
+import { useToast } from "../context/ToastContext";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const Sessions: React.FC = () => {
+const AddSessions: React.FC = () => {
   const { userToken } = useContext(UserContext);
+  const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
@@ -23,35 +27,38 @@ const Sessions: React.FC = () => {
   const [sessions, setSessions] = useState<
     { sessionTitle: string; points: number }[]
   >([]);
-  const [error, setError] = useState("");
   const totalPoints = sessions.reduce((sum, s) => sum + s.points, 0);
 
   useEffect(() => {
     if (!requestData.id) {
-      setError("No request data provided");
+      showToast("No request data provided", "error");
       return;
     }
-  }, [requestData]);
+  }, [requestData, showToast]);
 
   const handleAddSession = () => {
-    if (!sessionName.trim() || !sessionPoints.trim()) return;
+    if (!sessionName.trim() || !sessionPoints.trim()) {
+      showToast("Please fill in all fields", "error");
+      return;
+    }
     const points = Number(sessionPoints);
-    if (isNaN(points) || points <= 0) {
-      setError("Points must be a positive number");
+    if (isNaN(points) || points < 0) {
+      showToast("Points must be a non-negative number", "error");
       return;
     }
     if (totalPoints + points > requestData.skillPoints) {
-      setError("Total points exceed allowed maximum");
+      showToast("Total points exceed allowed maximum", "error");
       return;
     }
     setSessions([...sessions, { sessionTitle: sessionName, points }]);
     setSessionName("");
     setSessionPoints("");
-    setError("");
+    showToast("Session added successfully", "success");
   };
 
   const handleDeleteSession = (idx: number) => {
     setSessions(sessions.filter((_, i) => i !== idx));
+    showToast("Session deleted successfully", "success");
   };
 
   const handleFinishAndStart = async () => {
@@ -66,29 +73,26 @@ const Sessions: React.FC = () => {
           },
         }
       );
+      showToast("Sessions started successfully", "success");
       navigate("/skill-transfers/my-requests");
     } catch {
-      setError("Failed to start sessions.");
+      showToast("Failed to start sessions", "error");
     }
   };
 
-  if (error) {
-    return <div className="text-red-500 text-center mt-4">{error}</div>;
-  }
-
   return (
-    <div className="flex flex-col gap-4 w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-black mb-4">
+    <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto px-2 sm:px-4 py-4">
+      <h1 className="text-2xl md:text-3xl font-bold text-black mb-2 md:mb-4">
         Add Sessions for {requestData.studentName}
       </h1>
-      <div className="mb-4">
-        <p className="text-lg">Skill: {requestData.skillTitle}</p>
-        <p className="text-lg">
+      <div className="mb-2 md:mb-4">
+        <p className="text-base md:text-lg">Skill: {requestData.skillTitle}</p>
+        <p className="text-base md:text-lg">
           Total Points Available: {requestData.skillPoints}
         </p>
       </div>
       <div className="flex flex-col md:flex-row gap-4 w-full items-center">
-        <div className="flex flex-1">
+        <div className="flex flex-1 w-full md:w-auto">
           <Input
             type="text"
             placeholder="Session Name"
@@ -98,26 +102,26 @@ const Sessions: React.FC = () => {
             }
           />
         </div>
-        <div className="flex flex-1 items-center">
+        <div className="flex flex-1 items-center w-full md:w-auto">
           <Input
             type="number"
             placeholder="Points"
             value={sessionPoints}
-            min={1}
+            min={0}
             max={requestData.skillPoints - totalPoints}
             onChangeFun={(e: ChangeEvent<HTMLInputElement>) =>
               setSessionPoints(e.target.value)
             }
           />
-          <div className="px-4 flex items-center justify-center">
-            <span className="w-20">Out Of</span>
+          <div className="px-2 md:px-4 flex items-center justify-center">
+            <span className="w-16 md:w-20 text-sm md:text-base">Out Of</span>
             <span className="flex items-center">
               {requestData.skillPoints - totalPoints}
-              <img className="w-8 h-8 ml-1.5" src="/points.png" />
+              <img className="w-5 h-5 md:w-8 md:h-8 ml-1.5" src="/points.png" />
             </span>
           </div>
         </div>
-        <div className="w-48">
+        <div className="w-full md:w-48">
           <Button
             onClick={handleAddSession}
             disabled={
@@ -125,12 +129,12 @@ const Sessions: React.FC = () => {
               !sessionPoints.trim() ||
               totalPoints + Number(sessionPoints) > requestData.skillPoints
             }
+            className="w-full py-3"
           >
             Add
           </Button>
         </div>
       </div>
-      {error && <div className="text-red-500">{error}</div>}
       <div className="mt-4">
         {sessions.length > 0 && (
           <Table
@@ -141,16 +145,19 @@ const Sessions: React.FC = () => {
                 s.sessionTitle,
                 <span className="flex items-center">
                   {s.points}
-                  <img className="w-6 h-6 ml-1.5" src="/points.png" />
+                  <img
+                    className="w-5 h-5 md:w-6 md:h-6 ml-1.5"
+                    src="/points.png"
+                  />
                 </span>,
                 <Button
                   key={idx}
-                  variant="secondary"
+                  variant="danger"
                   shape="square"
                   onClick={() => handleDeleteSession(idx)}
                   className="ml-2"
                 >
-                  &#10005;
+                  <FontAwesomeIcon icon={faXmark} />
                 </Button>,
               ]),
             ]}
@@ -158,11 +165,11 @@ const Sessions: React.FC = () => {
         )}
       </div>
       <div className="flex justify-end mt-6">
-        <div className="w-48">
+        <div className="w-full md:w-48">
           <Button
             onClick={handleFinishAndStart}
             disabled={sessions.length === 0}
-            className="w-full"
+            className="w-full py-3"
           >
             Finish & Start
           </Button>
@@ -172,4 +179,4 @@ const Sessions: React.FC = () => {
   );
 };
 
-export default Sessions;
+export default AddSessions;

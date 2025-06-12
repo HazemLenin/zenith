@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChatList, ChatWindow } from "../components";
+import { ChatList, ChatWindow, Spinner } from "../components";
 import { Chat, ChatWithUser, Message, User } from "../types/chat";
 import socketService from "../services/socketService";
 import { UserContext } from "../context/UserContext";
@@ -293,8 +293,8 @@ const ChatPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
+      <div className="flex items-center justify-center h-screen">
+        <Spinner size="lg" />
       </div>
     );
   }

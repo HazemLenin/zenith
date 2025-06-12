@@ -14,15 +14,6 @@ export const Home: React.FC = () => {
         "Earn While Teaching",
       ],
       typeSpeed: 50,
-      backSpeed: 25,
-      loop: true,
-      backDelay: 1000,
-      showCursor: true,
-      cursorChar: "|",
-      smartBackspace: true,
-      shuffle: true,
-      fadeOut: true,
-      fadeOutDelay: 1000,
     };
 
     // Create typed instance
@@ -46,8 +37,8 @@ export const Home: React.FC = () => {
             >
               Welcome to Zenith
             </h1>
-            <div className="flex items-center gap-2">
-              <span ref={el} className="text-white text-5xl"></span>
+            <div className="flex items-center gap-2 text-white text-5xl">
+              <span ref={el}></span>
             </div>
           </div>
         </div>

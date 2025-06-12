@@ -1,82 +1,46 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faXmark,
+  faCircleInfo,
+} from "@fortawesome/free-solid-svg-icons";
+import { motion } from "framer-motion";
 
 export type ToastType = "success" | "error" | "info";
 
 interface ToastProps {
   message: string;
-  type?: ToastType;
-  duration?: number;
-  onClose?: () => void;
-  isVisible?: boolean;
+  type: ToastType;
+  onClose: () => void;
+  id: string;
 }
 
-const Toast: React.FC<ToastProps> = ({
-  message,
-  type = "info",
-  duration = 3000,
-  onClose,
-  isVisible = true,
-}) => {
-  const [show, setShow] = useState(isVisible);
-
-  useEffect(() => {
-    setShow(isVisible);
-    if (isVisible && duration) {
-      const timer = setTimeout(() => {
-        setShow(false);
-        onClose?.();
-      }, duration);
-
-      return () => clearTimeout(timer);
-    }
-  }, [duration, isVisible, onClose]);
-
-  if (!show) return null;
-
-  const toastTypeStyles = {
-    success: "bg-success border-l-4 border-primary text-white",
-    error: "bg-danger border-l-4 border-primary text-white",
-    info: "bg-primary-disabled border-l-4 border-primary text-white",
+const Toast: React.FC<ToastProps> = ({ message, type, onClose, id }) => {
+  const styles = {
+    success:
+      "bg-white border-l-4 border-emerald-500 text-emerald-700 shadow-lg",
+    error: "bg-white border-l-4 border-red-500 text-red-700 shadow-lg",
+    info: "bg-white border-l-4 border-blue-500 text-blue-700 shadow-lg",
   };
 
-  const toastIcons = {
-    success: "✓",
-    error: "✕",
-    info: "ℹ",
+  const icons = {
+    success: faCheck,
+    error: faXmark,
+    info: faCircleInfo,
   };
 
   return (
-    <div
-      className={`
-                fixed top-4 right-4 
-                min-w-[300px] max-w-[400px] 
-                z-50 rounded-lg shadow-xl 
-                transform transition-all duration-300 ease-in-out
-                ${toastTypeStyles[type]}
-                animate-fade-in-down
-            `}
+    <motion.div
+      initial={{ x: 100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: 100, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={`${styles[type]} rounded-lg p-4 flex items-center space-x-3 min-w-[300px]`}
     >
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center space-x-2">
-          <span className="font-bold text-lg">{toastIcons[type]}</span>
-          <p className="font-medium">{message}</p>
-        </div>
-
-        <button
-          className={`
-                        opacity-70 hover:opacity-100 
-                        transition-opacity duration-200 
-                        text-2xl font-bold focus:outline-none
-                    `}
-          onClick={() => {
-            setShow(false);
-            onClose?.();
-          }}
-        >
-          ×
-        </button>
-      </div>
-    </div>
+      <FontAwesomeIcon icon={icons[type]} className="text-lg" />
+      <p className="font-medium flex-grow">{message}</p>
+    </motion.div>
   );
 };
 

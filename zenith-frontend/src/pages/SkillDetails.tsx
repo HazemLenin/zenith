@@ -1,8 +1,9 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { Button, Table, Modal, Toast } from "../components";
+import { Button, Table, Modal } from "../components";
 import { useParams } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import { useToast } from "../context/ToastContext";
 
 // Types from OpenAPI schema
 interface SkillTransferSession {
@@ -27,6 +28,7 @@ interface SkillTransferDetail {
 
 export default function SkillDetails() {
   const { userToken } = useContext(UserContext);
+  const { showToast } = useToast();
   // Role switching for demo; replace with real user role logic
   const { skillTransferId } = useParams<{ skillTransferId: string }>();
   const [isTeacher, setIsTeacher] = useState(true);
@@ -35,11 +37,6 @@ export default function SkillDetails() {
     open: false,
     action: "",
     sessionIdx: -1,
-  });
-  const [toast, setToast] = useState({
-    isVisible: false,
-    message: "",
-    type: "success" as "success" | "error" | "info",
   });
 
   // Fetch skill transfer details
@@ -57,15 +54,11 @@ export default function SkillDetails() {
         setDetails(res.data);
       } catch {
         setDetails(null);
-        setToast({
-          isVisible: true,
-          message: "Failed to load details",
-          type: "error",
-        });
+        showToast("Failed to load details", "error");
       }
     };
     fetchDetails();
-  }, [skillTransferId, userToken]);
+  }, [skillTransferId, userToken, showToast]);
 
   // Action handlers
   const handleAction = (action: "complete" | "pay", sessionIdx: number) => {
@@ -86,7 +79,7 @@ export default function SkillDetails() {
           Authorization: `Bearer ${userToken}`,
         },
       });
-      setToast({ isVisible: true, message: "Success!", type: "success" });
+      showToast("Success!", "success");
       const res = await axios.get(
         `http://localhost:3000/api/skill-transfers/transfer-details/${skillTransferId}`,
         {
@@ -97,7 +90,7 @@ export default function SkillDetails() {
       );
       setDetails(res.data);
     } catch {
-      setToast({ isVisible: true, message: "Action failed", type: "error" });
+      showToast("Action failed", "error");
     }
   };
 
@@ -195,12 +188,6 @@ export default function SkillDetails() {
       >
         <div className="py-4">Are you sure?</div>
       </Modal>
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast((t) => ({ ...t, isVisible: false }))}
-      />
     </div>
   );
 }

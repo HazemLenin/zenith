@@ -1,18 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { Dropdown, Card, Modal, Toast } from "../components";
+import { Dropdown, Card, Modal } from "../components";
 import { Button } from "../components";
 import { UserContext } from "../context/UserContext";
+import { useToast } from "../context/ToastContext";
 import axios from "axios";
 
 export default function Search() {
   // ========== STATES ==========
   const [selectedSkill, setSelectedSkill] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [toast, setToast] = useState({
-    isVisible: false,
-    message: "",
-    type: "success" as "success" | "error" | "info",
-  });
+  const { showToast } = useToast();
   const [userData, setUserData] = useState({
     user: {
       id: 0,
@@ -74,6 +71,7 @@ export default function Search() {
   });
   // get current User from context
   const { currentUser } = useContext(UserContext);
+
   // fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
@@ -82,13 +80,15 @@ export default function Search() {
         setUserData(response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);
+        showToast("Failed to fetch user data", "error");
       }
     };
 
     if (currentUser?.username) {
       fetchUserData();
     }
-  }, [currentUser?.username]);
+  }, [currentUser?.username, showToast]);
+
   // get needed skills from userData state
   const user_skills_needed = userData?.profile?.skills
     ? userData.profile.skills
@@ -99,6 +99,7 @@ export default function Search() {
           skillId: skill.id,
         }))
     : [];
+
   // search function by skill Id
   async function searchFunction() {
     if (selectedSkill) {
@@ -111,12 +112,13 @@ export default function Search() {
           `/skill-transfers/teachers-search?skillId=${skillId}`
         );
         setTeachersOffers(response.data);
-        // TODO: Handle the response data as needed
       } catch (error) {
         console.error("Error searching teachers:", error);
+        showToast("Failed to search teachers", "error");
       }
     }
   }
+
   //request function
   function request(id?: number | string) {
     const selectedTeacher = teachersOffers.find((o) => o.teacherId === id);
@@ -129,29 +131,19 @@ export default function Search() {
   // Handle Yes button in Modal
   function handleYes() {
     setIsOpen(false);
-    setToast({
-      isVisible: true,
-      message: "Request sent successfully!",
-      type: "success",
-    });
+    showToast("Request sent successfully!", "success");
   }
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast({ ...toast, isVisible: false })}
-      />
       <Modal
         open={isOpen}
         title="Skill Reqest"
         onClose={() => setIsOpen(false)}
         footer={
           <div className="flex gap-2">
-            <Button btnFun={handleYes} btnName="Yes" />
-            <Button btnFun={() => setIsOpen(false)} btnName="No" />
+            <Button onClick={handleYes}>Yes</Button>
+            <Button onClick={() => setIsOpen(false)}>No</Button>
           </div>
         }
       >
