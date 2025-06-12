@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -55,12 +55,18 @@ export default function Navbar(): React.ReactElement {
       ];
 
   return (
-    <nav className="bg-background border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-primary border-b sticky top-0 z-50">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <img src="/logo.png" alt="Zenith Logo" className="w-28 h-auto" />
+            <Link to="/">
+              <img
+                src="/zenith-logo-white.svg"
+                alt="Zenith Logo"
+                className="w-28 h-auto"
+              />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -72,8 +78,8 @@ export default function Navbar(): React.ReactElement {
                     key={link.to}
                     to={link.to}
                     className={({ isActive }) =>
-                      `text-black hover:text-primary transition-colors duration-200 ${
-                        isActive ? "text-primary font-medium" : ""
+                      `text-white hover:text-gray-200 transition-colors duration-200 ${
+                        isActive ? "text-gray-200 font-medium" : ""
                       }`
                     }
                   >
@@ -89,9 +95,9 @@ export default function Navbar(): React.ReactElement {
                 <>
                   <NavLink
                     to={`/users/${currentUser?.username}`}
-                    className="flex items-center gap-2 text-black hover:text-primary transition-colors duration-200"
+                    className="flex items-center gap-2 text-white hover:text-gray-200 transition-colors duration-200"
                   >
-                    <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                    <div className="h-8 w-8 rounded-full bg-background text-primary flex items-center justify-center text-sm font-medium">
                       {currentUser?.firstName?.charAt(0)}
                       {currentUser?.lastName?.charAt(0)}
                     </div>
@@ -99,7 +105,7 @@ export default function Navbar(): React.ReactElement {
                   </NavLink>
                   <button
                     onClick={LogOut}
-                    className="text-black hover:text-primary transition-colors duration-200 cursor-pointer"
+                    className="text-white hover:text-gray-200 transition-colors duration-200 cursor-pointer"
                   >
                     Log out
                   </button>
@@ -111,8 +117,8 @@ export default function Navbar(): React.ReactElement {
                       key={link.to}
                       to={link.to}
                       className={({ isActive }) =>
-                        `text-black hover:text-primary transition-colors duration-200 ${
-                          isActive ? "text-primary font-medium" : ""
+                        `text-white hover:text-gray-200 transition-colors duration-200 ${
+                          isActive ? "text-gray-200 font-medium" : ""
                         }`
                       }
                     >
@@ -132,7 +138,9 @@ export default function Navbar(): React.ReactElement {
             >
               <span className="sr-only">Open main menu</span>
               <svg
-                className={`${isMobileMenuOpen ? "hidden" : "block"} h-6 w-6`}
+                className={`${
+                  isMobileMenuOpen ? "hidden" : "block"
+                } h-6 w-6 text-white`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -146,7 +154,9 @@ export default function Navbar(): React.ReactElement {
                 />
               </svg>
               <svg
-                className={`${isMobileMenuOpen ? "block" : "hidden"} h-6 w-6`}
+                className={`${
+                  isMobileMenuOpen ? "block" : "hidden"
+                } h-6 w-6 text-white`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -182,8 +192,8 @@ export default function Navbar(): React.ReactElement {
                   className={({ isActive }) =>
                     `block px-3 py-2 rounded-md text-base font-medium ${
                       isActive
-                        ? "text-primary bg-primary/10"
-                        : "text-black hover:text-primary hover:bg-gray-50"
+                        ? "text-white bg-primary/20"
+                        : "text-white hover:text-gray-200 hover:bg-gray-700"
                     }`
                   }
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -195,7 +205,7 @@ export default function Navbar(): React.ReactElement {
                 <>
                   <NavLink
                     to={`/users/${currentUser?.username}`}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-black hover:text-primary hover:bg-gray-50"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-200 hover:bg-gray-700"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
@@ -209,7 +219,7 @@ export default function Navbar(): React.ReactElement {
                       LogOut();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-black hover:text-primary hover:bg-gray-50"
+                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-200 hover:bg-gray-700"
                   >
                     Log out
                   </button>

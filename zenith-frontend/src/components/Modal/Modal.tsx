@@ -21,7 +21,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 shadow-xl transition-all">
           {/* Header */}
@@ -31,9 +31,9 @@ const Modal: React.FC<ModalProps> = ({
             </h3>
             <button
               onClick={onClose}
-              className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+              className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500 cursor-pointer"
             >
-              <FontAwesomeIcon icon={faXmark} className="h-5 w-5" />
+              <FontAwesomeIcon icon={faXmark} className="h-10 w-10" size="lg" />
             </button>
           </div>
 

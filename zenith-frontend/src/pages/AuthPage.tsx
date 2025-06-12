@@ -128,7 +128,11 @@ const AuthPage: React.FC = () => {
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-primary/80 to-primary/60 transform skew-y-6 origin-top-right" />
         <div className="w-full max-w-md relative z-10 mt-16">
           <div className="flex justify-center mb-3">
-            <img src="/logo.png" alt="Zenith Logo" className="w-1/3 h-auto" />
+            <img
+              src="/zenith-logo.svg"
+              alt="Zenith Logo"
+              className="w-1/3 h-auto"
+            />
           </div>
           <AuthSwitch isLogin={isLogin} />
           <FormContent isLogin={isLogin} onSwitch={handleSwitch} />

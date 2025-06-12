@@ -11,7 +11,8 @@
     "start:prod": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "ts-node src/db/seed.ts",
-    "clear": "ts-node src/db/clear.ts"
+    "clear": "ts-node src/db/clear.ts",
+    "reset": "npm run clear && npm run seed"
   },
   "keywords": [],
   "author": "",

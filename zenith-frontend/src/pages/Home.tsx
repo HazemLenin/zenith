@@ -38,7 +38,7 @@ export const Home: React.FC = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative h-[60vh]">
-        <div className="w-full h-full bg-cover bg-center bg-no-repeat bg-[url('/assets/zenith-bg.jpg')]">
+        <div className="w-full h-full bg-cover bg-center bg-no-repeat bg-[url('/zenith-bg.jpg')]">
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
             <h1
               className="text-white

@@ -388,7 +388,7 @@ async function seed() {
           title: "Introduction to Programming",
           description: "Learn the basics of programming",
           instructorId: instructorProfile.id,
-          price: 4999, // $49.99
+          price: 49.99,
         })
         .returning();
     }
@@ -406,7 +406,7 @@ async function seed() {
           description:
             "Master modern web development with React, TypeScript, and Next.js",
           instructorId: instructorProfile.id,
-          price: 7999, // $79.99
+          price: 79.99,
         })
         .returning();
     }
@@ -422,7 +422,7 @@ async function seed() {
           title: "AI & Machine Learning Fundamentals",
           description: "Learn the basics of AI and machine learning",
           instructorId: instructorProfile.id,
-          price: 9999, // $99.99
+          price: 99.99,
         })
         .returning();
     }
@@ -440,7 +440,7 @@ async function seed() {
           description:
             "Master data analysis, visualization, and statistical methods",
           instructorId: instructorProfile.id,
-          price: 2999, // $29.99
+          price: 29.99,
         })
         .returning();
     }
@@ -456,7 +456,7 @@ async function seed() {
           title: "Mobile App Development",
           description: "Build iOS and Android apps using React Native",
           instructorId: instructorProfile.id,
-          price: 6999, // $69.99
+          price: 69.99,
         })
         .returning();
     }
@@ -473,7 +473,7 @@ async function seed() {
           description:
             "Learn essential security practices and threat prevention",
           instructorId: instructorProfile.id,
-          price: 3999, // $39.99
+          price: 39.99,
         })
         .returning();
     }
@@ -489,7 +489,7 @@ async function seed() {
           title: "Cloud Computing & DevOps",
           description: "Master AWS, Azure, and modern deployment practices",
           instructorId: instructorProfile.id,
-          price: 14999, // $149.99
+          price: 149.99,
         })
         .returning();
     }
@@ -505,7 +505,7 @@ async function seed() {
           title: "Game Development with Unity",
           description: "Create 2D and 3D games using Unity game engine",
           instructorId: instructorProfile.id,
-          price: 8999, // $89.99
+          price: 89.99,
         })
         .returning();
     }
