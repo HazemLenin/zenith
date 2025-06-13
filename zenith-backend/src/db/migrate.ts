@@ -11,11 +11,11 @@ const runMigrations = () => {
   try {
     // Generate migration files
     console.log("Generating migration files...");
-    execSync("npx drizzle-kit generate:pg", { stdio: "inherit" });
+    execSync("npx drizzle-kit generate", { stdio: "inherit" });
 
     // Push migrations to database
     console.log("Pushing migrations to database...");
-    execSync("npx drizzle-kit push:pg", { stdio: "inherit" });
+    execSync("npx drizzle-kit push", { stdio: "inherit" });
 
     console.log("Migrations completed successfully!");
   } catch (error) {
