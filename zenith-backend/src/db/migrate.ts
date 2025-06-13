@@ -3,7 +3,12 @@ import * as dotenv from "dotenv";
 import path from "path";
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({
+  path:
+    process.env.NODE_ENV === "production"
+      ? undefined
+      : path.join(__dirname, "../.env"),
+});
 
 const runMigrations = () => {
   console.log("Starting database migration process...");
