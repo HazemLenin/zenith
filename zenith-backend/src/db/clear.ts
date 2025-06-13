@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import {
   instructorProfiles,
   studentProfiles,
@@ -16,19 +16,23 @@ import {
   videos,
   enrollments,
 } from "../models";
+import { config } from "dotenv";
 
-// Create SQLite database connection
-const sqlite = new Database("sqlite.db");
-const db = drizzle(sqlite);
+// Load environment variables
+config();
+
+// Create PostgreSQL connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+const db = drizzle(pool);
 
 async function clear() {
   console.log("🧹 Starting database cleanup...");
 
   try {
-    // Disable foreign key checks
-    sqlite.pragma("foreign_keys = OFF");
-
-    // Delete all tables
+    // Delete all tables in reverse order of dependencies
     await db.delete(messages);
     await db.delete(chats);
     await db.delete(sessions);
@@ -44,15 +48,12 @@ async function clear() {
     await db.delete(instructorProfiles);
     await db.delete(users);
 
-    // Re-enable foreign key checks
-    sqlite.pragma("foreign_keys = ON");
-
     console.log("✅ Database cleared successfully!");
   } catch (error) {
     console.error("❌ Error clearing database:", error);
     throw error;
   } finally {
-    sqlite.close();
+    await pool.end();
   }
 }
 
