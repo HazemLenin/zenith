@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, easeOut } from "framer-motion";
 import LoginForm from "../components/auth/LoginForm";
 import SignUpForm from "../components/auth/SignUpForm";
 
@@ -126,7 +126,7 @@ const AuthPage: React.FC = () => {
           stiffness: 100,
           damping: 20,
           duration: 0.8,
-          ease: "ease",
+          ease: easeOut,
         }}
       >
         {/* Decorative gradient shapes - hidden on mobile */}
