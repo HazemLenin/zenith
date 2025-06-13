@@ -12,7 +12,10 @@ export default {
         warning: "#ff9800",
         background: "#e3f2fd",
         secondary: {
-          title: "#2f327d",
+          DEFAULT: "#6B7280", // A neutral gray as base secondary color
+          light: "#9CA3AF", // Lighter variant
+          dark: "#4B5563", // Darker variant
+          title: "#2f327d", // Keeping existing title color
         },
         footer: {
           bg: "#252641",

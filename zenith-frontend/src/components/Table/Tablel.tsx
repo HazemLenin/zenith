@@ -5,49 +5,40 @@ interface TableProps {
 }
 
 export default function Table({ data }: TableProps) {
-  return (
-    <div className="w-full mx-auto my-8">
-      <div className="overflow-hidden rounded-md shadow-md transition-all duration-300 hover:shadow-lg border border-gray-100">
-        {data.map((row, index) => {
-          const isHeader = index === 0;
-          const isLastRow = index === data.length - 1;
+  if (!data || data.length === 0) return null;
+  const header = data[0];
+  const rows = data.slice(1);
 
-          return (
-            <div
-              key={index}
-              className={`
-                flex justify-between items-center
-                ${isHeader ? "bg-gray-50" : "bg-background hover:bg-gray-100"}
-                ${isHeader ? "font-medium" : "font-normal"}
-                ${isHeader ? "text-gray-700" : "text-gray-600"}
-                ${!isLastRow ? "border-b border-gray-100" : ""}
-                px-6 py-4
-              `}
-            >
-              {row.map((cell, cellIndex) => (
-                <span
-                  key={cellIndex}
-                  className={`
-                    flex flex-1 justify-center items-center
-                    text-wrap text-sm
-                    transition-colors duration-200
-                    ${isHeader ? "font-medium" : ""}
-                  `}
+  return (
+    <div className="overflow-x-auto rounded-3xl shadow-lg bg-white/90 backdrop-blur-lg border border-blue-100 my-8">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-blue-50 sticky top-0 z-10">
+          <tr>
+            {header.map((cell, idx) => (
+              <th
+                key={idx}
+                className="px-6 py-4 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider"
+              >
+                {cell}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {rows.map((row, rowIdx) => (
+            <tr key={rowIdx} className="hover:bg-blue-50 transition">
+              {row.map((cell, cellIdx) => (
+                <td
+                  key={cellIdx}
+                  className="px-6 py-4 text-sm text-gray-700 align-middle"
                 >
                   {cell}
-                  {cellIndex === 1 && typeof cell === "number" && (
-                    <img
-                      className="w-5 h-5 ml-2 transition-transform duration-200 hover:scale-105"
-                      src="/public/points.png"
-                      alt="points"
-                    />
-                  )}
-                </span>
+                </td>
               ))}
-            </div>
-          );
-        })}
-      </div>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

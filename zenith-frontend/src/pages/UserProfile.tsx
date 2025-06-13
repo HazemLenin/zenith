@@ -4,7 +4,11 @@ import axios from "axios";
 import { Card, Spinner } from "../components";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPenToSquare,
+  faMessage,
+  faTrophy,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface Skill {
   id: number;
@@ -129,26 +133,55 @@ const UserProfile: React.FC = () => {
         </div>
 
         {isStudent && (
-          <div className="font-semibold px-8 py-5 rounded-xl shadow text-center bg-primary text-white">
-            <p className="uppercase tracking-wider text-xs">Points</p>
-            <p className="text-3xl mt-1">{profile.points || 0}</p>
+          <div className="bg-white border border-gray-200 shadow-sm rounded-xl px-8 py-5 flex flex-col items-center justify-center min-w-[140px]">
+            <img
+              src="/public/points.png"
+              alt="Points"
+              className="w-10 h-10 mb-2"
+            />
+            <p className="uppercase tracking-wider text-xs font-bold text-gray-500">
+              Points
+            </p>
+            <p className="text-3xl font-extrabold text-gray-800 mt-1">
+              {profile.points || 0}
+            </p>
           </div>
         )}
 
         {isInstructor && (
-          <div className="font-semibold px-8 py-5 rounded-xl shadow text-center bg-primary text-white">
-            <p className="uppercase tracking-wider text-xs">Courses Count</p>
-            <p className="text-3xl mt-1">{profile.coursesCount || 0}</p>
+          <div className="bg-white border border-gray-200 shadow-sm rounded-xl px-8 py-5 flex flex-col items-center justify-center min-w-[140px]">
+            <img
+              src="/public/points.png"
+              alt="Courses"
+              className="w-10 h-10 mb-2"
+            />
+            <p className="uppercase tracking-wider text-xs font-bold text-gray-500">
+              Courses Count
+            </p>
+            <p className="text-3xl font-extrabold text-gray-800 mt-1">
+              {profile.coursesCount || 0}
+            </p>
           </div>
         )}
 
         {currentUser?.username !== username && (
           <Link
             to={`/chat?userId=${user.id}`}
-            className="font-semibold px-8 py-5 rounded-xl shadow text-center bg-secondary text-white hover:bg-secondary-dark transition-colors"
+            className="group font-semibold px-8 py-5 rounded-xl shadow-sm text-center bg-white border border-gray-200 text-gray-800 hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+            style={{ minWidth: "180px" }}
           >
-            <p className="uppercase tracking-wider text-xs">Chat</p>
-            <p className="text-xl mt-1">Message User</p>
+            <div className="flex flex-col items-center">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 mb-2">
+                <FontAwesomeIcon
+                  icon={faMessage}
+                  className="w-5 h-5 text-gray-500"
+                />
+              </span>
+              <p className="uppercase tracking-wider text-xs text-gray-500">
+                Chat
+              </p>
+              <p className="text-xl mt-1 font-bold">Message User</p>
+            </div>
           </Link>
         )}
       </div>

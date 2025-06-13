@@ -303,6 +303,7 @@ export class SkillTransfersController {
           studentLastname: users.lastName,
           teacherId: skillTransfers.teacherId,
           points: skillTransfers.points,
+          status: skillTransfers.status,
         })
         .from(skillTransfers)
         .innerJoin(
@@ -311,12 +312,9 @@ export class SkillTransfersController {
         )
         .innerJoin(users, eq(studentProfiles.userId, users.id))
         .where(
-          and(
-            eq(skillTransfers.status, "in_progress"),
-            type === StudentSkillType.LEARNED
-              ? eq(skillTransfers.teacherId, studentProfileId)
-              : eq(skillTransfers.studentId, studentProfileId)
-          )
+          type === StudentSkillType.LEARNED
+            ? eq(skillTransfers.teacherId, studentProfileId)
+            : eq(skillTransfers.studentId, studentProfileId)
         )
         .then(async (results) => {
           return await Promise.all(
@@ -368,6 +366,7 @@ export class SkillTransfersController {
                 completedSessions: completedSessionsCount[0]["count"],
                 points: result.points,
                 paid: paidSessionsCount[0]["count"],
+                status: result.status,
               };
             })
           );
@@ -394,7 +393,11 @@ export class SkillTransfersController {
       const transferDetails = await db
         .select()
         .from(skillTransfers)
-        .innerJoin(users, eq(skillTransfers.studentId, users.id))
+        .innerJoin(
+          studentProfiles,
+          eq(skillTransfers.studentId, studentProfiles.id)
+        )
+        .innerJoin(users, eq(studentProfiles.userId, users.id))
         .innerJoin(skills, eq(skillTransfers.skillId, skills.id))
         .where(eq(skillTransfers.id, skillTransferId))
         .then(async (results) => {
@@ -418,29 +421,32 @@ export class SkillTransfersController {
               }))
             );
 
-          const teacherFirstName = await db
-            .select({ firstName: users.firstName })
+          const teacher = await db
+            .select({
+              firstName: users.firstName,
+              lastName: users.lastName,
+              username: users.username,
+            })
             .from(users)
-            .where(eq(users.id, result.skill_transfers.teacherId))
-            .then((results) => results[0]?.firstName);
-          const teacherLastName = await db
-            .select({ lastName: users.lastName })
-            .from(users)
-            .where(eq(users.id, result.skill_transfers.teacherId))
-            .then((results) => results[0]?.lastName);
-          const sessionCount = sessionsList.length;
+            .innerJoin(studentProfiles, eq(studentProfiles.userId, users.id))
+            .where(eq(studentProfiles.id, result.skill_transfers.teacherId))
+            .then((results) => results[0]);
+
+          const sessionsCount = sessionsList.length;
           const completedSessionsCount = sessionsList.filter(
             (session) => session.completed
           ).length;
 
           return {
             skillTitle: result.skills.title,
-            teacherFirstName: teacherFirstName,
-            teacherLastName: teacherLastName,
+            teacherFirstName: teacher.firstName,
+            teacherLastName: teacher.lastName,
+            teacherUsername: teacher.username,
             studentFirstName: result.users.firstName,
             studentLastName: result.users.lastName,
+            studentUsername: result.users.username,
             points: result.skill_transfers.points,
-            sessionCount,
+            sessionsCount,
             completedSessionsCount,
             sessions: sessionsList,
           };
@@ -490,6 +496,18 @@ export class SkillTransfersController {
         return;
       }
 
+      // Get teacher's student profile
+      const teacherProfile = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, req.user.id))
+        .then((results) => results[0]);
+
+      if (!teacherProfile) {
+        res.status(404).json({ message: "Teacher profile not found" });
+        return;
+      }
+
       // Check if user is the teacher for this skill transfer
       const transfer = await db
         .select()
@@ -502,7 +520,7 @@ export class SkillTransfersController {
         return;
       }
 
-      if (transfer.teacherId !== req.user.id) {
+      if (transfer.teacherId !== teacherProfile.id) {
         res.status(403).json({ message: "Unauthorized" });
         return;
       }
@@ -510,7 +528,7 @@ export class SkillTransfersController {
       // Update the session to mark it as completed
       await db
         .update(sessions)
-        .set({ [sessions.completed.name]: true })
+        .set({ completed: true })
         .where(
           and(
             eq(sessions.id, Number(sessionId)),
@@ -540,6 +558,18 @@ export class SkillTransfersController {
         return;
       }
 
+      // Get student profile
+      const studentProfile = await db
+        .select()
+        .from(studentProfiles)
+        .where(eq(studentProfiles.userId, req.user.id))
+        .then((results) => results[0]);
+
+      if (!studentProfile) {
+        res.status(404).json({ message: "Student profile not found" });
+        return;
+      }
+
       // Check if user is the student for this skill transfer
       const transfer = await db
         .select()
@@ -552,20 +582,8 @@ export class SkillTransfersController {
         return;
       }
 
-      if (transfer.studentId !== req.user.id) {
+      if (transfer.studentId !== studentProfile.id) {
         res.status(403).json({ message: "Unauthorized" });
-        return;
-      }
-
-      // Get student profile to check points
-      const studentProfile = await db
-        .select()
-        .from(studentProfiles)
-        .where(eq(studentProfiles.userId, req.user.id))
-        .then((results) => results[0]);
-
-      if (!studentProfile) {
-        res.status(404).json({ message: "Student profile not found" });
         return;
       }
 
@@ -591,12 +609,12 @@ export class SkillTransfersController {
       await db
         .update(studentProfiles)
         .set({ points: studentProfile.points - sessionCost })
-        .where(eq(studentProfiles.userId, req.user.id));
+        .where(eq(studentProfiles.id, studentProfile.id));
 
       // Update the session to mark it as paid
       await db
         .update(sessions)
-        .set({ [sessions.paid.name]: true })
+        .set({ paid: true })
         .where(
           and(
             eq(sessions.id, Number(sessionId)),

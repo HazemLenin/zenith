@@ -192,8 +192,10 @@ components:
         skillTitle: { type: string }
         teacherFirstName: { type: string }
         teacherLastName: { type: string }
+        teacherUsername: { type: string }
         studentFirstName: { type: string }
         studentLastName: { type: string }
+        studentUsername: { type: string }
         points: { type: number }
         paid: { type: number }
         sessionsCount: { type: number }
@@ -214,6 +216,7 @@ components:
         completedSessions: { type: number }
         points: { type: number }
         paid: { type: number }
+        status: { type: string, enum: [in_progress, pending, finished] }
     AcceptTransferRequest:
       type: object
       properties:

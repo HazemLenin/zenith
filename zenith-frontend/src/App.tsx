@@ -16,6 +16,7 @@ import {
   TeachersSearch,
   SkillTransfers,
   Unauthorized,
+  SkillTransferDetails,
 } from "./pages";
 import { Layout, ProtectedRoute } from "./components";
 import AuthPage from "./pages/AuthPage";
@@ -32,6 +33,15 @@ function App() {
         { path: "login", element: <AuthPage /> },
         { path: "signup", element: <AuthPage /> },
         { path: "unauthorized", element: <Unauthorized /> },
+        {
+          path: "skill-transfers/:id",
+          element: (
+            <ProtectedRoute
+              allowedRoles={["student", "teacher"]}
+              children={<SkillTransferDetails />}
+            />
+          ),
+        },
         {
           path: "skill-transfers/:skillTransferId",
           element: (

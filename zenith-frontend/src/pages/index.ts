@@ -16,3 +16,4 @@ export { default as TeachersSearch } from "./TeachersSearch";
 export { default as SkillTransfers } from "./SkillTransfers";
 export { default as Unauthorized } from "./Unauthorized";
 export { default as AuthPage } from "./AuthPage";
+export { default as SkillTransferDetails } from "./SkillTransferDetails";
