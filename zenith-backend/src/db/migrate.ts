@@ -2,9 +2,6 @@ import { execSync } from "child_process";
 import * as dotenv from "dotenv";
 import path from "path";
 
-// Load environment variables
-dotenv.config();
-
 // Log database URL for debugging
 console.log("Database URL:", process.env.DATABASE_URL);
 console.log("Node Environment:", process.env.NODE_ENV);

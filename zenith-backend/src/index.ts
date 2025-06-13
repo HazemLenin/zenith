@@ -16,9 +16,6 @@ import { and, eq, or } from "drizzle-orm";
 import { InferInsertModel } from "drizzle-orm";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
-// Load environment variables
-dotenv.config();
-
 // Log environment variables for debugging
 console.log("Environment:", {
   NODE_ENV: process.env.NODE_ENV,

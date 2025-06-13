@@ -2,9 +2,6 @@ import { defineConfig } from "drizzle-kit";
 import * as dotenv from "dotenv";
 import path from "path";
 
-// Load environment variables
-dotenv.config();
-
 export default defineConfig({
   schema: "./src/models",
   out: "./drizzle",
