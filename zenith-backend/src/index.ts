@@ -118,12 +118,8 @@ if (process.env.NODE_ENV === "development") {
   app.use(express.static(frontendBuildPath));
 
   // Handle SPA routing - send all non-API requests to index.html
-  app.get("*", (req, res, next) => {
-    if (!req.url.startsWith("/api")) {
-      res.sendFile(path.join(frontendBuildPath, "index.html"));
-    } else {
-      next();
-    }
+  app.get(/^(?!\/api).*$/, (req, res) => {
+    res.sendFile(path.join(frontendBuildPath, "index.html"));
   });
 }
 
