@@ -1,5 +1,8 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import * as schema from "../models";
+import * as dotenv from "dotenv";
+import path from "path";
 import {
   instructorProfiles,
   studentProfiles,
@@ -28,9 +31,13 @@ type User = InferModel<typeof users>;
 type SkillTransfer = InferModel<typeof skillTransfers>;
 type Session = InferModel<typeof sessions>;
 
-// Create SQLite database connection
-const sqlite = new Database("sqlite.db");
-const db = drizzle(sqlite);
+// Create PostgreSQL database connection
+const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgres://postgres:postgres@localhost:5432/zenith",
+});
+const db = drizzle(pool, { schema });
 
 async function seed() {
   console.log("🌱 Starting database seeding...");
@@ -236,346 +243,35 @@ async function seed() {
         .where(eq(users.id, teacherStudent.id));
     }
 
-    // Add learned skills for teacher student
-    const teacherProgrammingSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, teacherStudentProfile.id),
-          eq(studentSkills.skillId, programmingSkill.id)
-        )
-      );
-    if (teacherProgrammingSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: teacherStudentProfile.id,
-        skillId: programmingSkill.id,
-        type: StudentSkillType.LEARNED,
-        points: 85, // High points for programming expertise
-        description: "Expert in multiple programming languages and paradigms",
-      });
-    }
-
-    const teacherDesignSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, teacherStudentProfile.id),
-          eq(studentSkills.skillId, designSkill.id)
-        )
-      );
-    if (teacherDesignSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: teacherStudentProfile.id,
-        skillId: designSkill.id,
-        type: StudentSkillType.LEARNED,
-        points: 75, // Strong design skills
-        description: "Proficient in UI/UX and graphic design",
-      });
-    }
-
-    // Add more learned skills for teacher student
-    const teacherWebDevSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, teacherStudentProfile.id),
-          eq(studentSkills.skillId, webDevSkill.id)
-        )
-      );
-    if (teacherWebDevSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: teacherStudentProfile.id,
-        skillId: webDevSkill.id,
-        type: StudentSkillType.LEARNED,
-        points: 90, // Expert web development skills
-        description: "Full-stack web development with modern frameworks",
-      });
-    }
-
-    const teacherAiSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, teacherStudentProfile.id),
-          eq(studentSkills.skillId, aiSkill.id)
-        )
-      );
-    if (teacherAiSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: teacherStudentProfile.id,
-        skillId: aiSkill.id,
-        type: StudentSkillType.LEARNED,
-        points: 80, // Strong AI/ML knowledge
-        description: "Experience with machine learning and AI applications",
-      });
-    }
-
-    // --- STUDENT SKILL ---
-    // Add needed skills for regular student
-    const studentProgrammingSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, studentProfile.id),
-          eq(studentSkills.skillId, programmingSkill.id)
-        )
-      );
-    if (studentProgrammingSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: studentProfile.id,
-        skillId: programmingSkill.id,
-        type: StudentSkillType.NEEDED,
-      });
-    }
-
-    const studentDesignSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, studentProfile.id),
-          eq(studentSkills.skillId, designSkill.id)
-        )
-      );
-    if (studentDesignSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: studentProfile.id,
-        skillId: designSkill.id,
-        type: StudentSkillType.NEEDED,
-      });
-    }
-
-    const studentWebDevSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, studentProfile.id),
-          eq(studentSkills.skillId, webDevSkill.id)
-        )
-      );
-    if (studentWebDevSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: studentProfile.id,
-        skillId: webDevSkill.id,
-        type: StudentSkillType.NEEDED,
-      });
-    }
-
-    const studentDataScienceSkill = await db
-      .select()
-      .from(studentSkills)
-      .where(
-        and(
-          eq(studentSkills.studentId, studentProfile.id),
-          eq(studentSkills.skillId, dataScienceSkill.id)
-        )
-      );
-    if (studentDataScienceSkill.length === 0) {
-      await db.insert(studentSkills).values({
-        studentId: studentProfile.id,
-        skillId: dataScienceSkill.id,
-        type: StudentSkillType.NEEDED,
-      });
-    }
-
     // --- COURSE ---
-    let [course] = await db
+    // Create a course
+    let [webCourse] = await db
       .select()
       .from(courses)
-      .where(eq(courses.title, "Introduction to Programming"));
-    if (!course) {
-      [course] = await db
+      .where(eq(courses.title, "Web Development Fundamentals"));
+    if (!webCourse) {
+      [webCourse] = await db
         .insert(courses)
         .values({
-          title: "Introduction to Programming",
-          description: "Learn the basics of programming",
+          title: "Web Development Fundamentals",
+          description: "Learn the basics of web development",
           instructorId: instructorProfile.id,
           price: 49.99,
         })
         .returning();
     }
 
-    // Add more courses
-    let [webDevCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "Modern Web Development"));
-    if (!webDevCourse) {
-      [webDevCourse] = await db
-        .insert(courses)
-        .values({
-          title: "Modern Web Development",
-          description:
-            "Master modern web development with React, TypeScript, and Next.js",
-          instructorId: instructorProfile.id,
-          price: 79.99,
-        })
-        .returning();
-    }
-
-    let [aiCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "AI & Machine Learning Fundamentals"));
-    if (!aiCourse) {
-      [aiCourse] = await db
-        .insert(courses)
-        .values({
-          title: "AI & Machine Learning Fundamentals",
-          description: "Learn the basics of AI and machine learning",
-          instructorId: instructorProfile.id,
-          price: 99.99,
-        })
-        .returning();
-    }
-
-    // Add more courses with varying price points
-    let [dataScienceCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "Data Science Essentials"));
-    if (!dataScienceCourse) {
-      [dataScienceCourse] = await db
-        .insert(courses)
-        .values({
-          title: "Data Science Essentials",
-          description:
-            "Master data analysis, visualization, and statistical methods",
-          instructorId: instructorProfile.id,
-          price: 29.99,
-        })
-        .returning();
-    }
-
-    let [mobileDevCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "Mobile App Development"));
-    if (!mobileDevCourse) {
-      [mobileDevCourse] = await db
-        .insert(courses)
-        .values({
-          title: "Mobile App Development",
-          description: "Build iOS and Android apps using React Native",
-          instructorId: instructorProfile.id,
-          price: 69.99,
-        })
-        .returning();
-    }
-
-    let [cybersecurityCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "Cybersecurity Fundamentals"));
-    if (!cybersecurityCourse) {
-      [cybersecurityCourse] = await db
-        .insert(courses)
-        .values({
-          title: "Cybersecurity Fundamentals",
-          description:
-            "Learn essential security practices and threat prevention",
-          instructorId: instructorProfile.id,
-          price: 39.99,
-        })
-        .returning();
-    }
-
-    let [cloudComputingCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "Cloud Computing & DevOps"));
-    if (!cloudComputingCourse) {
-      [cloudComputingCourse] = await db
-        .insert(courses)
-        .values({
-          title: "Cloud Computing & DevOps",
-          description: "Master AWS, Azure, and modern deployment practices",
-          instructorId: instructorProfile.id,
-          price: 149.99,
-        })
-        .returning();
-    }
-
-    let [gameDevCourse] = await db
-      .select()
-      .from(courses)
-      .where(eq(courses.title, "Game Development with Unity"));
-    if (!gameDevCourse) {
-      [gameDevCourse] = await db
-        .insert(courses)
-        .values({
-          title: "Game Development with Unity",
-          description: "Create 2D and 3D games using Unity game engine",
-          instructorId: instructorProfile.id,
-          price: 89.99,
-        })
-        .returning();
-    }
-
-    // --- CHAPTERS ---
-    // Chapters for Introduction to Programming
-    let [chapter1] = await db
-      .select()
-      .from(courseChapters)
-      .where(
-        and(
-          eq(courseChapters.title, "Getting Started"),
-          eq(courseChapters.courseId, course.id)
-        )
-      );
-    if (!chapter1) {
-      [chapter1] = await db
-        .insert(courseChapters)
-        .values({
-          title: "Getting Started",
-          courseId: course.id,
-          orderIndex: 1,
-        })
-        .returning();
-    }
-
-    let [chapter2] = await db
-      .select()
-      .from(courseChapters)
-      .where(
-        and(
-          eq(courseChapters.title, "Variables and Data Types"),
-          eq(courseChapters.courseId, course.id)
-        )
-      );
-    if (!chapter2) {
-      [chapter2] = await db
-        .insert(courseChapters)
-        .values({
-          title: "Variables and Data Types",
-          courseId: course.id,
-          orderIndex: 2,
-        })
-        .returning();
-    }
-
-    // Chapters for Web Development
+    // Create chapters
     let [webChapter1] = await db
       .select()
       .from(courseChapters)
-      .where(
-        and(
-          eq(courseChapters.title, "React Fundamentals"),
-          eq(courseChapters.courseId, webDevCourse.id)
-        )
-      );
+      .where(eq(courseChapters.title, "Introduction to Web Development"));
     if (!webChapter1) {
       [webChapter1] = await db
         .insert(courseChapters)
         .values({
-          title: "React Fundamentals",
-          courseId: webDevCourse.id,
+          title: "Introduction to Web Development",
+          courseId: webCourse.id,
           orderIndex: 1,
         })
         .returning();
@@ -584,96 +280,16 @@ async function seed() {
     let [webChapter2] = await db
       .select()
       .from(courseChapters)
-      .where(
-        and(
-          eq(courseChapters.title, "TypeScript Essentials"),
-          eq(courseChapters.courseId, webDevCourse.id)
-        )
-      );
+      .where(eq(courseChapters.title, "Frontend Development"));
     if (!webChapter2) {
       [webChapter2] = await db
         .insert(courseChapters)
         .values({
-          title: "TypeScript Essentials",
-          courseId: webDevCourse.id,
+          title: "Frontend Development",
+          courseId: webCourse.id,
           orderIndex: 2,
         })
         .returning();
-    }
-
-    // --- ARTICLES ---
-    // Articles for Introduction to Programming
-    const article1Exists = await db
-      .select()
-      .from(articles)
-      .where(
-        and(
-          eq(articles.title, "What is Programming?"),
-          eq(articles.chapterId, chapter1.id)
-        )
-      );
-    if (article1Exists.length === 0) {
-      await db.insert(articles).values({
-        title: "What is Programming?",
-        content:
-          "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using a variety of computer programming languages.",
-        chapterId: chapter1.id,
-      });
-    }
-
-    const article2Exists = await db
-      .select()
-      .from(articles)
-      .where(
-        and(
-          eq(articles.title, "Understanding Variables"),
-          eq(articles.chapterId, chapter2.id)
-        )
-      );
-    if (article2Exists.length === 0) {
-      await db.insert(articles).values({
-        title: "Understanding Variables",
-        content:
-          "Variables are containers for storing data values. In programming, variables are used to store information that can be referenced and manipulated in a program.",
-        chapterId: chapter2.id,
-      });
-    }
-
-    // Articles for Web Development
-    const webArticle1Exists = await db
-      .select()
-      .from(articles)
-      .where(
-        and(
-          eq(articles.title, "Introduction to React"),
-          eq(articles.chapterId, webChapter1.id)
-        )
-      );
-    if (webArticle1Exists.length === 0) {
-      await db.insert(articles).values({
-        title: "Introduction to React",
-        content:
-          "React is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.",
-        chapterId: webChapter1.id,
-      });
-    }
-
-    const webArticle2Exists = await db
-      .select()
-      .from(articles)
-      .where(
-        and(
-          eq(articles.title, "TypeScript Basics"),
-          eq(articles.chapterId, webChapter2.id)
-        )
-      );
-    if (webArticle2Exists.length === 0) {
-      await db.insert(articles).values({
-        title: "TypeScript Basics",
-        content:
-          "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds optional static typing and class-based object-oriented programming to JavaScript.",
-        chapterId: webChapter2.id,
-      });
     }
 
     // Add videos
@@ -726,6 +342,124 @@ async function seed() {
         videoUrl: "https://www.youtube.com/watch?v=Sklc_fQBmcs",
         chapterId: webChapter1.id,
       });
+    }
+
+    // --- ARTICLES ---
+    // Articles for Introduction to Programming
+    const article1Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "What is Programming?"),
+          eq(articles.chapterId, webChapter1.id)
+        )
+      );
+    if (article1Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "What is Programming?",
+        content:
+          "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using a variety of computer programming languages.",
+        chapterId: webChapter1.id,
+      });
+    }
+
+    const article2Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "Understanding Variables"),
+          eq(articles.chapterId, webChapter2.id)
+        )
+      );
+    if (article2Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "Understanding Variables",
+        content:
+          "Variables are containers for storing data values. In programming, variables are used to store information that can be referenced and manipulated in a program.",
+        chapterId: webChapter2.id,
+      });
+    }
+
+    // Articles for Web Development
+    const webArticle1Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "Introduction to React"),
+          eq(articles.chapterId, webChapter1.id)
+        )
+      );
+    if (webArticle1Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "Introduction to React",
+        content:
+          "React is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.",
+        chapterId: webChapter1.id,
+      });
+    }
+
+    const webArticle2Exists = await db
+      .select()
+      .from(articles)
+      .where(
+        and(
+          eq(articles.title, "TypeScript Basics"),
+          eq(articles.chapterId, webChapter2.id)
+        )
+      );
+    if (webArticle2Exists.length === 0) {
+      await db.insert(articles).values({
+        title: "TypeScript Basics",
+        content:
+          "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds optional static typing and class-based object-oriented programming to JavaScript.",
+        chapterId: webChapter2.id,
+      });
+    }
+
+    // Add student skills
+    const studentSkillsData = [
+      {
+        studentId: studentProfile.id,
+        skillId: programmingSkill.id,
+        type: StudentSkillType.NEEDED,
+        points: 0,
+      },
+      {
+        studentId: studentProfile.id,
+        skillId: designSkill.id,
+        type: StudentSkillType.NEEDED,
+        points: 0,
+      },
+      {
+        studentId: studentProfile.id,
+        skillId: webDevSkill.id,
+        type: StudentSkillType.NEEDED,
+        points: 0,
+      },
+      {
+        studentId: studentProfile.id,
+        skillId: dataScienceSkill.id,
+        type: StudentSkillType.NEEDED,
+        points: 0,
+      },
+    ];
+
+    for (const skill of studentSkillsData) {
+      const skillExists = await db
+        .select()
+        .from(studentSkills)
+        .where(
+          and(
+            eq(studentSkills.studentId, skill.studentId),
+            eq(studentSkills.skillId, skill.skillId)
+          )
+        );
+      if (skillExists.length === 0) {
+        await db.insert(studentSkills).values(skill);
+      }
     }
 
     // --- CHAT ---
@@ -875,13 +609,13 @@ async function seed() {
       .where(
         and(
           eq(enrollments.studentId, studentProfile.id),
-          eq(enrollments.courseId, webDevCourse.id)
+          eq(enrollments.courseId, webCourse.id)
         )
       );
     if (enrollmentExists.length === 0) {
       await db.insert(enrollments).values({
         studentId: studentProfile.id,
-        courseId: webDevCourse.id,
+        courseId: webCourse.id,
         paid: 1, // true
         enrolledAt: new Date(),
       });
@@ -960,7 +694,7 @@ async function seed() {
     console.error("❌ Error seeding database:", error);
     throw error;
   } finally {
-    sqlite.close();
+    await pool.end();
   }
 }
 

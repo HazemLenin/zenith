@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { db } from "../index";
 import { chats, messages, users } from "../models";
 import { eq, or, desc, and } from "drizzle-orm";
-import { alias } from "drizzle-orm/sqlite-core";
+import { alias } from "drizzle-orm/pg-core";
 import { InferInsertModel } from "drizzle-orm";
 import { io } from "../index";
 import { ErrorViewModel } from "../viewmodels/error.viewmodel";
@@ -71,9 +71,9 @@ export class ChatsController {
             or(eq(chats.user1Id, userId), eq(chats.user2Id, userId))
           )
         )
-        .get();
+        .limit(1);
 
-      if (!chat) {
+      if (!chat.length) {
         res
           .status(404)
           .json(ErrorViewModel.notFound("Chat not found").toJSON());
@@ -115,9 +115,9 @@ export class ChatsController {
             or(eq(chats.user1Id, userId), eq(chats.user2Id, userId))
           )
         )
-        .get();
+        .limit(1);
 
-      if (!chat) {
+      if (!chat.length) {
         res
           .status(404)
           .json(ErrorViewModel.notFound("Chat not found").toJSON());
@@ -137,7 +137,7 @@ export class ChatsController {
       // Update chat's updatedAt
       await db
         .update(chats)
-        .set({ updatedAt: new Date().toISOString() } as ChatUpdate)
+        .set({ updatedAt: new Date() } as ChatUpdate)
         .where(eq(chats.id, chatId));
 
       // Emit WebSocket event here
@@ -187,9 +187,9 @@ export class ChatsController {
         })
         .from(users)
         .where(eq(users.id, userId))
-        .get();
+        .limit(1);
 
-      if (!otherUser) {
+      if (!otherUser.length) {
         res
           .status(404)
           .json(ErrorViewModel.notFound("User not found").toJSON());
@@ -208,19 +208,19 @@ export class ChatsController {
               and(eq(chats.user1Id, userId), eq(chats.user2Id, currentUserId))
             )
           )
-          .get();
+          .limit(1);
 
-        if (existingChat) {
+        if (existingChat.length) {
           // If chat exists, return it with the other user's info
           return {
-            chat: existingChat,
-            user: otherUser,
+            chat: existingChat[0],
+            user: otherUser[0],
             isNew: false,
           };
         }
 
         // Create a new chat
-        const now = new Date().toISOString();
+        const now = new Date();
         const [newChat] = await tx
           .insert(chats)
           .values({
@@ -234,7 +234,7 @@ export class ChatsController {
         // Return the newly created chat with the other user's info
         return {
           chat: newChat,
-          user: otherUser,
+          user: otherUser[0],
           isNew: true,
         };
       });

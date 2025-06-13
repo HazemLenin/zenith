@@ -1,18 +1,18 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, serial } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { skills } from "./skill.model";
 import { studentProfiles } from "./studentProfile.model";
+import { skills } from "./skill.model";
 
 export const StudentSkillType = {
   LEARNED: "learned",
   NEEDED: "needed",
 } as const;
 
-export type StudentSkillTypeEnum =
+export type StudentSkillTypeType =
   (typeof StudentSkillType)[keyof typeof StudentSkillType];
 
-export const studentSkills = sqliteTable("student_skills", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const studentSkills = pgTable("student_skills", {
+  id: serial("id").primaryKey(),
   studentId: integer("student_id")
     .notNull()
     .references(() => studentProfiles.id),

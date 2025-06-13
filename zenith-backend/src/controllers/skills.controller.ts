@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { db } from "../db";
 import { skills, studentSkills } from "../models";
 import { eq } from "drizzle-orm";
-import { StudentSkillTypeEnum } from "../models/studentSkill.model";
+import { StudentSkillTypeType } from "../models/studentSkill.model";
 import { SkillViewModel } from "../viewmodels/skill/skill.viewmodel";
 import { SkillCategoryViewModel } from "../viewmodels/skill/skillCategory.viewmodel";
 import { StudentSkillViewModel } from "../viewmodels/skill/studentSkill.viewmodel";
@@ -38,7 +38,7 @@ export class SkillsController {
       const newSkills = skills.map(
         (skill: {
           skillId: number;
-          type: StudentSkillTypeEnum;
+          type: StudentSkillTypeType;
           points: number;
           description: string;
         }) => ({

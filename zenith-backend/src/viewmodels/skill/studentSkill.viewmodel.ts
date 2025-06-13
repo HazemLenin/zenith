@@ -1,16 +1,16 @@
-import { StudentSkillTypeEnum } from "../../models/studentSkill.model";
+import { StudentSkillTypeType } from "../../models/studentSkill.model";
 
 export class StudentSkillViewModel {
   id: number;
   studentId: number;
   skillId: number;
-  type: StudentSkillTypeEnum;
+  type: StudentSkillTypeType;
 
   constructor(data: {
     id: number;
     studentId: number;
     skillId: number;
-    type: StudentSkillTypeEnum;
+    type: StudentSkillTypeType;
   }) {
     this.id = data.id;
     this.studentId = data.studentId;

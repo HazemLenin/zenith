@@ -1,9 +1,9 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, serial } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { courseChapters } from "./courseChapter.model";
 
-export const videos = sqliteTable("videos", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const videos = pgTable("videos", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   videoUrl: text("video_url").notNull(),
   chapterId: integer("chapter_id")
