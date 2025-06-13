@@ -7,8 +7,9 @@
   },
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon src/index.ts",
+    "build": "tsc",
+    "build:prod": "npm run db:migrate && npm run build",
     "start:prod": "cross-env NODE_ENV=production node dist/index.js",
-    "build": "npm run db:migrate && npm run build",
     "test": "ts-node src/tests/index.ts",
     "seed": "ts-node src/db/seed.ts",
     "clear": "ts-node src/db/clear.ts",
