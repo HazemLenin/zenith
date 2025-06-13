@@ -7,7 +7,7 @@ dotenv.config({
   path:
     process.env.NODE_ENV === "production"
       ? undefined
-      : path.join(__dirname, "../.env"),
+      : path.join(__dirname, "./.env"),
 });
 
 export default defineConfig({
