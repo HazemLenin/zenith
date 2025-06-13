@@ -114,7 +114,7 @@ if (process.env.NODE_ENV === "development") {
   );
 } else {
   // Production: Serve static files from the frontend build
-  const frontendBuildPath = path.join(__dirname, "../../frontend/dist");
+  const frontendBuildPath = path.join(__dirname, "../../zenith-frontend/dist");
   app.use(express.static(frontendBuildPath));
 
   // Handle SPA routing - send all non-API requests to index.html
