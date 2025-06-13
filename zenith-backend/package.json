@@ -9,12 +9,13 @@
     "start": "cross-env NODE_ENV=development nodemon src/index.ts",
     "build": "tsc",
     "build:frontend": "cd ../zenith-frontend && npm run build",
-    "build:prod": "npm run build:frontend && npm run build",
+    "build:prod": "npm run db:migrate && npm run build:frontend && npm run build",
     "start:prod": "cross-env NODE_ENV=production node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "ts-node src/db/seed.ts",
     "clear": "ts-node src/db/clear.ts",
-    "reset": "npm run clear && npm run seed"
+    "reset": "npm run clear && npm run seed",
+    "db:migrate": "ts-node src/db/migrate.ts"
   },
   "keywords": [],
   "author": "",
