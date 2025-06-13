@@ -16,6 +16,8 @@
     "start": "cd zenith-backend && npm run start",
     "start:prod": "cd zenith-backend && npm run start:prod",
     "dev": "cd zenith-backend && npm run start",
+    "dev:frontend": "cd zenith-frontend && npm run dev",
+    "preview": "cd zenith-frontend && npm run preview",
     "db:migrate": "cd zenith-backend && npm run db:migrate",
     "db:seed": "cd zenith-backend && npm run seed",
     "db:reset": "cd zenith-backend && npm run reset"
