@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useContext } from "react";
 import { ChatWithUser, Message } from "../../types/chat";
 import { UserContext } from "../../context/UserContext";
 import socketService from "../../services/socketService";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatWindowProps {
   chat: ChatWithUser | null;
@@ -109,36 +110,46 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </div>
         ) : (
           // Sort messages by createdAt timestamp (oldest first)
-          [...messages]
-            .sort(
-              (a, b) =>
-                new Date(a.createdAt).getTime() -
-                new Date(b.createdAt).getTime()
-            )
-            .map((message) => (
-              <div
-                key={message.id}
-                className={`max-w-[70%] mb-2 p-3 rounded-lg ${
-                  message.senderId === currentUserId
-                    ? "ml-auto bg-primary text-white rounded-br-none"
-                    : "bg-white border border-gray-200 rounded-bl-none"
-                }`}
-              >
-                <p>{message.content}</p>
-                <div
-                  className={`text-xs mt-1 ${
+          <AnimatePresence>
+            {[...messages]
+              .sort(
+                (a, b) =>
+                  new Date(a.createdAt).getTime() -
+                  new Date(b.createdAt).getTime()
+              )
+              .map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: index * 0.1,
+                    ease: "easeOut",
+                  }}
+                  className={`max-w-[70%] mb-2 p-3 rounded-lg ${
                     message.senderId === currentUserId
-                      ? "text-gray-200"
-                      : "text-gray-500"
+                      ? "ml-auto bg-primary text-white rounded-br-none"
+                      : "bg-white border border-gray-200 rounded-bl-none"
                   }`}
                 >
-                  {new Date(message.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </div>
-            ))
+                  <p>{message.content}</p>
+                  <div
+                    className={`text-xs mt-1 ${
+                      message.senderId === currentUserId
+                        ? "text-gray-200"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {new Date(message.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </motion.div>
+              ))}
+          </AnimatePresence>
         )}
         <div ref={messagesEndRef} />
       </div>

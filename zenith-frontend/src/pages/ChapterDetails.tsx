@@ -52,14 +52,11 @@ export default function ChapterDetails() {
   useEffect(() => {
     const fetchChapters = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/courses/${coursId}/chapters`,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
-        );
+        const response = await axios.get(`/api/courses/${coursId}/chapters`, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
         setChapters(response.data);
       } catch (error) {
         console.error("Error fetching chapters:", error);
@@ -82,7 +79,7 @@ export default function ChapterDetails() {
     const fetchChapterDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/courses/${coursId}/chapters/${id}`,
+          `/api/courses/${coursId}/chapters/${id}`,
           {
             headers: {
               Authorization: `Bearer ${userToken}`,

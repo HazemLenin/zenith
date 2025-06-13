@@ -1,8 +1,23 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import {
+  pgTable,
+  text,
+  integer,
+  serial,
+  AnyPgColumn,
+  boolean as pgBoolean,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { skills } from "./skill.model";
 import { studentProfiles } from "./studentProfile.model";
 import { sessions } from "./session.model";
+
+export const skillTransferStatusEnum = pgEnum("skill_transfer_status", [
+  "pending",
+  "in_progress",
+  "finished",
+]);
+
 export const SkillTransferStatus = {
   PENDING: "pending",
   IN_PROGRESS: "in_progress",
@@ -13,27 +28,20 @@ export const SkillTransferStatus = {
 export type SkillTransferStatus =
   (typeof SkillTransferStatus)[keyof typeof SkillTransferStatus];
 
-export const skillTransfers = sqliteTable("skill_transfers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const skillTransfers = pgTable("skill_transfers", {
+  id: serial("id").primaryKey(),
   studentId: integer("student_id")
     .notNull()
-    .references(() => studentProfiles.id),
+    .references((): AnyPgColumn => studentProfiles.id),
   teacherId: integer("teacher_id")
     .notNull()
-    .references(() => studentProfiles.id),
+    .references((): AnyPgColumn => studentProfiles.id),
   skillId: integer("skill_id")
     .notNull()
-    .references(() => skills.id),
+    .references((): AnyPgColumn => skills.id),
   points: integer("points").notNull().default(0),
-  done: integer("done", { mode: "boolean" }).notNull().default(false),
-  status: text("status", {
-    enum: [
-      SkillTransferStatus.PENDING,
-      SkillTransferStatus.IN_PROGRESS,
-      SkillTransferStatus.FINISHED,
-      // SkillTransferStatus.REJECTED,
-    ],
-  })
+  done: pgBoolean("done").notNull().default(false),
+  status: skillTransferStatusEnum("status")
     .notNull()
     .default(SkillTransferStatus.PENDING),
 });

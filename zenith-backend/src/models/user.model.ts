@@ -1,14 +1,22 @@
 import {
-  sqliteTable,
+  pgTable,
   text,
+  serial,
+  pgEnum,
   integer,
-  AnySQLiteColumn,
-} from "drizzle-orm/sqlite-core";
+  AnyPgColumn,
+} from "drizzle-orm/pg-core";
 import { instructorProfiles } from "./instructorProfile.model";
 import { studentProfiles } from "./studentProfile.model";
 import { chats } from "./chat.model";
 import { messages } from "./message.model";
 import { relations } from "drizzle-orm";
+
+export const userRoleEnum = pgEnum("user_role", [
+  "admin",
+  "instructor",
+  "student",
+]);
 
 export const UserRole = {
   ADMIN: "admin",
@@ -18,23 +26,19 @@ export const UserRole = {
 
 export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
 
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   username: text("username").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  role: text("role", {
-    enum: [UserRole.ADMIN, UserRole.INSTRUCTOR, UserRole.STUDENT],
-  })
-    .notNull()
-    .default(UserRole.STUDENT),
+  role: userRoleEnum("role").notNull().default(UserRole.STUDENT),
   instructorProfileId: integer("instructor_profile_id").references(
-    (): AnySQLiteColumn => instructorProfiles.id
+    (): AnyPgColumn => instructorProfiles.id
   ),
   studentProfileId: integer("student_profile_id").references(
-    (): AnySQLiteColumn => studentProfiles.id
+    (): AnyPgColumn => studentProfiles.id
   ),
 });
 

@@ -1,9 +1,20 @@
 // This service uses socket.io-client for WebSocket communication
 import { io, Socket } from "socket.io-client";
 
+interface Message {
+  type: string;
+  chatId: number;
+  content: string;
+}
+
+interface ChatJoinData {
+  chatId: number;
+  status: string;
+}
+
 class SocketService {
   private socket: Socket | null = null;
-  private messageListeners: ((message: any) => void)[] = [];
+  private messageListeners: ((message: Message) => void)[] = [];
   private connectionListeners: ((isConnected: boolean) => void)[] = [];
   private url: string;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -53,13 +64,13 @@ class SocketService {
       }
     });
 
-    this.socket.on("newMessage", (message: any) => {
+    this.socket.on("newMessage", (message: Message) => {
       console.log("Received newMessage event with data:", message);
       this.notifyMessageListeners(message);
     });
 
     // Listen for join confirmations
-    this.socket.on("joinedChat", (data: { chatId: number; status: string }) => {
+    this.socket.on("joinedChat", (data: ChatJoinData) => {
       console.log(
         `Received confirmation of joining chat ${data.chatId} with status ${data.status}`
       );
@@ -86,16 +97,6 @@ class SocketService {
 
     console.log(`Joining chat room: chat_${chatId}`);
     this.socket.emit("joinChat", chatId);
-
-    // Add a callback to confirm room was joined
-    setTimeout(() => {
-      if (this.socket?.connected) {
-        console.log(
-          `Should now be in room for chat_${chatId}, current rooms:`,
-          this.socket.rooms
-        );
-      }
-    }, 500);
   }
 
   sendMessage(chatId: number, content: string) {
@@ -104,7 +105,7 @@ class SocketService {
       return;
     }
 
-    const message = {
+    const message: Message = {
       type: "message",
       chatId,
       content,
@@ -113,11 +114,11 @@ class SocketService {
     this.socket.emit("message", message);
   }
 
-  addMessageListener(listener: (message: any) => void) {
+  addMessageListener(listener: (message: Message) => void) {
     this.messageListeners.push(listener);
   }
 
-  removeMessageListener(listener: (message: any) => void) {
+  removeMessageListener(listener: (message: Message) => void) {
     this.messageListeners = this.messageListeners.filter((l) => l !== listener);
   }
 
@@ -131,7 +132,7 @@ class SocketService {
     );
   }
 
-  private notifyMessageListeners(message: any) {
+  private notifyMessageListeners(message: Message) {
     this.messageListeners.forEach((listener) => listener(message));
   }
 
@@ -145,6 +146,6 @@ class SocketService {
 }
 
 // Create a singleton instance
-const socketService = new SocketService("http://localhost:3000");
+const socketService = new SocketService(window.location.origin);
 
 export default socketService;

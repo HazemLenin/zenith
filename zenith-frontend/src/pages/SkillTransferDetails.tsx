@@ -49,7 +49,7 @@ const SkillTransferDetailsPage: React.FC = () => {
     if (!id) return;
     setLoading(true);
     axios
-      .get(`http://localhost:3000/api/skill-transfers/transfer-details/${id}`, {
+      .get(`/api/skill-transfers/transfer-details/${id}`, {
         headers: { Authorization: `Bearer ${userToken}` },
       })
       .then((res) => setDetails(res.data))
@@ -66,8 +66,8 @@ const SkillTransferDetailsPage: React.FC = () => {
 
     const actionUrl =
       modal.action === "pay"
-        ? `http://localhost:3000/api/skill-transfers/${id}/pay-session/${modal.sessionId}`
-        : `http://localhost:3000/api/skill-transfers/${id}/complete-session/${modal.sessionId}`;
+        ? `/api/skill-transfers/${id}/pay-session/${modal.sessionId}`
+        : `/api/skill-transfers/${id}/complete-session/${modal.sessionId}`;
 
     const successMessage =
       modal.action === "pay"
@@ -84,10 +84,9 @@ const SkillTransferDetailsPage: React.FC = () => {
       )
       .then(() => {
         showToast(successMessage, "success");
-        return axios.get(
-          `http://localhost:3000/api/skill-transfers/transfer-details/${id}`,
-          { headers: { Authorization: `Bearer ${userToken}` } }
-        );
+        return axios.get(`/api/skill-transfers/transfer-details/${id}`, {
+          headers: { Authorization: `Bearer ${userToken}` },
+        });
       })
       .then((res) => {
         setDetails(res.data);

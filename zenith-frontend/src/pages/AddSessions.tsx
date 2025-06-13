@@ -15,7 +15,7 @@ const AddSessions: React.FC = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
 
-  const [requestData, setRequestData] = useState({
+  const [requestData] = useState({
     id: searchParams.get("id") || "",
     studentName: searchParams.get("studentName") || "",
     skillTitle: searchParams.get("skillTitle") || "",
@@ -65,7 +65,7 @@ const AddSessions: React.FC = () => {
     if (!requestData.id) return;
     try {
       await axios.put(
-        `http://localhost:3000/api/skill-transfers/accept/${requestData.id}`,
+        `/api/skill-transfers/accept/${requestData.id}`,
         sessions,
         {
           headers: {

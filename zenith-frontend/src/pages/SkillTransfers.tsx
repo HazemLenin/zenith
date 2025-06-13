@@ -37,14 +37,11 @@ function SkillTransfers() {
   async function fetchData() {
     setIsLoading(true);
     axios
-      .get(
-        `http://localhost:3000/api/skill-transfers/my-skill-transfers?type=${value}`,
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      )
+      .get(`/api/skill-transfers/my-skill-transfers?type=${value}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      })
       .then((response) => {
         setData(response.data);
       })

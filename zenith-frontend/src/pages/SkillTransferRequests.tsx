@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Button } from "../components";
 import { Card, Modal } from "../components";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { useToast } from "../context/ToastContext";
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -32,7 +32,7 @@ export default function SkillTransferRequests() {
 
   const fetchRequests = () => {
     axios
-      .get(`http://localhost:3000/api/skill-transfers/my-requests`, {
+      .get(`/api/skill-transfers/my-requests`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -51,7 +51,7 @@ export default function SkillTransferRequests() {
     if (!selectedRequest) return;
     try {
       await axios.delete(
-        `http://localhost:3000/api/skill-transfers/reject/${selectedRequest.skillId}`,
+        `/api/skill-transfers/reject/${selectedRequest.skillId}`,
         {
           headers: {
             Authorization: `Bearer ${userToken}`,

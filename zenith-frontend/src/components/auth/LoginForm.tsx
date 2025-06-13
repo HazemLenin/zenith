@@ -42,7 +42,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
       setIsLoading(true);
       try {
         const { data } = await axios.post<{ token: string }>(
-          "http://localhost:3000/api/auth/login",
+          "/api/auth/login",
           values
         );
         localStorage.setItem("userToken", data.token);
@@ -124,6 +124,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
       >
         Sign In
       </Button>
+      <div className="text-center mt-4">
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="text-primary hover:text-primary/80 text-sm"
+        >
+          Don't have an account? Sign up
+        </button>
+      </div>
     </form>
   );
 };

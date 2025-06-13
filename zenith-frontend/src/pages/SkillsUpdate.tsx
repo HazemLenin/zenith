@@ -77,10 +77,10 @@ const SkillsUpdate: React.FC = () => {
     const fetchData = async () => {
       try {
         const [skillsRes, userRes] = await Promise.all([
-          axios.get<Skill[]>("http://localhost:3000/api/skills", {
+          axios.get<Skill[]>("/api/skills", {
             headers: { Authorization: `Bearer ${userToken}` },
           }),
-          axios.get<UserData>(`http://localhost:3000/api/users/${username}`, {
+          axios.get<UserData>(`/api/users/${username}`, {
             headers: { Authorization: `Bearer ${userToken}` },
           }),
         ]);
@@ -221,7 +221,7 @@ const SkillsUpdate: React.FC = () => {
       })),
     };
     await axios.put(
-      `http://localhost:3000/api/skills/students/${userData.profile.id}/skills`,
+      `/api/skills/students/${userData.profile.id}/skills`,
       payload,
       { headers: { Authorization: `Bearer ${userToken}` } }
     );

@@ -1,12 +1,11 @@
-import { AnySQLiteColumn, integer, text } from "drizzle-orm/sqlite-core";
-
-import { sqliteTable } from "drizzle-orm/sqlite-core";
+import { AnyPgColumn, integer, serial } from "drizzle-orm/pg-core";
+import { pgTable } from "drizzle-orm/pg-core";
 import { UserRole, users } from "./user.model";
 import { relations } from "drizzle-orm";
 
-export const instructorProfiles = sqliteTable("instructor_profiles", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  userId: integer("user_id").references((): AnySQLiteColumn => users.id),
+export const instructorProfiles = pgTable("instructor_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references((): AnyPgColumn => users.id),
   coursesCount: integer("courses_count").default(0),
 });
 

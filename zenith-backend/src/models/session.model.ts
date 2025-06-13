@@ -1,16 +1,23 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import {
+  pgTable,
+  text,
+  integer,
+  serial,
+  AnyPgColumn,
+  boolean as pgBoolean,
+} from "drizzle-orm/pg-core";
 import { skillTransfers } from "./skillTransfer.model";
 import { relations } from "drizzle-orm";
 
-export const sessions = sqliteTable("sessions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const sessions = pgTable("sessions", {
+  id: serial("id").primaryKey(),
   skillTransferId: integer("skill_transfer_id")
     .notNull()
-    .references(() => skillTransfers.id),
+    .references((): AnyPgColumn => skillTransfers.id),
   title: text("title").notNull(),
   points: integer("points").notNull(),
-  completed: integer("completed", { mode: "boolean" }).default(false),
-  paid: integer("paid", { mode: "boolean" }).default(false),
+  completed: pgBoolean("completed").default(false),
+  paid: pgBoolean("paid").default(false),
 });
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({

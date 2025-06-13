@@ -1,11 +1,19 @@
 import {
-  sqliteTable,
+  pgTable,
   text,
   integer,
-  AnySQLiteColumn,
-} from "drizzle-orm/sqlite-core";
+  serial,
+  AnyPgColumn,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { instructorProfiles } from "./instructorProfile.model";
+
+export const courseStatusEnum = pgEnum("course_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
 
 export const CourseStatus = {
   PENDING: "pending",
@@ -15,14 +23,14 @@ export const CourseStatus = {
 
 export type CourseStatusType = (typeof CourseStatus)[keyof typeof CourseStatus];
 
-export const courses = sqliteTable("courses", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const courses = pgTable("courses", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   price: integer("price").notNull().default(0),
   instructorId: integer("instructor_id")
     .notNull()
-    .references(() => instructorProfiles.id),
+    .references((): AnyPgColumn => instructorProfiles.id),
 });
 
 export const coursesRelations = relations(courses, ({ one }) => ({

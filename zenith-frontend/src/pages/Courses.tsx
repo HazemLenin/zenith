@@ -60,7 +60,7 @@ const Courses: React.FC = () => {
         setLoading(true);
         setError("");
 
-        const response = await fetch(`http://localhost:3000/api/courses`, {
+        const response = await fetch(`/api/courses`, {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
@@ -88,7 +88,7 @@ const Courses: React.FC = () => {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(`http://localhost:3000/api/courses`, {
+      const response = await fetch(`/api/courses`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -346,7 +346,7 @@ const Courses: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {sortedAndFilteredCourses.map((course) => (
-              <Link to={`/courses/${course.id}`} key={course.id}>
+              <div key={course.id}>
                 <Card className="group h-full bg-white relative overflow-hidden transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-2xl">
                   <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-r from-primary to-primary/80 transform -skew-y-6 origin-top-left group-hover:skew-y-0 transition-transform duration-500" />
                   <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-r from-primary/80 to-primary/60 transform skew-y-6 origin-top-right group-hover:skew-y-0 transition-transform duration-500" />
@@ -358,26 +358,31 @@ const Courses: React.FC = () => {
                   <div className="flex flex-col w-full h-full p-6 relative z-10">
                     <div className="mb-4 mt-12">
                       <div className="flex items-center gap-2 mb-3">
-                        <Link
-                          to={`/users/${course.instructor.username}`}
-                          className="flex -space-x-2 group/instructor hover:scale-105 transition-transform duration-300"
-                        >
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-white group-hover/instructor:border-primary/30 transition-colors">
+                        <div className="flex -space-x-2 group/instructor hover:scale-105 transition-transform duration-300">
+                          <Link
+                            to={`/users/${course.instructor.username}`}
+                            className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-white group-hover/instructor:border-primary/30 transition-colors"
+                          >
                             <span className="text-primary text-sm font-medium">
                               {course.instructor.firstName[0]}
                             </span>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border-2 border-white group-hover/instructor:border-primary/30 transition-colors">
+                          </Link>
+                          <Link
+                            to={`/users/${course.instructor.username}`}
+                            className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border-2 border-white group-hover/instructor:border-primary/30 transition-colors"
+                          >
                             <span className="text-primary text-sm font-medium">
                               {course.instructor.lastName[0]}
                             </span>
-                          </div>
-                        </Link>
+                          </Link>
+                        </div>
                         <span className="text-sm text-gray-600">Teaching</span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">
-                        {course.title}
-                      </h3>
+                      <Link to={`/courses/${course.id}`}>
+                        <h3 className="text-xl font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">
+                          {course.title}
+                        </h3>
+                      </Link>
                     </div>
                     <p className="text-gray-600 mb-6 line-clamp-2 flex-grow">
                       {course.description}
@@ -419,7 +424,7 @@ const Courses: React.FC = () => {
                     </div>
                   </div>
                 </Card>
-              </Link>
+              </div>
             ))}
           </div>
 

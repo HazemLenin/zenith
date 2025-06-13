@@ -116,7 +116,7 @@ const CourseUpload: React.FC = () => {
       })),
     };
     axios
-      .post("http://localhost:3000/api/courses", data, {
+      .post("/api/courses", data, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },

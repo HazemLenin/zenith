@@ -39,10 +39,9 @@ const TeachersSearch: React.FC = () => {
     const fetchSkills = async () => {
       if (!currentUser?.username) return;
       try {
-        const res = await axios.get(
-          `http://localhost:3000/api/users/${currentUser.username}`,
-          { headers: { Authorization: `Bearer ${userToken}` } }
-        );
+        const res = await axios.get(`/api/users/${currentUser.username}`, {
+          headers: { Authorization: `Bearer ${userToken}` },
+        });
         const neededSkills = res.data.profile.skills.filter(
           (s: Skill) => s.type === "needed"
         );
@@ -60,7 +59,7 @@ const TeachersSearch: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.get<TeacherResult[]>(
-        `http://localhost:3000/api/skill-transfers/teachers-search?skillId=${selectedSkill}`,
+        `/api/skill-transfers/teachers-search?skillId=${selectedSkill}`,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
       setSearchResults(res.data);
@@ -83,7 +82,7 @@ const TeachersSearch: React.FC = () => {
     setModalOpen(false);
     try {
       await axios.post(
-        "http://localhost:3000/api/skill-transfers/request",
+        "/api/skill-transfers/request",
         {
           skillId: Number(selectedSkill),
           teacherId: modalTeacher.teacherId,

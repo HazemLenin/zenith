@@ -4,11 +4,7 @@ import axios from "axios";
 import { Card, Spinner } from "../components";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPenToSquare,
-  faMessage,
-  faTrophy,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faMessage } from "@fortawesome/free-solid-svg-icons";
 
 interface Skill {
   id: number;
@@ -59,20 +55,17 @@ const UserProfile: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const res = await axios.get<UserData>(
-          `http://localhost:3000/api/users/${username}`,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
-        );
+        const res = await axios.get<UserData>(`/api/users/${username}`, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
         setData(res.data);
 
         // If user is instructor, fetch their courses
         if (res.data.user.role === "instructor") {
           const coursesRes = await axios.get<Course[]>(
-            `http://localhost:3000/api/courses/instructor/${username}`,
+            `/api/courses/instructor/${username}`,
             {
               headers: {
                 Authorization: `Bearer ${userToken}`,

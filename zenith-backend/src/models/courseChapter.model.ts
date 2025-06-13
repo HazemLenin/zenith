@@ -1,13 +1,19 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import {
+  pgTable,
+  text,
+  integer,
+  serial,
+  AnyPgColumn,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { courses } from "./course.model";
 
-export const courseChapters = sqliteTable("course_chapters", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const courseChapters = pgTable("course_chapters", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   courseId: integer("course_id")
     .notNull()
-    .references(() => courses.id),
+    .references((): AnyPgColumn => courses.id),
   orderIndex: integer("order_index").notNull(),
 });
 

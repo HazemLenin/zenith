@@ -49,7 +49,7 @@ export default function CourseDetails() {
     setIsLoading(true);
     setError("");
     axios
-      .get<Course>(`http://localhost:3000/api/courses/${id}`, {
+      .get<Course>(`/api/courses/${id}`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -74,7 +74,7 @@ export default function CourseDetails() {
     setIsEnrolling(true);
     axios
       .post(
-        `http://localhost:3000/api/courses/enroll`,
+        `/api/courses/enroll`,
         { courseId: parseInt(id) },
         {
           headers: {

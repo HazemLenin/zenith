@@ -153,7 +153,7 @@ const ChatPage = () => {
       try {
         if (!userToken) return;
 
-        const response = await fetch("http://localhost:3000/api/chats", {
+        const response = await fetch("/api/chats", {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
@@ -207,7 +207,7 @@ const ChatPage = () => {
     try {
       if (!userToken) return;
 
-      const response = await fetch("http://localhost:3000/api/chats", {
+      const response = await fetch("/api/chats", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -249,14 +249,11 @@ const ChatPage = () => {
     if (!userToken) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/chats/${chatId}/messages`,
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/chats/${chatId}/messages`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -272,17 +269,14 @@ const ChatPage = () => {
 
     try {
       // Send message to the server but don't update UI directly
-      await fetch(
-        `http://localhost:3000/api/chats/${selectedChat.id}/messages`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-          body: JSON.stringify({ content }),
-        }
-      );
+      await fetch(`/api/chats/${selectedChat.id}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ content }),
+      });
 
       // The message will be received via WebSocket and handled by the messageListener
       // This ensures consistency between sender and receiver UI updates

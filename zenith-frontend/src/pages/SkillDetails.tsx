@@ -44,7 +44,7 @@ export default function SkillDetails() {
     const fetchDetails = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/skill-transfers/transfer-details/${skillTransferId}`,
+          `/api/skill-transfers/transfer-details/${skillTransferId}`,
           {
             headers: {
               Authorization: `Bearer ${userToken}`,
@@ -74,14 +74,14 @@ export default function SkillDetails() {
         : `/skill-transfers/${skillTransferId}/pay-session/${sessionId}`;
     setModal({ ...modal, open: false });
     try {
-      await axios.put(`http://localhost:3000/api${url}`, null, {
+      await axios.put(`/api${url}`, null, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       });
       showToast("Success!", "success");
       const res = await axios.get(
-        `http://localhost:3000/api/skill-transfers/transfer-details/${skillTransferId}`,
+        `/api/skill-transfers/transfer-details/${skillTransferId}`,
         {
           headers: {
             Authorization: `Bearer ${userToken}`,

@@ -1,24 +1,26 @@
 import {
-  sqliteTable,
+  pgTable,
   integer,
   text,
-  AnySQLiteColumn,
-} from "drizzle-orm/sqlite-core";
+  serial,
+  AnyPgColumn,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { chats } from "./chat.model";
 import { users } from "./user.model";
 import { relations, sql } from "drizzle-orm";
 
 // Table for individual messages within a chat
-export const messages = sqliteTable("messages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
   chatId: integer("chat_id")
     .notNull()
-    .references((): AnySQLiteColumn => chats.id),
+    .references((): AnyPgColumn => chats.id),
   senderId: integer("sender_id")
     .notNull()
-    .references((): AnySQLiteColumn => users.id),
+    .references((): AnyPgColumn => users.id),
   content: text("content").notNull(),
-  createdAt: text("created_at")
+  createdAt: timestamp("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
 });

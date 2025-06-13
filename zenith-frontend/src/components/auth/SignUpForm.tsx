@@ -87,7 +87,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
       setIsLoading(true);
       try {
         const { data } = await axios.post<ApiResponse>(
-          "http://localhost:3000/api/auth/signup",
+          "/api/auth/signup",
           values
         );
         try {
@@ -244,6 +244,15 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
       >
         Create Account
       </Button>
+      <div className="text-center mt-4">
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="text-primary hover:text-primary/80 text-sm"
+        >
+          Already have an account? Sign in
+        </button>
+      </div>
     </form>
   );
 };

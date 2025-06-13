@@ -14,9 +14,18 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import { and, eq, or } from "drizzle-orm";
 import { InferInsertModel } from "drizzle-orm";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
+// Log environment variables for debugging
+console.log("Environment:", {
+  NODE_ENV: process.env.NODE_ENV,
+  FRONTEND_URL: process.env.FRONTEND_URL,
+  PORT: process.env.PORT,
+});
+
 declare module "express" {
   interface Request {
     user?: {
@@ -29,17 +38,90 @@ declare module "express" {
     };
   }
 }
+
 // Initialize Express app
 const app = express();
 
+// CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Changed to match your actual frontend URL
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // If you need to support cookies/auth
+    credentials: true,
   })
 );
+
+// Middleware
+app.use(express.json());
+
+// Initialize SQLite database
+const sqlite = new Database("sqlite.db");
+export const db = drizzle(sqlite, { schema });
+
+// Import routes
+import authRoutes from "./routes/auth.routes";
+import usersRoutes from "./routes/users.routes";
+import skillsRoutes from "./routes/skills.routes";
+import chatRoutes from "./routes/chat.routes";
+import coursesRoutes from "./routes/courses.routes";
+import skillTransfersRoutes from "./routes/skillTransfers.routes";
+
+// Use API routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/skills", skillsRoutes);
+app.use("/api/chats", chatRoutes);
+app.use("/api/courses", coursesRoutes);
+app.use("/api/skill-transfers", skillTransfersRoutes);
+
+// Load OpenAPI specification
+const openApiSpec = YAML.load(path.join(__dirname, "../openapi.yaml"));
+
+// Swagger setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
+
+// Development proxy configuration - AFTER API routes
+if (process.env.NODE_ENV === "development") {
+  app.use(
+    "/",
+    createProxyMiddleware({
+      target: "http://localhost:5173",
+      changeOrigin: true,
+      ws: true,
+      // Don't proxy API routes
+      pathRewrite: (path) => {
+        if (path.startsWith("/api")) {
+          return path; // Keep API routes as is
+        }
+        return path;
+      },
+      // Only proxy non-API routes
+      router: (req) => {
+        if (req.url.startsWith("/api")) {
+          return null; // Don't proxy API routes
+        }
+        return "http://localhost:5173";
+      },
+      // Add timeout options
+      proxyTimeout: 30000,
+      timeout: 30000,
+    })
+  );
+} else {
+  // Production: Serve static files from the frontend build
+  const frontendBuildPath = path.join(__dirname, "../../frontend/dist");
+  app.use(express.static(frontendBuildPath));
+
+  // Handle SPA routing - send all non-API requests to index.html
+  app.get("*", (req, res, next) => {
+    if (!req.url.startsWith("/api")) {
+      res.sendFile(path.join(frontendBuildPath, "index.html"));
+    } else {
+      next();
+    }
+  });
+}
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -68,37 +150,6 @@ io.use((socket, next) => {
     next(new Error("Authentication error: Invalid token"));
   }
 });
-
-// Load OpenAPI specification
-const openApiSpec = YAML.load(path.join(__dirname, "../openapi.yaml"));
-
-// Swagger setup
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
-
-const port = 3000;
-
-// Middleware
-app.use(express.json());
-
-// Initialize SQLite database
-const sqlite = new Database("sqlite.db");
-export const db = drizzle(sqlite, { schema });
-
-// Import routes
-import authRoutes from "./routes/auth.routes";
-import usersRoutes from "./routes/users.routes";
-import skillsRoutes from "./routes/skills.routes";
-import chatRoutes from "./routes/chat.routes";
-import coursesRoutes from "./routes/courses.routes";
-import skillTransfersRoutes from "./routes/skillTransfers.routes";
-
-// Use routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", usersRoutes);
-app.use("/api/skills", skillsRoutes);
-app.use("/api/chats", chatRoutes);
-app.use("/api/courses", coursesRoutes);
-app.use("/api/skill-transfers", skillTransfersRoutes);
 
 // Define the types needed for database operations
 type ChatUpdate = Partial<InferInsertModel<typeof chats>>;
@@ -134,6 +185,6 @@ io.on("connection", (socket) => {
 export { io };
 
 // Start server
-httpServer.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+httpServer.listen(process.env.PORT || 4200, () => {
+  console.log(`Server is running on port ${process.env.PORT || 4200}`);
 });

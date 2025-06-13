@@ -16,7 +16,8 @@ interface ToastProps {
   id: string;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, type, onClose, id }) => {
+const Toast: React.FC<ToastProps> = (props) => {
+  const { message, type, onClose } = props;
   const styles = {
     success:
       "bg-white border-l-4 border-emerald-500 text-emerald-700 shadow-lg",
@@ -40,6 +41,13 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, id }) => {
     >
       <FontAwesomeIcon icon={icons[type]} className="text-lg" />
       <p className="font-medium flex-grow">{message}</p>
+      <button
+        onClick={onClose}
+        className="text-gray-400 hover:text-gray-600 focus:outline-none"
+        aria-label="Close toast"
+      >
+        <FontAwesomeIcon icon={faXmark} />
+      </button>
     </motion.div>
   );
 };
