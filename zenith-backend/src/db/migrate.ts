@@ -2,11 +2,12 @@ import { execSync } from "child_process";
 import * as dotenv from "dotenv";
 import path from "path";
 
-// Log database URL for debugging
-console.log("Database URL:", process.env.DATABASE_URL);
-console.log("Node Environment:", process.env.NODE_ENV);
-// Log Android home for debugging
-console.log("Android Home:", process.env.ANDROID_HOME);
+console.log("Environment:", {
+  NODE_ENV: process.env.NODE_ENV,
+  FRONTEND_URL: process.env.FRONTEND_URL,
+  PORT: process.env.PORT,
+  DATABASE_URL: process.env.DATABASE_URL,
+});
 
 const runMigrations = () => {
   console.log("Starting database migration process...");
