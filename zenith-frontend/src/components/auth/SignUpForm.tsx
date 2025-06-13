@@ -7,6 +7,7 @@ import { Input, Switch, Button } from "../";
 import { UserContext } from "../../context/UserContext";
 import { User } from "../../types/chat";
 import { useToast } from "../../context/ToastContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FormValues {
   firstName: string;
@@ -146,9 +147,24 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
     };
 
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+    <motion.form
+      onSubmit={formik.handleSubmit}
+      className="space-y-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring", bounce: 0.2 }}
+    >
+      <motion.div
+        className="grid grid-cols-2 gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <Input
             label="First Name"
             type="text"
@@ -157,13 +173,24 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
             onChangeFun={handleInputChange("firstName")}
             required
           />
-          {formik.touched.firstName && formik.errors.firstName && (
-            <div className="text-danger text-sm mt-1">
-              {formik.errors.firstName}
-            </div>
-          )}
-        </div>
-        <div>
+          <AnimatePresence>
+            {formik.touched.firstName && formik.errors.firstName && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-danger text-sm mt-1"
+              >
+                {formik.errors.firstName}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           <Input
             label="Last Name"
             type="text"
@@ -172,15 +199,26 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
             onChangeFun={handleInputChange("lastName")}
             required
           />
-          {formik.touched.lastName && formik.errors.lastName && (
-            <div className="text-danger text-sm mt-1">
-              {formik.errors.lastName}
-            </div>
-          )}
-        </div>
-      </div>
+          <AnimatePresence>
+            {formik.touched.lastName && formik.errors.lastName && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-danger text-sm mt-1"
+              >
+                {formik.errors.lastName}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </motion.div>
 
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         <Input
           label="Username"
           type="text"
@@ -189,14 +227,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           onChangeFun={handleInputChange("username")}
           required
         />
-        {formik.touched.username && formik.errors.username && (
-          <div className="text-danger text-sm mt-1">
-            {formik.errors.username}
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {formik.touched.username && formik.errors.username && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-danger text-sm mt-1"
+            >
+              {formik.errors.username}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
         <Input
           label="Email"
           type="email"
@@ -205,12 +254,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           onChangeFun={handleInputChange("email")}
           required
         />
-        {formik.touched.email && formik.errors.email && (
-          <div className="text-danger text-sm mt-1">{formik.errors.email}</div>
-        )}
-      </div>
+        <AnimatePresence>
+          {formik.touched.email && formik.errors.email && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-danger text-sm mt-1"
+            >
+              {formik.errors.email}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
         <Input
           label="Password"
           type="password"
@@ -219,32 +281,70 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           onChangeFun={handleInputChange("password")}
           required
         />
-        {formik.touched.password && formik.errors.password && (
-          <div className="text-danger text-sm mt-1">
-            {formik.errors.password}
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {formik.touched.password && formik.errors.password && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-danger text-sm mt-1"
+            >
+              {formik.errors.password}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      <div className="flex items-center justify-start mb-4">
+      <motion.div
+        className="flex items-center justify-start mb-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
         <Switch
           label={selectedRole}
           onChange={handleRoleChange}
           checked={selectedRole === "instructor"}
         />
-      </div>
+      </motion.div>
 
-      <Button
-        type="submit"
-        disabled={isLoading}
-        isLoading={isLoading}
-        ariaLabel={
-          isLoading ? "Submitting form, please wait" : "Sign up for an account"
-        }
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
       >
-        Create Account
-      </Button>
-    </form>
+        <Button
+          type="submit"
+          disabled={isLoading}
+          isLoading={isLoading}
+          ariaLabel={
+            isLoading
+              ? "Submitting form, please wait"
+              : "Sign up for an account"
+          }
+          className="w-full"
+        >
+          Create Account
+        </Button>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.9 }}
+        className="text-center mt-4"
+      >
+        <motion.button
+          type="button"
+          onClick={onSwitch}
+          className="text-primary hover:text-primary/80 transition-colors duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Already have an account? Sign in
+        </motion.button>
+      </motion.div>
+    </motion.form>
   );
 };
 

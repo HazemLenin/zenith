@@ -13,28 +13,38 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   onSwitch,
 }) => {
   return (
-    <div className="flex min-h-screen overflow-hidden">
+    <div className="flex min-h-screen overflow-hidden bg-background-light">
       {/* Left side - Image */}
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <div className="absolute inset-0 bg-primary/20 z-10" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="hidden lg:block lg:w-1/2 relative"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-secondary/40 z-10" />
         <img
           src="/group-studying.jpg"
           alt="Students studying together"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 flex items-center justify-center z-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="absolute inset-0 flex items-center justify-center z-20"
+        >
           <div className="text-white text-center px-8">
-            <h1 className="text-4xl font-bold mb-4">
+            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg">
               {isLogin ? "Welcome Back!" : "Welcome to Learning"}
             </h1>
-            <p className="text-lg">
+            <p className="text-xl text-white/90 drop-shadow-md">
               {isLogin
                 ? "Continue your learning journey with us."
                 : "Join our community of learners and start your educational journey today."}
             </p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Right side - Form */}
       <motion.div
@@ -42,22 +52,32 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         animate={{ x: 0 }}
         exit={{ x: isLogin ? "-100%" : 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="w-full lg:w-1/2 flex items-center justify-center bg-background p-8"
+        className="w-full lg:w-1/2 flex items-center justify-center p-8"
       >
         <div className="w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-secondary-title mb-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <h2 className="text-4xl font-bold text-text-dark mb-3">
               {isLogin ? "Sign In" : "Create Account"}
             </h2>
-            <p className="text-gray-700">
+            <p className="text-text-light text-lg">
               {isLogin
                 ? "Welcome back! Please enter your details."
                 : "Join our learning community today"}
             </p>
-          </div>
+          </motion.div>
 
-          <div className="mb-8">
-            <div className="relative flex items-center h-12 w-full max-w-[450px] rounded-full overflow-hidden bg-gray-200">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <div className="relative flex items-center h-14 w-full max-w-[450px] rounded-full overflow-hidden bg-gray-100 shadow-soft">
               <input
                 id="option1"
                 name="options"
@@ -68,7 +88,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
               />
               <label
                 htmlFor="option1"
-                className="option flex-1 text-center cursor-pointer rounded-full z-10 transition-all duration-500 font-medium text-lg peer-checked/option1:text-white peer-checked/option1:font-bold peer-not-checked/option1:text-gray-700"
+                className="option flex-1 text-center cursor-pointer rounded-full z-10 transition-all duration-300 font-medium text-lg peer-checked/option1:text-white peer-checked/option1:font-semibold peer-not-checked/option1:text-text-light hover:text-text-dark"
               >
                 SIGN UP
               </label>
@@ -82,13 +102,13 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
               />
               <label
                 htmlFor="option2"
-                className="option flex-1 text-center cursor-pointer rounded-full z-10 transition-all duration-500 font-medium text-lg peer-checked/option2:text-white peer-checked/option2:font-bold peer-not-checked/option2:text-gray-700"
+                className="option flex-1 text-center cursor-pointer rounded-full z-10 transition-all duration-300 font-medium text-lg peer-checked/option2:text-white peer-checked/option2:font-semibold peer-not-checked/option2:text-text-light hover:text-text-dark"
               >
                 LOGIN
               </label>
               <motion.span
                 layout
-                className="background absolute w-[49%] h-[44px] top-1 rounded-full bg-primary"
+                className="background absolute w-[49%] h-[52px] top-1 rounded-full bg-gradient-to-r from-primary to-primary-active shadow-hover"
                 initial={false}
                 animate={{
                   left: isLogin ? "1%" : "50%",
@@ -96,7 +116,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             </div>
-          </div>
+          </motion.div>
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -104,7 +124,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl p-8 shadow-soft"
             >
               {children}
             </motion.div>

@@ -1,11 +1,37 @@
 interface CardProps {
   children: React.ReactNode;
-  fun?:(event: React.MouseEvent<HTMLDivElement>) => void;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  variant?: "default" | "primary" | "secondary" | "accent";
+  className?: string;
+  interactive?: boolean;
 }
 
-const Card = ({ children, fun }: CardProps) => {
+const Card = ({
+  children,
+  onClick,
+  variant = "default",
+  className = "",
+  interactive = true,
+}: CardProps) => {
+  const baseStyles =
+    "flex items-center justify-between w-full mb-4 bg-white rounded-xl shadow-soft transition-all duration-300 p-6";
+
+  const variantStyles = {
+    default: "border-l-4 border-primary",
+    primary: "border-l-4 border-primary bg-primary-light",
+    secondary: "border-l-4 border-secondary bg-secondary-light",
+    accent: "border-l-4 border-accent-purple bg-accent-purple/5",
+  };
+
+  const interactiveStyles = interactive
+    ? "hover:shadow-hover hover:-translate-y-1 cursor-pointer active:translate-y-0"
+    : "";
+
   return (
-    <div onClick={fun} className="flex items-center justify-between w-full mb-1 cursor-pointer bg-white border-l-4 border-[#2a5c8a] rounded-md shadow-md hover:shadow-lg transition-all duration-300 p-4">
+    <div
+      onClick={onClick}
+      className={`${baseStyles} ${variantStyles[variant]} ${interactiveStyles} ${className}`}
+    >
       {children}
     </div>
   );

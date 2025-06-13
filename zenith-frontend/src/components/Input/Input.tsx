@@ -1,4 +1,5 @@
 import { ReactNode, ChangeEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface InputProps {
   label?: string;
@@ -10,6 +11,9 @@ interface InputProps {
   required?: boolean;
   min?: number;
   max?: number;
+  error?: string;
+  className?: string;
+  disabled?: boolean;
 }
 
 export default function Input({
@@ -22,25 +26,71 @@ export default function Input({
   required,
   min,
   max,
+  error,
+  className = "",
+  disabled = false,
 }: InputProps) {
   return (
-    <>
-      <label className="block text-xl mb-2 font-medium text-[#2f327d]">
-        {label}
-      </label>
-      {icon}
-      <input
-        type={type}
-        className="w-full px-4 py-2 rounded-lg border border-[#2a5c8a] 
-        bg-[#ffffff] placeholder:text-[#94adc4] focus:outline-none 
-        focus:ring-2 focus:ring-[#2a5c8a] disabled:bg-[#94adc4]"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChangeFun}
-        required={required}
-        min={min}
-        max={max}
-      />
-    </>
+    <div className="w-full">
+      <AnimatePresence>
+        {label && (
+          <motion.label
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="block text-lg mb-2 font-semibold text-text-dark"
+          >
+            {label}
+            {required && <span className="text-danger ml-1">*</span>}
+          </motion.label>
+        )}
+      </AnimatePresence>
+      <div className="relative">
+        {icon && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-light"
+          >
+            {icon}
+          </motion.div>
+        )}
+        <motion.input
+          type={type}
+          className={`w-full px-4 py-3 rounded-xl border transition-all duration-300
+            ${
+              error
+                ? "border-danger focus:ring-danger/50"
+                : "border-primary/30 focus:ring-primary/50"
+            }
+            ${icon ? "pl-10" : ""}
+            bg-white placeholder:text-text-light/60
+            focus:outline-none focus:ring-2 focus:border-transparent
+            disabled:bg-background-light disabled:cursor-not-allowed
+            ${className}`}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChangeFun}
+          required={required}
+          min={min}
+          max={max}
+          disabled={disabled}
+          whileFocus={{ scale: 1.01 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        />
+      </div>
+      <AnimatePresence>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mt-1 text-sm text-danger"
+          >
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

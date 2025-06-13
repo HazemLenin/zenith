@@ -11,6 +11,7 @@ import {
   faGithub,
   faDiscord,
 } from "@fortawesome/free-brands-svg-icons";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
@@ -21,129 +22,173 @@ const Footer = () => {
             <div className="w-full md:w-auto mb-8 md:mb-0">
               <ul className="space-y-6 md:space-y-8">
                 <li>
-                  <div className="flex items-center justify-center md:justify-start">
+                  <motion.div
+                    className="flex items-center justify-center md:justify-start"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <FontAwesomeIcon
                       icon={faStar}
-                      className="fa-xl text-white pe-2"
+                      className="fa-xl text-accent-purple pe-2"
                     />
-                    <h3 className="text-white text-sm md:text-xl py-1 px-2 md:py-2 md:px-3 rounded">
+                    <h3 className="text-white text-sm md:text-xl py-1 px-2 md:py-2 md:px-3 rounded bg-accent-purple/10 shadow-md">
                       Points System
                     </h3>
-                  </div>
+                  </motion.div>
                 </li>
                 <li>
-                  <div className="flex items-center justify-center md:justify-start">
+                  <motion.div
+                    className="flex items-center justify-center md:justify-start"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <FontAwesomeIcon
                       icon={faHeadphonesSimple}
-                      className="fa-xl text-white pe-2"
+                      className="fa-xl text-primary pe-2"
                     />
-                    <h3 className="text-white text-sm md:text-xl py-1 px-2 md:py-2 md:px-3 rounded">
+                    <h3 className="text-white text-sm md:text-xl py-1 px-2 md:py-2 md:px-3 rounded bg-primary/10 shadow-md">
                       SUPPORTED 24 X 7
                     </h3>
-                  </div>
+                  </motion.div>
                 </li>
                 <li>
-                  <div className="flex items-center justify-center md:justify-start">
+                  <motion.div
+                    className="flex items-center justify-center md:justify-start"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <FontAwesomeIcon
                       icon={faPiggyBank}
-                      className="fa-xl text-white pe-2"
+                      className="fa-xl text-secondary pe-2"
                     />
-                    <h3 className="text-white text-sm md:text-xl py-1 px-2 md:py-2 md:px-3 rounded">
+                    <h3 className="text-white text-sm md:text-xl py-1 px-2 md:py-2 md:px-3 rounded bg-secondary/10 shadow-md">
                       SAVE YOUR MONEY
                     </h3>
-                  </div>
+                  </motion.div>
                 </li>
               </ul>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full md:w-auto">
               <div className="text-center md:text-left">
-                <h2 className="mb-4 md:mb-6 text-lg md:text-xl font-semibold text-gray-900 uppercase">
+                <h2 className="mb-4 md:mb-6 text-lg md:text-xl font-semibold text-white uppercase">
                   TABS
                 </h2>
-                <ul className="text-gray-500 text-gray-400 font-medium text-base md:text-lg space-y-2 md:space-y-4">
+                <ul className="text-gray-300 font-medium text-base md:text-lg space-y-2 md:space-y-4">
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       Profile
-                    </a>
+                    </motion.a>
                   </li>
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       Home
-                    </a>
+                    </motion.a>
                   </li>
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       Courses
-                    </a>
+                    </motion.a>
                   </li>
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       Community
-                    </a>
+                    </motion.a>
                   </li>
                 </ul>
               </div>
               <div className="text-center md:text-left">
-                <h2 className="mb-4 md:mb-6 text-lg md:text-xl font-semibold text-gray-900 uppercase">
+                <h2 className="mb-4 md:mb-6 text-lg md:text-xl font-semibold text-white uppercase">
                   Your Courses
                 </h2>
-                <ul className="text-gray-500 text-gray-400 font-medium text-base md:text-lg space-y-2 md:space-y-4">
+                <ul className="text-gray-300 font-medium text-base md:text-lg space-y-2 md:space-y-4">
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       C++
-                    </a>
+                    </motion.a>
                   </li>
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       JS
-                    </a>
+                    </motion.a>
                   </li>
                   <li>
-                    <a href="" className="hover:underline">
+                    <motion.a
+                      href=""
+                      className="hover:text-accent-purple transition-all duration-200"
+                      whileHover={{ x: 5 }}
+                    >
                       NEXT
-                    </a>
+                    </motion.a>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
 
-          <hr className="my-6 border-gray-200 sm:mx-auto lg:my-8" />
+          <hr className="my-6 border-gray-700 sm:mx-auto lg:my-8" />
 
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            <span className="text-sm text-gray-500 text-center md:text-left text-gray-400">
+            <span className="text-sm text-gray-300 text-center md:text-left">
               © 2023 Zenith . All Rights Reserved.
             </span>
             <div className="flex justify-center space-x-4">
-              <a
+              <motion.a
                 href="#"
-                className="text-gray-500 hover:text-gray-900 hover:text-white"
+                className="text-gray-300 hover:text-accent-purple transition-all duration-200"
+                whileHover={{ scale: 1.2, rotate: 5 }}
               >
                 <FontAwesomeIcon icon={faFacebookF} className="fa-lg" />
                 <span className="sr-only">Facebook</span>
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="#"
-                className="text-gray-500 hover:text-gray-900 hover:text-white"
+                className="text-gray-300 hover:text-accent-purple transition-all duration-200"
+                whileHover={{ scale: 1.2, rotate: 5 }}
               >
                 <FontAwesomeIcon icon={faTwitter} className="fa-lg" />
                 <span className="sr-only">Twitter</span>
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="#"
-                className="text-gray-500 hover:text-gray-900 hover:text-white"
+                className="text-gray-300 hover:text-accent-purple transition-all duration-200"
+                whileHover={{ scale: 1.2, rotate: 5 }}
               >
                 <FontAwesomeIcon icon={faGithub} className="fa-lg" />
                 <span className="sr-only">GitHub</span>
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="#"
-                className="text-gray-500 hover:text-gray-900 hover:text-white"
+                className="text-gray-300 hover:text-accent-purple transition-all duration-200"
+                whileHover={{ scale: 1.2, rotate: 5 }}
               >
                 <FontAwesomeIcon icon={faDiscord} className="fa-lg" />
                 <span className="sr-only">Discord</span>
-              </a>
+              </motion.a>
             </div>
           </div>
         </div>

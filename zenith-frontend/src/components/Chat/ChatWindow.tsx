@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useContext } from "react";
 import { ChatWithUser, Message } from "../../types/chat";
 import { UserContext } from "../../context/UserContext";
 import socketService from "../../services/socketService";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatWindowProps {
   chat: ChatWithUser | null;
@@ -41,7 +42,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   // Listen for new messages via socket
   useEffect(() => {
-    const messageListener = (message: any) => {
+    const messageListener = (message: Message) => {
       // Only add messages for the current chat
       if (chat && message.chatId === chat.id) {
         console.log("Received message via socket:", message);
@@ -75,23 +76,31 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   if (!chat) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex-1 flex items-center justify-center bg-gray-50"
+      >
         <p className="text-gray-500">Select a chat to start messaging</p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col bg-white shadow-soft">
       {/* Chat header */}
-      <div className="p-4 bg-gray-100 border-b border-gray-300">
+      <div className="p-4 bg-primary/10 border-b border-gray-300">
         <div className="flex items-center">
-          <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-3">
+          <motion.div
+            className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-3 shadow-md"
+            whileHover={{ rotate: 5, scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
             {chat.user.firstName.charAt(0)}
             {chat.user.lastName.charAt(0)}
-          </div>
+          </motion.div>
           <div>
-            <h3 className="font-medium">
+            <h3 className="font-semibold text-gray-800">
               {chat.user.firstName} {chat.user.lastName}
             </h3>
           </div>
@@ -103,43 +112,54 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         className="flex-1 overflow-y-auto p-4 bg-gray-50"
         ref={messageContainerRef}
       >
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 mt-4">
-            No messages yet. Start the conversation!
-          </div>
-        ) : (
-          // Sort messages by createdAt timestamp (oldest first)
-          [...messages]
-            .sort(
-              (a, b) =>
-                new Date(a.createdAt).getTime() -
-                new Date(b.createdAt).getTime()
-            )
-            .map((message) => (
-              <div
-                key={message.id}
-                className={`max-w-[70%] mb-2 p-3 rounded-lg ${
-                  message.senderId === currentUserId
-                    ? "ml-auto bg-primary text-white rounded-br-none"
-                    : "bg-white border border-gray-200 rounded-bl-none"
-                }`}
-              >
-                <p>{message.content}</p>
-                <div
-                  className={`text-xs mt-1 ${
+        <AnimatePresence>
+          {messages.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center text-gray-500 mt-4"
+            >
+              No messages yet. Start the conversation!
+            </motion.div>
+          ) : (
+            // Sort messages by createdAt timestamp (oldest first)
+            [...messages]
+              .sort(
+                (a, b) =>
+                  new Date(a.createdAt).getTime() -
+                  new Date(b.createdAt).getTime()
+              )
+              .map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`max-w-[70%] mb-2 p-3 rounded-lg shadow-sm ${
                     message.senderId === currentUserId
-                      ? "text-gray-200"
-                      : "text-gray-500"
+                      ? "ml-auto bg-primary text-white rounded-br-none"
+                      : "bg-white border border-gray-200 rounded-bl-none"
                   }`}
                 >
-                  {new Date(message.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </div>
-            ))
-        )}
+                  <p>{message.content}</p>
+                  <div
+                    className={`text-xs mt-1 ${
+                      message.senderId === currentUserId
+                        ? "text-gray-200"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {new Date(message.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </motion.div>
+              ))
+          )}
+        </AnimatePresence>
         <div ref={messagesEndRef} />
       </div>
 
@@ -155,12 +175,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           placeholder="Type a message..."
           className="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <button
+        <motion.button
           type="submit"
           className="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-primary-dark"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Send
-        </button>
+        </motion.button>
       </form>
     </div>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 interface SwitchProps {
   checked: boolean;
@@ -22,18 +23,29 @@ export const Switch: React.FC<SwitchProps> = ({
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
         />
-        <div
+        <motion.div
           className={`block w-14 h-8 rounded-full transition-colors duration-200 ease-in-out ${
             checked ? "bg-primary" : "bg-gray-300"
           }`}
-        ></div>
-        <div
-          className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 ease-in-out ${
-            checked ? "transform translate-x-6" : ""
-          }`}
-        ></div>
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <motion.div
+            className="absolute left-1 top-1 bg-white w-6 h-6 rounded-full shadow-md"
+            animate={{ x: checked ? 24 : 0 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          />
+        </motion.div>
       </div>
-      {label && <span className="ml-3 text-gray-700">{label}</span>}
+      {label && (
+        <motion.span
+          className="ml-3 text-gray-700 font-medium"
+          whileHover={{ x: 5 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
+          {label}
+        </motion.span>
+      )}
     </label>
   );
 };

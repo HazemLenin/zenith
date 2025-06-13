@@ -7,6 +7,7 @@ import { Input, Button } from "../";
 import { UserContext } from "../../context/UserContext";
 import { User } from "../../types/chat";
 import { useToast } from "../../context/ToastContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FormValues {
   email: string;
@@ -83,8 +84,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
     };
 
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-4">
-      <div>
+    <motion.form
+      onSubmit={formik.handleSubmit}
+      className="space-y-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring", bounce: 0.2 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <Input
           label="Email"
           type="email"
@@ -93,12 +104,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
           onChangeFun={handleInputChange("email")}
           required
         />
-        {formik.touched.email && formik.errors.email && (
-          <div className="text-danger text-sm mt-1">{formik.errors.email}</div>
-        )}
-      </div>
+        <AnimatePresence>
+          {formik.touched.email && formik.errors.email && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-danger text-sm mt-1"
+            >
+              {formik.errors.email}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      <div>
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         <Input
           label="Password"
           type="password"
@@ -107,24 +131,55 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
           onChangeFun={handleInputChange("password")}
           required
         />
-        {formik.touched.password && formik.errors.password && (
-          <div className="text-danger text-sm mt-1">
-            {formik.errors.password}
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {formik.touched.password && formik.errors.password && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-danger text-sm mt-1"
+            >
+              {formik.errors.password}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      <Button
-        type="submit"
-        disabled={isLoading}
-        isLoading={isLoading}
-        ariaLabel={
-          isLoading ? "Signing in, please wait" : "Sign in to your account"
-        }
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
       >
-        Sign In
-      </Button>
-    </form>
+        <Button
+          type="submit"
+          disabled={isLoading}
+          isLoading={isLoading}
+          ariaLabel={
+            isLoading ? "Signing in, please wait" : "Sign in to your account"
+          }
+          className="w-full"
+        >
+          Sign In
+        </Button>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="text-center mt-4"
+      >
+        <motion.button
+          type="button"
+          onClick={onSwitch}
+          className="text-primary hover:text-primary/80 transition-colors duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Don't have an account? Sign up
+        </motion.button>
+      </motion.div>
+    </motion.form>
   );
 };
 
