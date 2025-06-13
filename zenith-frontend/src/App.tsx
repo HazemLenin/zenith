@@ -3,7 +3,6 @@ import {
   Home,
   NotFound,
   Chat,
-  SkillDetails,
   UserProfile,
   ChapterDetails,
   Search,
@@ -34,20 +33,11 @@ function App() {
         { path: "signup", element: <AuthPage /> },
         { path: "unauthorized", element: <Unauthorized /> },
         {
-          path: "skill-transfers/:id",
-          element: (
-            <ProtectedRoute
-              allowedRoles={["student", "teacher"]}
-              children={<SkillTransferDetails />}
-            />
-          ),
-        },
-        {
           path: "skill-transfers/:skillTransferId",
           element: (
             <ProtectedRoute
               allowedRoles={["student", "teacher"]}
-              children={<SkillDetails />}
+              children={<SkillTransferDetails />}
             />
           ),
         },

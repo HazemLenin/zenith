@@ -23,6 +23,6 @@
     "db:reset": "cd zenith-backend && npm run reset"
   },
   "engines": {
-    "node": ">=23.0.0"
+    "node": "23.0.0"
   }
 }
