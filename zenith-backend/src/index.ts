@@ -130,7 +130,6 @@ const io = new Server(httpServer, {
     methods: ["GET", "POST"],
   },
 });
-
 // WebSocket authentication middleware
 io.use((socket, next) => {
   try {
