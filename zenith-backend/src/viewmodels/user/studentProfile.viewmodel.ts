@@ -1,10 +1,10 @@
-import { StudentSkillTypeEnum } from "../../models/studentSkill.model";
+import { StudentSkillTypeType } from "../../models/studentSkill.model";
 import { BaseProfileResponse } from "./userProfile.viewmodel";
 
 export interface StudentSkill {
   id: number;
   title: string;
-  type: StudentSkillTypeEnum;
+  type: StudentSkillTypeType;
   description?: string;
   points?: number;
 }
