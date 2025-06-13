@@ -3,16 +3,13 @@ import * as dotenv from "dotenv";
 import path from "path";
 
 // Load environment variables
-dotenv.config({
-  path:
-    process.env.NODE_ENV === "production"
-      ? undefined
-      : path.join(__dirname, "../../.env"),
-});
+dotenv.config();
 
 // Log database URL for debugging
 console.log("Database URL:", process.env.DATABASE_URL);
 console.log("Node Environment:", process.env.NODE_ENV);
+// Log Android home for debugging
+console.log("Android Home:", process.env.ANDROID_HOME);
 
 const runMigrations = () => {
   console.log("Starting database migration process...");

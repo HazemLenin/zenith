@@ -3,12 +3,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 
 // Load environment variables
-dotenv.config({
-  path:
-    process.env.NODE_ENV === "production"
-      ? undefined
-      : path.join(__dirname, "./.env"),
-});
+dotenv.config();
 
 export default defineConfig({
   schema: "./src/models",
