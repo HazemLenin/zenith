@@ -2,7 +2,6 @@
 export { default as Home } from "./Home";
 export { default as NotFound } from "./NotFound";
 export { default as Chat } from "./Chat";
-export { default as SkillDetails } from "./SkillDetails";
 export { default as UserProfile } from "./UserProfile";
 export { default as ChapterDetails } from "./ChapterDetails";
 export { default as Search } from "./Search";
