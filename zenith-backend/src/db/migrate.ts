@@ -10,6 +10,9 @@ dotenv.config({
       : path.join(__dirname, "../.env"),
 });
 
+// Log database URL for debugging
+console.log("Database URL:", process.env.DATABASE_URL);
+
 const runMigrations = () => {
   console.log("Starting database migration process...");
 
