@@ -22,6 +22,7 @@ export { Alert } from "./Alert";
 export { default as Modal } from "./Modal/Modal";
 export { default as Toast } from "./Toast/Toast";
 export { default as Table } from "./Table/Tablel";
+export { SplashScreen } from "./SplashScreen";
 
 // Auth components
 export { default as ProtectedRoute } from "./ProtectedRoute";

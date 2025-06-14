@@ -17,12 +17,15 @@ import {
   Unauthorized,
   SkillTransferDetails,
 } from "./pages";
-import { Layout, ProtectedRoute } from "./components";
+import { Layout, ProtectedRoute, SplashScreen } from "./components";
 import AuthPage from "./pages/AuthPage";
 import "./App.css";
 import { ToastProvider } from "./context/ToastContext";
+import { useState } from "react";
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   const router = createBrowserRouter([
     {
       path: "",
@@ -118,7 +121,11 @@ function App() {
 
   return (
     <ToastProvider>
-      <RouterProvider router={router} />
+      {showSplash ? (
+        <SplashScreen onComplete={() => setShowSplash(false)} />
+      ) : (
+        <RouterProvider router={router} />
+      )}
     </ToastProvider>
   );
 }

@@ -32,6 +32,7 @@ type SkillTransfer = InferModel<typeof skillTransfers>;
 type Session = InferModel<typeof sessions>;
 
 // Create PostgreSQL database connection
+dotenv.config();
 const pool = new Pool({
   connectionString:
     process.env.DATABASE_URL ||
@@ -256,7 +257,7 @@ async function seed() {
           title: "Web Development Fundamentals",
           description: "Learn the basics of web development",
           instructorId: instructorProfile.id,
-          price: 49.99,
+          price: 49,
         })
         .returning();
     }
