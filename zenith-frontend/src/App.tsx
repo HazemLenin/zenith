@@ -33,7 +33,7 @@ function App() {
         { path: "signup", element: <AuthPage /> },
         { path: "unauthorized", element: <Unauthorized /> },
         {
-          path: "skill-transfers/:skillTransferId",
+          path: "skill-transfers/:id",
           element: (
             <ProtectedRoute
               allowedRoles={["student", "teacher"]}

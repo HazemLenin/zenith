@@ -184,16 +184,16 @@ export default function Navbar(): React.ReactElement {
             transition={{ duration: 0.2 }}
             className="md:hidden"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg rounded-b-lg">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background shadow-lg rounded-b-lg">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
                   className={({ isActive }) =>
-                    `block px-3 py-2 rounded-md text-base font-medium ${
+                    `block px-3 py-2 rounded-md text-base font-medium text-black ${
                       isActive
-                        ? "text-white bg-primary/20"
-                        : "text-white hover:text-gray-200 hover:bg-gray-700"
+                        ? "bg-primary/20"
+                        : "hover:text-gray-200 hover:bg-gray-700"
                     }`
                   }
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -205,7 +205,7 @@ export default function Navbar(): React.ReactElement {
                 <>
                   <NavLink
                     to={`/users/${currentUser?.username}`}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-200 hover:bg-gray-700"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-black hover:text-gray-200 hover:bg-gray-700"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
@@ -219,7 +219,7 @@ export default function Navbar(): React.ReactElement {
                       LogOut();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-200 hover:bg-gray-700"
+                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-black hover:text-gray-200 hover:bg-gray-700"
                   >
                     Log out
                   </button>
