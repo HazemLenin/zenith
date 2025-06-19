@@ -463,6 +463,55 @@ async function seed() {
       }
     }
 
+    // Add teacher student skills (all skills learned)
+    const teacherStudentSkillsData = [
+      {
+        studentId: teacherStudentProfile.id,
+        skillId: programmingSkill.id,
+        type: StudentSkillType.LEARNED,
+        points: 85,
+      },
+      {
+        studentId: teacherStudentProfile.id,
+        skillId: designSkill.id,
+        type: StudentSkillType.LEARNED,
+        points: 75,
+      },
+      {
+        studentId: teacherStudentProfile.id,
+        skillId: webDevSkill.id,
+        type: StudentSkillType.LEARNED,
+        points: 90,
+      },
+      {
+        studentId: teacherStudentProfile.id,
+        skillId: aiSkill.id,
+        type: StudentSkillType.LEARNED,
+        points: 80,
+      },
+      {
+        studentId: teacherStudentProfile.id,
+        skillId: dataScienceSkill.id,
+        type: StudentSkillType.LEARNED,
+        points: 70,
+      },
+    ];
+
+    for (const skill of teacherStudentSkillsData) {
+      const skillExists = await db
+        .select()
+        .from(studentSkills)
+        .where(
+          and(
+            eq(studentSkills.studentId, skill.studentId),
+            eq(studentSkills.skillId, skill.skillId)
+          )
+        );
+      if (skillExists.length === 0) {
+        await db.insert(studentSkills).values(skill);
+      }
+    }
+
     // --- CHAT ---
     let [chat] = await db
       .select()
