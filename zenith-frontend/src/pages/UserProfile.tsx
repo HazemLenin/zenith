@@ -139,7 +139,6 @@ const UserProfile: React.FC = () => {
 
         {isInstructor && (
           <div className="bg-white border border-gray-200 shadow-sm rounded-xl px-8 py-5 flex flex-col items-center justify-center min-w-[140px]">
-            <img src="/points.png" alt="Courses" className="w-10 h-10 mb-2" />
             <p className="uppercase tracking-wider text-xs font-bold text-gray-500">
               Courses Count
             </p>
