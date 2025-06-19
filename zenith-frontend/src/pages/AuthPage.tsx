@@ -110,6 +110,13 @@ const AuthPage: React.FC = () => {
       {/* Mobile: no animation, always left-aligned */}
       <div className="lg:hidden w-full h-full absolute top-0 flex items-center justify-center p-8 bg-white left-0">
         <div className="w-full max-w-md relative z-10 mt-16">
+          <div className="flex justify-center mb-6">
+            <img
+              src="/zenith-logo.svg"
+              alt="Zenith Logo"
+              className="w-1/2 h-auto"
+            />
+          </div>
           <AuthSwitch isLogin={isLogin} />
           <FormContent isLogin={isLogin} onSwitch={handleSwitch} />
         </div>

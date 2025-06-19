@@ -17,6 +17,34 @@ interface LoginFormProps {
   onSwitch: () => void;
 }
 
+// Test users for easy login testing
+const TEST_USERS = [
+  {
+    name: "Admin",
+    email: "admin@zenith.com",
+    password: "admin123",
+    role: "System administrator",
+  },
+  {
+    name: "Instructor",
+    email: "instructor@zenith.com",
+    password: "instructor123",
+    role: "Course instructor",
+  },
+  {
+    name: "Student",
+    email: "student@zenith.com",
+    password: "student123",
+    role: "Learning student",
+  },
+  {
+    name: "Student (Teacher)",
+    email: "teacher.student@zenith.com",
+    password: "teacher123",
+    role: "Student who can teach others",
+  },
+];
+
 const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const navigate = useNavigate();
@@ -82,8 +110,32 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
       formik.setFieldValue(field, e.target.value);
     };
 
+  const handleQuickLogin = (user: (typeof TEST_USERS)[0]) => {
+    formik.setFieldValue("email", user.email);
+    formik.setFieldValue("password", user.password);
+    showToast(`Filled in ${user.name} credentials`, "info");
+  };
+
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4">
+      {/* Quick Login Buttons for Testing */}
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 mb-2">Quick Login (Testing):</p>
+        <div className="flex flex-wrap gap-2">
+          {TEST_USERS.map((user) => (
+            <button
+              key={user.email}
+              type="button"
+              onClick={() => handleQuickLogin(user)}
+              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md transition-colors"
+              title={`${user.name} - ${user.role}`}
+            >
+              {user.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div>
         <Input
           label="Email"

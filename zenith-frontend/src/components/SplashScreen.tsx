@@ -25,7 +25,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       <img
         src="/zenith-logo.svg"
         alt="Zenith Logo"
-        className="w-40 h-40 animate-pulse"
+        className="w-40 h-auto animate-pulse"
       />
     </div>
   );
