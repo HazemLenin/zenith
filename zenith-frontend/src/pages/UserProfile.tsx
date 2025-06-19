@@ -127,11 +127,7 @@ const UserProfile: React.FC = () => {
 
         {isStudent && (
           <div className="bg-white border border-gray-200 shadow-sm rounded-xl px-8 py-5 flex flex-col items-center justify-center min-w-[140px]">
-            <img
-              src="/public/points.png"
-              alt="Points"
-              className="w-10 h-10 mb-2"
-            />
+            <img src="/points.png" alt="Points" className="w-10 h-10 mb-2" />
             <p className="uppercase tracking-wider text-xs font-bold text-gray-500">
               Points
             </p>
@@ -143,11 +139,7 @@ const UserProfile: React.FC = () => {
 
         {isInstructor && (
           <div className="bg-white border border-gray-200 shadow-sm rounded-xl px-8 py-5 flex flex-col items-center justify-center min-w-[140px]">
-            <img
-              src="/public/points.png"
-              alt="Courses"
-              className="w-10 h-10 mb-2"
-            />
+            <img src="/points.png" alt="Courses" className="w-10 h-10 mb-2" />
             <p className="uppercase tracking-wider text-xs font-bold text-gray-500">
               Courses Count
             </p>
@@ -226,7 +218,7 @@ const UserProfile: React.FC = () => {
                               {skill.points}
                               <img
                                 className="w-8 h-8 ml-1.5"
-                                src="/public/points.png"
+                                src="/points.png"
                               />
                             </span>
                           )}
